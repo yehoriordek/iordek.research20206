@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета пацієнта</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .print-mode-toggle {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-mode-toggle input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: #229954;
+        }
+
+        .btn-reset {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #7f8c8d;
+        }
+
+        .success-message {
+            display: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+
+        /* Режим друку */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .print-mode-toggle,
+            .button-group,
+            .success-message {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px 0;
+            }
+
+            input[type="text"],
+            select {
+                border: none;
+                border-bottom: 1px solid #000;
+                padding: 8px 0;
+                margin-bottom: 20px;
+            }
+
+            input[type="text"]:focus,
+            select:focus {
+                box-shadow: none;
+                border-bottom: 1px dashed #000;
+            }
+
+            label {
+                font-size: 12px;
+            }
+        }
+
+        /* Режим друку - визуальна імітація */
+        body.print-layout .container {
+            background-color: #fff;
+            box-shadow: none;
+            padding: 20px;
+        }
+
+        body.print-layout input[type="text"],
+        body.print-layout select {
+            border: none;
+            border-bottom: 2px solid #000;
+            padding: 8px 0;
+            background-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        body.print-layout input[type="text"]:focus,
+        body.print-layout select:focus {
+            box-shadow: none;
+            border-bottom-style: dashed;
+        }
+
+        body.print-layout .button-group {
+            display: none;
+        }
+
+        body.print-layout .print-mode-toggle {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-mode-toggle">
+        <label>
+            <input type="checkbox" id="printModeToggle">
+            Режим друку
+        </label>
+    </div>
+
+    <div class="container">
+        <h1>Анкета пацієнта</h1>
+
+        <div class="success-message" id="successMessage">
+            ✓ Дані успішно збережені!
+        </div>
+
+        <form id="patientForm">
+            <div class="form-group">
+                <label for="patientNickname">
+                    Кодовий нікнейм пацієнта
+                    <span class="required">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="patientNickname"
+                    name="patient_nickname"
+                    placeholder="Напр., P001 або RES-002"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="patientGender">
+                    Стать пацієнта
+                    <span class="required">*</span>
+                </label>
+                <select id="patientGender" name="patient_gender" required>
+                    <option value="">-- Виберіть --</option>
+                    <option value="M">Чоловіча</option>
+                    <option value="F">Жіноча</option>
+                    <option value="O">Інша</option>
+                    <option value="NA">Не вказано</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Зберегти</button>
+                <button type="reset" class="btn-reset">Очистити</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const printModeToggle = document.getElementById('printModeToggle');
+        const form = document.getElementById('patientForm');
+        const successMessage = document.getElementById('successMessage');
+
+        // Режим друку
+        printModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('print-layout');
+                window.print();
+            } else {
+                document.body.classList.remove('print-layout');
+            }
+        });
+
+        // Обробка відправки форми
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                patient_nickname: document.getElementById('patientNickname').value,
+                patient_gender: document.getElementById('patientGender').value,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('Дані форми:', formData);
+
+            // Показати повідомлення про успіх
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+
+            // Тут буде інтеграція з Airtable через MCP
+            // На даному етапі дані логуються в консоль
+        });
+
+        // Завантажити дані з localStorage (якщо були збережені)
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem('patientFormData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                document.getElementById('patientNickname').value = data.patient_nickname || '';
+                document.getElementById('patientGender').value = data.patient_gender || '';
+            }
+        });
+
+        // Зберегти дані в localStorage при змінах
+        form.addEventListener('change', function() {
+            const formData = {
+                patient_nickname: document.getElementById('patientNickname').value,
+                patient_gender: document.getElementById('patientGender').value
+            };
+            localStorage.setItem('patientFormData', JSON.stringify(formData));
+        });
+    </script>
+</body>
+</html>
