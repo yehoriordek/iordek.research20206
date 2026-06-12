@@ -7,6 +7,7 @@
 
 ### Додано
 - 📋 Нове поле анкети "Вік пацієнта" (`patient_age`) — додано в таблицю Airtable, форму `index.html`, `data-structure.md` та `image-to-airtable.md`
+- 🔐 **index.html** — налаштовано шифрований Airtable API-ключ: пряме збереження анкети з форми в Airtable тепер активне
 
 ## [0.2.2] — 12 червня 2026 року
 
