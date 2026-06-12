@@ -304,6 +304,19 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="patientAge">
+                    Вік пацієнта
+                </label>
+                <input
+                    type="text"
+                    id="patientAge"
+                    name="patient_age"
+                    inputmode="numeric"
+                    placeholder="Напр., 34"
+                >
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -334,9 +347,9 @@
         // Зашифрований API-ключ Airtable (PBKDF2 + AES-256-GCM, пароль вводиться користувачем).
         // Порожні рядки = шифрування ще не налаштоване.
         // Як заповнити: .claude/skills/airtable-key-encryption/SKILL.md
-        const AIRTABLE_KEY_SALT = '';
-        const AIRTABLE_KEY_IV = '';
-        const AIRTABLE_KEY_CIPHERTEXT = '';
+        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
+        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
+        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
 
         // Відповідність значень поля "Стать" у формі та в Airtable.
         // Airtable наразі має лише опції "Чоловік"/"Жінка" (див. data-structure.md, "Відома неузгодженість").
@@ -383,7 +396,8 @@
         function getFormData() {
             return {
                 patient_nickname: document.getElementById('patientNickname').value,
-                patient_gender: document.getElementById('patientGender').value
+                patient_gender: document.getElementById('patientGender').value,
+                patient_age: document.getElementById('patientAge').value
             };
         }
 
@@ -419,6 +433,13 @@
             const genderValue = GENDER_MAP[formData.patient_gender];
             if (genderValue) {
                 fields['Стать'] = genderValue;
+            }
+
+            if (formData.patient_age) {
+                const ageValue = parseInt(formData.patient_age, 10);
+                if (!isNaN(ageValue)) {
+                    fields['Вік'] = ageValue;
+                }
             }
 
             const response = await fetch(
@@ -496,6 +517,7 @@
                 const data = JSON.parse(savedData);
                 document.getElementById('patientNickname').value = data.patient_nickname || '';
                 document.getElementById('patientGender').value = data.patient_gender || '';
+                document.getElementById('patientAge').value = data.patient_age || '';
             }
         });
 
@@ -503,7 +525,8 @@
         form.addEventListener('change', function() {
             const formData = {
                 patient_nickname: document.getElementById('patientNickname').value,
-                patient_gender: document.getElementById('patientGender').value
+                patient_gender: document.getElementById('patientGender').value,
+                patient_age: document.getElementById('patientAge').value
             };
             localStorage.setItem('patientFormData', JSON.stringify(formData));
         });
