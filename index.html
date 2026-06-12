@@ -137,6 +137,31 @@
             border-radius: 4px;
         }
 
+        .print-only {
+            display: none;
+        }
+
+        .print-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .print-checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .print-checkbox-box {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #000;
+            flex-shrink: 0;
+        }
+
         /* Режим друку */
         @media print {
             body {
@@ -155,6 +180,18 @@
                 padding: 20px 0;
             }
 
+            .screen-only {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .print-checkbox-group.print-only {
+                display: flex !important;
+            }
+
             input[type="text"],
             select {
                 border: none;
@@ -169,6 +206,10 @@
                 border-bottom: 1px dashed #000;
             }
 
+            input[type="text"]::placeholder {
+                color: transparent;
+            }
+
             label {
                 font-size: 12px;
             }
@@ -179,6 +220,18 @@
             background-color: #fff;
             box-shadow: none;
             padding: 20px;
+        }
+
+        body.print-layout .screen-only {
+            display: none;
+        }
+
+        body.print-layout .print-only {
+            display: block;
+        }
+
+        body.print-layout .print-checkbox-group.print-only {
+            display: flex;
         }
 
         body.print-layout input[type="text"],
@@ -194,6 +247,10 @@
         body.print-layout select:focus {
             box-shadow: none;
             border-bottom-style: dashed;
+        }
+
+        body.print-layout input[type="text"]::placeholder {
+            color: transparent;
         }
 
         body.print-layout .button-group {
@@ -295,13 +352,44 @@
                     Стать пацієнта
                     <span class="required">*</span>
                 </label>
-                <select id="patientGender" name="patient_gender" required>
+                <select id="patientGender" name="patient_gender" class="screen-only" required>
                     <option value="">-- Виберіть --</option>
                     <option value="M">Чоловіча</option>
                     <option value="F">Жіноча</option>
                     <option value="O">Інша</option>
                     <option value="NA">Не вказано</option>
                 </select>
+                <div class="print-checkbox-group print-only" aria-label="Варіанти статі для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Чоловіча</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Жіноча</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Інша</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Не вказано</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="patientAge">
+                    Вік пацієнта
+                </label>
+                <input
+                    type="text"
+                    id="patientAge"
+                    name="patient_age"
+                    inputmode="numeric"
+                    placeholder="Напр., 34"
+                >
             </div>
 
             <div class="form-group">
