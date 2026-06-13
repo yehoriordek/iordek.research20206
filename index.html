@@ -852,6 +852,12 @@
                 </div>
             </div>
 
+            <div id="genesisSection" class="screen-hidden">
+                <h2 class="section-title">Генез болю — клінічні ознаки та тести</h2>
+                <div id="genesisDescriptorsContainer"></div>
+                <div id="genesisTestsContainer"></div>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -1048,6 +1054,115 @@
             });
         }
 
+        // Клінічні дескриптори генезу (мультивибір + поле "інше" для кожного типу)
+        const GENESIS_DESCRIPTORS = [
+            {
+                key: 'genPeripheral', otherKey: 'genPeripheralOther', label: 'Генез — периферичні ознаки', airtableLabel: 'периферичний',
+                items: ['Біль при дотику', 'Механ. чинники', 'Запалення', 'Температура', 'Закреп.', 'Ріжучий', 'Тупий', 'Гострий', 'Пронизуючий', 'Спазмуючий', 'Прострілюючий', 'Пекучий', 'Колючий', 'Тягнучий', 'Ниючий', 'Болісні судоми ф.к.', 'Розпирання ф.к.', 'Пульсуючий', 'Тиснучий', 'Розряди струмом', 'Всверлювання', 'Контрактура ф.к.']
+            },
+            {
+                key: 'genCerebral', otherKey: 'genCerebralOther', label: 'Генез — церебральні ознаки', airtableLabel: 'церебральний',
+                items: ['Оніміння', 'Поколювання', 'Мурашки', 'Тепло', 'Тонус', 'Відчуття предметів', 'Мокро', 'Сухо', 'Твердо', "М'якість", 'Стискання', 'Згинання', 'Вітерець по ф.к.', 'Скручування пальців', 'Важкість ф.к.', 'Телескопія', 'Бажання скористатись ф.к.', 'Контрактура ф.к.', 'Можливість рухати ф.к.', 'Можливість відчувати ф.к.']
+            },
+            {
+                key: 'genSpinal', otherKey: 'genSpinalOther', label: 'Генез — спінальні ознаки', airtableLabel: 'спінальний',
+                items: ['Прострілюючий біль від кукси до поясниці/шиї', 'Посилення болю при заспокоюючих вправах', 'Судоми по тілу', 'Наростання болю при повторних стимулах']
+            },
+            {
+                key: 'genPsychogenic', otherKey: 'genPsychogenicOther', label: 'Генез — психогенні ознаки', airtableLabel: 'психогенний',
+                subtitle: 'Біль/відчуття викликаються спогадами, емоціями про:',
+                items: ['Вибух міни', 'Біль від кулі/уламка', 'Хірургічне втручання', 'Відчуття годинника на руці', 'Страх/відраза від вигляду ампутації', 'Спогади про запах', 'Біль від спогадів про евакуацію', 'Кошмари про амп. кінцівку', 'Посилення від емоцій страху', 'Посилення від емоцій гніву', 'Посилення від емоцій суму']
+            }
+        ];
+
+        // Реакції на тести генезу (спільний перелік для всіх трьох категорій тестів)
+        const GENESIS_REACTIONS = ['ФБ зменшився', 'ФБ збільшився', 'ФБ зник', 'ФБ появився', 'ФВ зменшились', 'ФВ збільшились', 'ФВ зникли', 'ФВ появились', 'Телескопія', 'Зворотня телескопія', 'Немає реакції'];
+        // Відома неузгодженість Airtable: варіант "ФБ зменшився" створено з друкарською помилкою "ФБ земеншився"
+        const GENESIS_REACTION_AIRTABLE_MAP = { 'ФБ зменшився': 'ФБ земеншився' };
+
+        // Тести генезу: для кожної категорії — перелік тестів + загальний перелік реакцій
+        const GENESIS_TESTS = [
+            {
+                key: 'genTestsCerebral', label: 'Церебральні тести', airtableLabel: 'церебральні',
+                tests: ['Контрлат.тест (дзеркало)', 'Контрлат.тест (муляж)', 'Контрлат.тест (стимул. інтакт. кінцівки)', 'Тест моторної уяви', 'Хватальний рефлекс', 'Рефлекс захисту', 'Пальце-носова проба', 'Телескопія гумкою', 'Телескопія панчохою', 'Телескопія муляжем', 'Мозочковий тест'],
+                // Відома неузгодженість Airtable: ці варіанти створено з малої букви
+                airtableMap: { 'Хватальний рефлекс': 'хватальний рефлекс', 'Рефлекс захисту': 'рефлекс захисту', 'Телескопія гумкою': 'телескопія гумкою', 'Телескопія панчохою': 'телескопія панчохою', 'Телескопія муляжем': 'телескопія муляжем' }
+            },
+            {
+                key: 'genTestsPeripheral', label: 'Периферичні тести', airtableLabel: 'периферичні',
+                tests: ['Мобілізація шва', 'МФТ з мобіл. шва', 'Компресія в тригерних точках', 'Тест компресії тазу', 'Тест МФ ланцюгів (передній)', 'Тест МФ ланцюгів (задній)', 'Тест МФ ланцюгів (діагональний)', 'Контрлат.тест патерну крока', "Тракція м'язів кукси", 'Тест пензликом', 'Переривання сенс. потоку', 'Біль при дефекації/сечоспусканні'],
+                // Відома неузгодженість Airtable: варіант створено зі словом "сечовипусканні"
+                airtableMap: { 'Біль при дефекації/сечоспусканні': 'Біль при дефекації/сечовипусканні' }
+            },
+            {
+                key: 'genTestsPsychogenic', label: 'Психогенні тести', airtableLabel: 'психогенні',
+                tests: ['Флеш-тест (спалахом)', 'Тест тілесного відреагування болю', 'Відволікання', 'Когнітивне навантаження']
+            }
+        ];
+
+        // Замінює значення на відповідні (неузгоджені) варіанти Airtable за картою мапінгу
+        function mapGenesisValues(values, map) {
+            if (!map) return values;
+            return values.map(v => map[v] || v);
+        }
+
+        // Будує блок мультивибору ознак генезу + поле "інше" для одного типу генезу
+        function renderGenesisDescriptor(g) {
+            const chips = g.items.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const print = g.items.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            const subtitleHtml = g.subtitle ? `<div class="section-hint">${g.subtitle}</div>` : '';
+            return `
+                <div class="form-group">
+                    <label>${g.label}</label>
+                    ${subtitleHtml}
+                    <div class="chips-group screen-only" id="${g.key}Chips">${chips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${g.label} для друку">${print}</div>
+                </div>
+                <div class="form-group">
+                    <label for="${g.otherKey}">${g.label} — інше</label>
+                    <input type="text" id="${g.otherKey}" placeholder="Інші ознаки">
+                </div>
+            `;
+        }
+
+        // Будує блок "позитивні тести + реакції" для однієї категорії тестів генезу
+        function renderGenesisTest(t) {
+            const testsChips = t.tests.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const testsPrint = t.tests.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            const reactionChips = GENESIS_REACTIONS.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const reactionPrint = GENESIS_REACTIONS.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            return `
+                <h3 class="section-title">${t.label}</h3>
+                <div class="form-group">
+                    <label>Позитивні тести</label>
+                    <div class="chips-group screen-only" id="${t.key}Chips">${testsChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${t.label} — позитивні для друку">${testsPrint}</div>
+                </div>
+                <div class="form-group">
+                    <label>Реакції</label>
+                    <div class="chips-group screen-only" id="${t.key}ReactionsChips">${reactionChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${t.label} — реакції для друку">${reactionPrint}</div>
+                </div>
+            `;
+        }
+
+        function renderGenesisSection() {
+            document.getElementById('genesisDescriptorsContainer').innerHTML = GENESIS_DESCRIPTORS.map(renderGenesisDescriptor).join('');
+            document.getElementById('genesisTestsContainer').innerHTML = GENESIS_TESTS.map(renderGenesisTest).join('');
+        }
+
         const printModeToggle = document.getElementById('printModeToggle');
         const form = document.getElementById('patientForm');
         const successMessage = document.getElementById('successMessage');
@@ -1084,13 +1199,18 @@
         // Побудувати блоки локалізація/VAS/ритм для ФБ, ФВ, БК
         renderPainPhenomena();
 
-        // Показувати блок "Біль" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
+        // Побудувати блоки клінічних ознак та тестів генезу
+        renderGenesisSection();
+
+        // Показувати блоки "Біль" і "Генез" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
         const painSection = document.getElementById('painSection');
+        const genesisSection = document.getElementById('genesisSection');
         const painHasCheckboxes = PAIN_PHENOMENA.map(p => document.getElementById(p.hasField));
 
         function updatePainSectionVisibility() {
             const anyPhenomenon = painHasCheckboxes.some(cb => cb.checked);
             painSection.classList.toggle('screen-hidden', !anyPhenomenon);
+            genesisSection.classList.toggle('screen-hidden', !anyPhenomenon);
             PAIN_PHENOMENA.forEach((p, i) => {
                 document.getElementById(`painBlock${p.key}`).classList.toggle('screen-hidden', !painHasCheckboxes[i].checked);
             });
@@ -1167,6 +1287,20 @@
             return data;
         }
 
+        // Зчитує клінічні ознаки генезу та результати тестів генезу
+        function getGenesisData() {
+            const data = {};
+            GENESIS_DESCRIPTORS.forEach(g => {
+                data[g.key] = getCheckedValues(`${g.key}Chips`);
+                data[g.otherKey] = document.getElementById(g.otherKey).value;
+            });
+            GENESIS_TESTS.forEach(t => {
+                data[t.key] = getCheckedValues(`${t.key}Chips`);
+                data[`${t.key}Reactions`] = getCheckedValues(`${t.key}ReactionsChips`);
+            });
+            return data;
+        }
+
         // Зчитує значення вибору рівня ампутації та третини для всіх кінцівок
         function getAmputationData() {
             const data = {};
@@ -1213,7 +1347,8 @@
                 stump_path: getCheckedValues('stumpPathChips'),
                 stump_path_note: document.getElementById('stumpPathNote').value,
                 stump_path_source: getCheckedValues('stumpPathSourceChips'),
-                som_react: getCheckedValues('somReactChips')
+                som_react: getCheckedValues('somReactChips'),
+                ...getGenesisData()
             };
         }
 
@@ -1336,6 +1471,16 @@
             if (formData.traum_mem) {
                 fields["Травматичні спогади, пов'язані з болем"] = formData.traum_mem;
             }
+
+            GENESIS_DESCRIPTORS.forEach(g => {
+                fields[`Генез — ${g.airtableLabel} (дескриптори)`] = formData[g.key];
+                if (formData[g.otherKey]) fields[`Генез — ${g.airtableLabel} (інше)`] = formData[g.otherKey];
+            });
+
+            GENESIS_TESTS.forEach(t => {
+                fields[`Тести — ${t.airtableLabel} (позитивні)`] = mapGenesisValues(formData[t.key], t.airtableMap);
+                fields[`Тести — ${t.airtableLabel} (реакції)`] = mapGenesisValues(formData[`${t.key}Reactions`], GENESIS_REACTION_AIRTABLE_MAP);
+            });
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
@@ -1464,6 +1609,14 @@
                 document.getElementById('stumpPathNote').value = data.stump_path_note || '';
                 setCheckedValues('stumpPathSourceChips', data.stump_path_source);
                 setCheckedValues('somReactChips', data.som_react);
+                GENESIS_DESCRIPTORS.forEach(g => {
+                    setCheckedValues(`${g.key}Chips`, data[g.key]);
+                    document.getElementById(g.otherKey).value = data[g.otherKey] || '';
+                });
+                GENESIS_TESTS.forEach(t => {
+                    setCheckedValues(`${t.key}Chips`, data[t.key]);
+                    setCheckedValues(`${t.key}ReactionsChips`, data[`${t.key}Reactions`]);
+                });
                 updatePainSectionVisibility();
                 updateAgeDisplay();
             }
