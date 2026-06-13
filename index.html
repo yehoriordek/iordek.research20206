@@ -76,7 +76,8 @@
 
         input[type="text"],
         input[type="date"],
-        select {
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #bdc3c7;
@@ -86,9 +87,15 @@
             transition: border-color 0.3s;
         }
 
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
         input[type="text"]:focus,
         input[type="date"]:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
@@ -265,7 +272,8 @@
             }
 
             input[type="text"],
-            select {
+            select,
+            textarea {
                 border: none;
                 border-bottom: 1px solid #000;
                 padding: 8px 0;
@@ -273,12 +281,14 @@
             }
 
             input[type="text"]:focus,
-            select:focus {
+            select:focus,
+            textarea:focus {
                 box-shadow: none;
                 border-bottom: 1px dashed #000;
             }
 
-            input[type="text"]::placeholder {
+            input[type="text"]::placeholder,
+            textarea::placeholder {
                 color: transparent;
             }
 
@@ -738,6 +748,110 @@
                 </div>
             </div>
 
+            <div id="painSection" class="screen-hidden">
+                <h2 class="section-title">Біль — ФБ, ФВ, біль кукси</h2>
+
+                <div id="painPhenomenaContainer"></div>
+
+                <div class="form-group">
+                    <label>Характер протікання болю</label>
+                    <div class="chips-group screen-only" id="painFlowChips">
+                        <label class="chip"><input type="checkbox" value="Постійний"><span>Постійний</span></label>
+                        <label class="chip"><input type="checkbox" value="Епізодичний (приступоподібний)"><span>Епізодичний (приступоподібний)</span></label>
+                        <label class="chip"><input type="checkbox" value="Хвилеподібний"><span>Хвилеподібний</span></label>
+                        <label class="chip"><input type="checkbox" value="Прогресуючий (посилюється)"><span>Прогресуючий (посилюється)</span></label>
+                        <label class="chip"><input type="checkbox" value="Регресуючий (слабшає)"><span>Регресуючий (слабшає)</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Характер протікання болю для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Постійний</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Епізодичний (приступоподібний)</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Хвилеподібний</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Прогресуючий (посилюється)</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Регресуючий (слабшає)</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="traumMem">Травматичні спогади, пов'язані з болем</label>
+                    <select id="traumMem" class="screen-only">
+                        <option value="">-- Виберіть --</option>
+                        <option value="Присутні">Присутні</option>
+                        <option value="Відсутні">Відсутні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Травматичні спогади для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Присутні</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Патологія кукси</label>
+                    <div class="chips-group screen-only" id="stumpPathChips">
+                        <label class="chip"><input type="checkbox" value="Невринома"><span>Невринома</span></label>
+                        <label class="chip"><input type="checkbox" value="Гетеротопічна осифікація"><span>Гетеротопічна осифікація</span></label>
+                        <label class="chip"><input type="checkbox" value="Контрактура суглоба"><span>Контрактура суглоба</span></label>
+                        <label class="chip"><input type="checkbox" value="Трофічні зміни шкіри"><span>Трофічні зміни шкіри</span></label>
+                        <label class="chip"><input type="checkbox" value="Набряк"><span>Набряк</span></label>
+                        <label class="chip"><input type="checkbox" value="Виразка/рана"><span>Виразка/рана</span></label>
+                        <label class="chip"><input type="checkbox" value="Інфекція"><span>Інфекція</span></label>
+                        <label class="chip"><input type="checkbox" value="Відсутня"><span>Відсутня</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Патологія кукси для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Невринома</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Гетеротопічна осифікація</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрактура суглоба</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Трофічні зміни шкіри</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Набряк</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Виразка/рана</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Інфекція</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутня</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stumpPathNote">Патологія кукси — примітка</label>
+                    <textarea id="stumpPathNote" placeholder="Додаткові деталі щодо патології кукси"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Патологія кукси — джерело виявлення</label>
+                    <div class="chips-group screen-only" id="stumpPathSourceChips">
+                        <label class="chip"><input type="checkbox" value="Скаржа пацієнта"><span>Скарга пацієнта</span></label>
+                        <label class="chip"><input type="checkbox" value="Огляд лікаря"><span>Огляд лікаря</span></label>
+                        <label class="chip"><input type="checkbox" value="Спостереження"><span>Спостереження</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Джерело виявлення патології кукси для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Скарга пацієнта</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Огляд лікаря</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Спостереження</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Соматичні реакції на біль</label>
+                    <div class="chips-group screen-only" id="somReactChips">
+                        <label class="chip"><input type="checkbox" value="тахікардія"><span>Тахікардія</span></label>
+                        <label class="chip"><input type="checkbox" value="Підвищення артеріального тиску"><span>Підвищення артеріального тиску</span></label>
+                        <label class="chip"><input type="checkbox" value="Пітливість"><span>Пітливість</span></label>
+                        <label class="chip"><input type="checkbox" value="Тремор"><span>Тремор</span></label>
+                        <label class="chip"><input type="checkbox" value="Нудота"><span>Нудота</span></label>
+                        <label class="chip"><input type="checkbox" value="М'язова напруження"><span>М'язова напруга</span></label>
+                        <label class="chip"><input type="checkbox" value="Прискорене дихання"><span>Прискорене дихання</span></label>
+                        <label class="chip"><input type="checkbox" value="Відсутні"><span>Відсутні</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Соматичні реакції на біль для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тахікардія</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Підвищення артеріального тиску</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Пітливість</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тремор</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Нудота</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>М'язова напруга</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Прискорене дихання</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -868,6 +982,72 @@
             });
         }
 
+        // Варіанти добового ритму болю (для ФБ/ФВ/БК)
+        const PAIN_RHYTHM_OPTIONS = ['Вранці', 'Вдень', 'Ввечері', 'Вночі', 'Постійно без змін'];
+
+        // Феномени болю: key — суфікс id полів, hasField — чекбокс наявності, airtablePrefix — префікс назв полів в Airtable
+        const PAIN_PHENOMENA = [
+            { key: 'FB', label: 'Фантомний біль (ФБ)', hasField: 'hasFB', airtablePrefix: 'ФБ' },
+            { key: 'FV', label: 'Фантомні відчуття (ФВ)', hasField: 'hasFV', airtablePrefix: 'ФВ' },
+            { key: 'BK', label: 'Біль кукси (БК)', hasField: 'hasBK', airtablePrefix: 'БК' }
+        ];
+
+        // Будує блок "Локалізація / VAS / Добовий ритм" для одного феномену болю
+        function renderPainPhenomenon(p) {
+            const rhythmChips = PAIN_RHYTHM_OPTIONS.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const rhythmPrint = PAIN_RHYTHM_OPTIONS.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            const vasPrint = Array.from({ length: 11 }, (_, i) =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${i}</span></div>`
+            ).join('');
+
+            return `
+                <div id="painBlock${p.key}">
+                    <h3 class="section-title">${p.label}</h3>
+                    <div class="form-group">
+                        <label for="pain${p.key}Loc">Локалізація</label>
+                        <input type="text" id="pain${p.key}Loc" placeholder="Напр., кисть, що відсутня">
+                    </div>
+                    <div class="form-group">
+                        <label for="pain${p.key}Vas">Інтенсивність (VAS 0-10)</label>
+                        <div class="screen-only" style="display: flex; align-items: center; gap: 12px;">
+                            <input type="range" id="pain${p.key}Vas" min="0" max="10" step="1" value="0" style="flex: 1;">
+                            <span id="pain${p.key}VasValue">0</span>
+                        </div>
+                        <div class="section-hint print-only">Обведіть значення від 0 (немає болю) до 10 (нестерпний біль):</div>
+                        <div class="print-checkbox-group print-only" aria-label="${p.label} — VAS для друку">
+                            ${vasPrint}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Добовий ритм</label>
+                        <div class="chips-group screen-only" id="pain${p.key}Rhythm">
+                            ${rhythmChips}
+                        </div>
+                        <div class="print-checkbox-group print-only" aria-label="${p.label} — добовий ритм для друку">
+                            ${rhythmPrint}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPainPhenomena() {
+            const container = document.getElementById('painPhenomenaContainer');
+            container.innerHTML = PAIN_PHENOMENA.map(renderPainPhenomenon).join('');
+
+            PAIN_PHENOMENA.forEach(p => {
+                const vasInput = document.getElementById(`pain${p.key}Vas`);
+                const vasValue = document.getElementById(`pain${p.key}VasValue`);
+                vasInput.addEventListener('input', () => {
+                    vasValue.textContent = vasInput.value;
+                });
+            });
+        }
+
         const printModeToggle = document.getElementById('printModeToggle');
         const form = document.getElementById('patientForm');
         const successMessage = document.getElementById('successMessage');
@@ -900,6 +1080,25 @@
         }
 
         hasAmputationCheckbox.addEventListener('change', updateAmputationSectionVisibility);
+
+        // Побудувати блоки локалізація/VAS/ритм для ФБ, ФВ, БК
+        renderPainPhenomena();
+
+        // Показувати блок "Біль" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
+        const painSection = document.getElementById('painSection');
+        const painHasCheckboxes = PAIN_PHENOMENA.map(p => document.getElementById(p.hasField));
+
+        function updatePainSectionVisibility() {
+            const anyPhenomenon = painHasCheckboxes.some(cb => cb.checked);
+            painSection.classList.toggle('screen-hidden', !anyPhenomenon);
+            PAIN_PHENOMENA.forEach((p, i) => {
+                document.getElementById(`painBlock${p.key}`).classList.toggle('screen-hidden', !painHasCheckboxes[i].checked);
+            });
+        }
+
+        PAIN_PHENOMENA.forEach((p, i) => {
+            painHasCheckboxes[i].addEventListener('change', updatePainSectionVisibility);
+        });
 
         function showError(text) {
             errorMessage.textContent = text;
@@ -957,6 +1156,17 @@
             });
         }
 
+        // Зчитує локалізацію, VAS та добовий ритм для всіх феноменів болю (ФБ/ФВ/БК)
+        function getPainData() {
+            const data = {};
+            PAIN_PHENOMENA.forEach(p => {
+                data[`pain_${p.key.toLowerCase()}_loc`] = document.getElementById(`pain${p.key}Loc`).value;
+                data[`pain_${p.key.toLowerCase()}_vas`] = Number(document.getElementById(`pain${p.key}Vas`).value);
+                data[`pain_${p.key.toLowerCase()}_rhythm`] = getCheckedValues(`pain${p.key}Rhythm`);
+            });
+            return data;
+        }
+
         // Зчитує значення вибору рівня ампутації та третини для всіх кінцівок
         function getAmputationData() {
             const data = {};
@@ -996,7 +1206,14 @@
                 inj_date: document.getElementById('injDate').value,
                 amp_date: document.getElementById('ampDate').value,
                 adm_date: document.getElementById('admDate').value,
-                reamp_date: document.getElementById('reampDate').value
+                reamp_date: document.getElementById('reampDate').value,
+                ...getPainData(),
+                pain_flow: getCheckedValues('painFlowChips'),
+                traum_mem: document.getElementById('traumMem').value,
+                stump_path: getCheckedValues('stumpPathChips'),
+                stump_path_note: document.getElementById('stumpPathNote').value,
+                stump_path_source: getCheckedValues('stumpPathSourceChips'),
+                som_react: getCheckedValues('somReactChips')
             };
         }
 
@@ -1101,6 +1318,24 @@
                 if (level) fields[`${limb.airtablePrefix} — рівень ампутації`] = level;
                 if (sub) fields[`${limb.airtablePrefix} — третина`] = sub;
             });
+
+            PAIN_PHENOMENA.forEach(p => {
+                const k = p.key.toLowerCase();
+                if (!formData[`has_${k}`]) return;
+                fields[`${p.airtablePrefix} — локалізація`] = formData[`pain_${k}_loc`];
+                fields[`${p.airtablePrefix} — інтенсивність (VAS)`] = formData[`pain_${k}_vas`];
+                fields[`${p.airtablePrefix} — добовий ритм`] = formData[`pain_${k}_rhythm`];
+            });
+
+            fields['Характер протікання болю'] = formData.pain_flow;
+            fields['Патологія кукси'] = formData.stump_path;
+            fields['Патологія кукси — примітка'] = formData.stump_path_note;
+            fields['Патологія кукси — джерело виявлення'] = formData.stump_path_source;
+            fields['Соматичні реакції на біль'] = formData.som_react;
+
+            if (formData.traum_mem) {
+                fields["Травматичні спогади, пов'язані з болем"] = formData.traum_mem;
+            }
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
@@ -1215,6 +1450,21 @@
                 document.getElementById('admDate').value = data.adm_date || '';
                 document.getElementById('reampDate').value = data.reamp_date || '';
                 updateAmputationSectionVisibility();
+                PAIN_PHENOMENA.forEach(p => {
+                    const k = p.key.toLowerCase();
+                    document.getElementById(`pain${p.key}Loc`).value = data[`pain_${k}_loc`] || '';
+                    const vas = data[`pain_${k}_vas`] || 0;
+                    document.getElementById(`pain${p.key}Vas`).value = vas;
+                    document.getElementById(`pain${p.key}VasValue`).textContent = vas;
+                    setCheckedValues(`pain${p.key}Rhythm`, data[`pain_${k}_rhythm`]);
+                });
+                setCheckedValues('painFlowChips', data.pain_flow);
+                document.getElementById('traumMem').value = data.traum_mem || '';
+                setCheckedValues('stumpPathChips', data.stump_path);
+                document.getElementById('stumpPathNote').value = data.stump_path_note || '';
+                setCheckedValues('stumpPathSourceChips', data.stump_path_source);
+                setCheckedValues('somReactChips', data.som_react);
+                updatePainSectionVisibility();
                 updateAgeDisplay();
             }
         });
