@@ -364,8 +364,6 @@
                     <option value="">-- Виберіть --</option>
                     <option value="M">Чоловіча</option>
                     <option value="F">Жіноча</option>
-                    <option value="O">Інша</option>
-                    <option value="NA">Не вказано</option>
                 </select>
                 <div class="print-checkbox-group print-only" aria-label="Варіанти статі для друку">
                     <div class="print-checkbox-option">
@@ -375,14 +373,6 @@
                     <div class="print-checkbox-option">
                         <span class="print-checkbox-box" aria-hidden="true"></span>
                         <span>Жіноча</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Інша</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Не вказано</span>
                     </div>
                 </div>
             </div>
@@ -441,7 +431,6 @@
         const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
 
         // Відповідність значень поля "Стать" у формі та в Airtable.
-        // Airtable наразі має лише опції "Чоловік"/"Жінка" (див. data-structure.md, "Відома неузгодженість").
         const GENDER_MAP = {
             M: 'Чоловік',
             F: 'Жінка'
