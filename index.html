@@ -218,6 +218,18 @@
             margin-bottom: 8px;
         }
 
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .screen-hidden {
+            display: none;
+        }
+
         /* Режим друку */
         @media print {
             body {
@@ -246,6 +258,10 @@
 
             .print-checkbox-group.print-only {
                 display: flex !important;
+            }
+
+            .screen-hidden {
+                display: block !important;
             }
 
             input[type="text"],
@@ -288,6 +304,10 @@
 
         body.print-layout .print-checkbox-group.print-only {
             display: flex;
+        }
+
+        body.print-layout .screen-hidden {
+            display: block;
         }
 
         body.print-layout input[type="text"],
@@ -670,6 +690,54 @@
                 </div>
             </div>
 
+            <div id="amputationSection" class="screen-hidden">
+                <h2 class="section-title">Ампутація — рівень та деталі</h2>
+
+                <div id="ampLimbsContainer"></div>
+
+                <div class="form-group">
+                    <label>RPNI</label>
+                    <div class="chips-group screen-only">
+                        <label class="chip toggle">
+                            <input type="checkbox" id="rpni">
+                            <span>RPNI виконано</span>
+                        </label>
+                    </div>
+                    <div class="print-checkbox-group print-only">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>RPNI виконано</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ampType">Тип ампутації</label>
+                    <input type="text" id="ampType" placeholder="Напр., травматична, вторинна">
+                </div>
+
+                <div class="form-group">
+                    <label for="injDate">Дата поранення</label>
+                    <input type="date" id="injDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата поранення (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group">
+                    <label for="ampDate">Дата ампутації</label>
+                    <input type="date" id="ampDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата ампутації (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group">
+                    <label for="admDate">Дата госпіталізації</label>
+                    <input type="date" id="admDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата госпіталізації (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group">
+                    <label for="reampDate">Дата реампутації (якщо була)</label>
+                    <input type="date" id="reampDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата реампутації (дд.мм.рррр)">
+                </div>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -710,6 +778,96 @@
             F: 'Жінка'
         };
 
+        // Рівні ампутації верхньої та нижньої кінцівки.
+        // sub: true — має третину (в/3, 1/2, н/3)
+        const AMP_LEVELS_UPPER = [
+            { label: 'Міжлопатково-грудна (forequarter)', sub: false },
+            { label: 'Вирахування плеча', sub: false },
+            { label: 'Транс-плечова (вище ліктя)', sub: true },
+            { label: 'Вирахування ліктя', sub: false },
+            { label: 'Транс-радіальна (нижче ліктя)', sub: true },
+            { label: "Вирахування зап'ястка", sub: false },
+            { label: 'Транс-карпальна', sub: false },
+            { label: 'Транс-метакарпальна', sub: false },
+            { label: 'Транс-фалангова (пальці)', sub: false }
+        ];
+
+        const AMP_LEVELS_LOWER = [
+            { label: 'Геміпельвектомія', sub: false },
+            { label: 'Вирахування стегна', sub: false },
+            { label: 'Транс-феморальна (стегно)', sub: true },
+            { label: 'Вирахування колінного суглоба', sub: false },
+            { label: 'Транс-тібіальна (гомілка)', sub: true },
+            { label: 'Вирахування гомілковостопного суглоба (Syme)', sub: false },
+            { label: 'За Шопаром', sub: false },
+            { label: 'За Лісфранком', sub: false },
+            { label: 'Транс-метатарзальна', sub: false },
+            { label: 'Резекція променя стопи', sub: false },
+            { label: 'Палець стопи', sub: false }
+        ];
+
+        const AMP_SUB_OPTIONS = ['в/3', '1/2', 'н/3'];
+
+        // key — використовується для id полів та Airtable (LUE/RUE/LLE/RLE)
+        const AMP_LIMBS = [
+            { key: 'LUE', label: "Ліва верхня кінцівка", airtablePrefix: 'ЛВК', levels: AMP_LEVELS_UPPER },
+            { key: 'RUE', label: "Права верхня кінцівка", airtablePrefix: 'ПВК', levels: AMP_LEVELS_UPPER },
+            { key: 'LLE', label: "Ліва нижня кінцівка", airtablePrefix: 'ЛНК', levels: AMP_LEVELS_LOWER },
+            { key: 'RLE', label: "Права нижня кінцівка", airtablePrefix: 'ПНК', levels: AMP_LEVELS_LOWER }
+        ];
+
+        // Будує блок вибору рівня ампутації для однієї кінцівки (екранний select + друкований список)
+        function renderAmpLimbPicker(limb) {
+            const levelOptions = limb.levels.map(l => `<option value="${l.label}">${l.label}</option>`).join('');
+            const subOptions = AMP_SUB_OPTIONS.map(s => `<option value="${s}">${s}</option>`).join('');
+            const printLevels = limb.levels.map(l =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${l.label}</span></div>`
+            ).join('');
+            const printSubs = AMP_SUB_OPTIONS.map(s =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${s}</span></div>`
+            ).join('');
+
+            return `
+                <div class="form-group">
+                    <label for="amp_${limb.key}_level">${limb.label}</label>
+                    <select id="amp_${limb.key}_level" class="screen-only">
+                        <option value="">Немає ампутації</option>
+                        ${levelOptions}
+                    </select>
+                    <select id="amp_${limb.key}_sub" class="screen-only" style="margin-top: 8px; display: none;">
+                        <option value="">Третина — оберіть рівень з третиною</option>
+                        ${subOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="${limb.label} — рівень ампутації">
+                        ${printLevels}
+                    </div>
+                    <div class="section-hint print-only">Якщо рівень має третину — позначте також:</div>
+                    <div class="print-checkbox-group print-only" aria-label="${limb.label} — третина">
+                        ${printSubs}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAmpLimbPickers() {
+            const container = document.getElementById('ampLimbsContainer');
+            container.innerHTML = AMP_LIMBS.map(renderAmpLimbPicker).join('');
+
+            AMP_LIMBS.forEach(limb => {
+                const levelSelect = document.getElementById(`amp_${limb.key}_level`);
+                const subSelect = document.getElementById(`amp_${limb.key}_sub`);
+                levelSelect.addEventListener('change', () => {
+                    const level = limb.levels.find(l => l.label === levelSelect.value);
+                    if (level && level.sub) {
+                        subSelect.style.display = '';
+                    } else {
+                        subSelect.style.display = 'none';
+                        subSelect.value = '';
+                    }
+                });
+            });
+        }
+
         const printModeToggle = document.getElementById('printModeToggle');
         const form = document.getElementById('patientForm');
         const successMessage = document.getElementById('successMessage');
@@ -729,6 +887,19 @@
                 document.body.classList.remove('print-layout');
             }
         });
+
+        // Побудувати селектори рівня ампутації для кожної кінцівки
+        renderAmpLimbPickers();
+
+        // Показувати блок "Ампутація" лише якщо позначено "Є ампутація"
+        const hasAmputationCheckbox = document.getElementById('hasAmputation');
+        const amputationSection = document.getElementById('amputationSection');
+
+        function updateAmputationSectionVisibility() {
+            amputationSection.classList.toggle('screen-hidden', !hasAmputationCheckbox.checked);
+        }
+
+        hasAmputationCheckbox.addEventListener('change', updateAmputationSectionVisibility);
 
         function showError(text) {
             errorMessage.textContent = text;
@@ -786,6 +957,16 @@
             });
         }
 
+        // Зчитує значення вибору рівня ампутації та третини для всіх кінцівок
+        function getAmputationData() {
+            const data = {};
+            AMP_LIMBS.forEach(limb => {
+                data[`amp_${limb.key}_level`] = document.getElementById(`amp_${limb.key}_level`).value;
+                data[`amp_${limb.key}_sub`] = document.getElementById(`amp_${limb.key}_sub`).value;
+            });
+            return data;
+        }
+
         function getFormData() {
             const birthdate = document.getElementById('patientBirthdate').value;
             return {
@@ -808,7 +989,14 @@
                 sym: getCheckedValues('symChips'),
                 research_consent: document.getElementById('researchConsent').checked,
                 research_consent_items: getCheckedValues('consentItemsChips'),
-                research_confidence: document.getElementById('researchConfidence').value
+                research_confidence: document.getElementById('researchConfidence').value,
+                ...getAmputationData(),
+                rpni: document.getElementById('rpni').checked,
+                amp_type: document.getElementById('ampType').value,
+                inj_date: document.getElementById('injDate').value,
+                amp_date: document.getElementById('ampDate').value,
+                adm_date: document.getElementById('admDate').value,
+                reamp_date: document.getElementById('reampDate').value
             };
         }
 
@@ -898,6 +1086,21 @@
             if (formData.research_confidence) {
                 fields['Впевненість дослідника'] = formData.research_confidence;
             }
+
+            fields['RPNI виконано'] = formData.rpni;
+            fields['Тип ампутації'] = formData.amp_type;
+
+            if (formData.inj_date) fields['Дата поранення'] = formData.inj_date;
+            if (formData.amp_date) fields['Дата ампутації'] = formData.amp_date;
+            if (formData.adm_date) fields['Дата госпіталізації'] = formData.adm_date;
+            if (formData.reamp_date) fields['Дата реампутації'] = formData.reamp_date;
+
+            AMP_LIMBS.forEach(limb => {
+                const level = formData[`amp_${limb.key}_level`];
+                const sub = formData[`amp_${limb.key}_sub`];
+                if (level) fields[`${limb.airtablePrefix} — рівень ампутації`] = level;
+                if (sub) fields[`${limb.airtablePrefix} — третина`] = sub;
+            });
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
@@ -995,6 +1198,23 @@
                 document.getElementById('researchConsent').checked = !!data.research_consent;
                 setCheckedValues('consentItemsChips', data.research_consent_items);
                 document.getElementById('researchConfidence').value = data.research_confidence || '';
+                AMP_LIMBS.forEach(limb => {
+                    const levelSelect = document.getElementById(`amp_${limb.key}_level`);
+                    const subSelect = document.getElementById(`amp_${limb.key}_sub`);
+                    levelSelect.value = data[`amp_${limb.key}_level`] || '';
+                    const level = limb.levels.find(l => l.label === levelSelect.value);
+                    if (level && level.sub) {
+                        subSelect.style.display = '';
+                        subSelect.value = data[`amp_${limb.key}_sub`] || '';
+                    }
+                });
+                document.getElementById('rpni').checked = !!data.rpni;
+                document.getElementById('ampType').value = data.amp_type || '';
+                document.getElementById('injDate').value = data.inj_date || '';
+                document.getElementById('ampDate').value = data.amp_date || '';
+                document.getElementById('admDate').value = data.adm_date || '';
+                document.getElementById('reampDate').value = data.reamp_date || '';
+                updateAmputationSectionVisibility();
                 updateAgeDisplay();
             }
         });
