@@ -75,6 +75,7 @@
         }
 
         input[type="text"],
+        input[type="date"],
         select {
             width: 100%;
             padding: 10px;
@@ -86,10 +87,17 @@
         }
 
         input[type="text"]:focus,
+        input[type="date"]:focus,
         select:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .age-display {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #7f8c8d;
         }
 
         .button-group {
@@ -380,28 +388,21 @@
             </div>
 
             <div class="form-group">
-                <label for="patientAge">
-                    Вік пацієнта
+                <label for="patientBirthdate">
+                    Дата народження пацієнта
                 </label>
                 <input
-                    type="text"
-                    id="patientAge"
-                    name="patient_age"
-                    inputmode="numeric"
-                    placeholder="Напр., 34"
+                    type="date"
+                    id="patientBirthdate"
+                    name="patient_birthdate"
+                    class="screen-only"
                 >
-            </div>
-
-            <div class="form-group">
-                <label for="patientAge">
-                    Вік пацієнта
-                </label>
+                <div class="age-display screen-only" id="patientAgeDisplay"></div>
                 <input
                     type="text"
-                    id="patientAge"
-                    name="patient_age"
-                    inputmode="numeric"
-                    placeholder="Напр., 34"
+                    class="print-only"
+                    placeholder="дд.мм.рррр"
+                    aria-label="Дата народження пацієнта (дд.мм.рррр)"
                 >
             </div>
 
@@ -481,11 +482,38 @@
             }, 3000);
         }
 
+        // Розрахунок повних років на основі дати народження
+        function calcAge(birthdateStr) {
+            if (!birthdateStr) {
+                return null;
+            }
+            const birth = new Date(birthdateStr);
+            if (isNaN(birth.getTime())) {
+                return null;
+            }
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age >= 0 ? age : null;
+        }
+
+        function updateAgeDisplay() {
+            const age = calcAge(document.getElementById('patientBirthdate').value);
+            document.getElementById('patientAgeDisplay').textContent = age !== null ? `Повних років: ${age}` : '';
+        }
+
+        document.getElementById('patientBirthdate').addEventListener('input', updateAgeDisplay);
+
         function getFormData() {
+            const birthdate = document.getElementById('patientBirthdate').value;
             return {
                 patient_nickname: document.getElementById('patientNickname').value,
                 patient_gender: document.getElementById('patientGender').value,
-                patient_age: document.getElementById('patientAge').value
+                patient_birthdate: birthdate,
+                patient_age: calcAge(birthdate)
             };
         }
 
@@ -523,11 +551,8 @@
                 fields['Стать'] = genderValue;
             }
 
-            if (formData.patient_age) {
-                const ageValue = parseInt(formData.patient_age, 10);
-                if (!isNaN(ageValue)) {
-                    fields['Вік'] = ageValue;
-                }
+            if (formData.patient_age !== null && formData.patient_age !== undefined) {
+                fields['Вік'] = formData.patient_age;
             }
 
             const response = await fetch(
@@ -605,7 +630,8 @@
                 const data = JSON.parse(savedData);
                 document.getElementById('patientNickname').value = data.patient_nickname || '';
                 document.getElementById('patientGender').value = data.patient_gender || '';
-                document.getElementById('patientAge').value = data.patient_age || '';
+                document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
+                updateAgeDisplay();
             }
         });
 
@@ -614,7 +640,7 @@
             const formData = {
                 patient_nickname: document.getElementById('patientNickname').value,
                 patient_gender: document.getElementById('patientGender').value,
-                patient_age: document.getElementById('patientAge').value
+                patient_birthdate: document.getElementById('patientBirthdate').value
             };
             localStorage.setItem('patientFormData', JSON.stringify(formData));
         });
