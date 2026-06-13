@@ -174,6 +174,50 @@
             flex-shrink: 0;
         }
 
+        .chips-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #2c3e50;
+            transition: all 0.2s;
+        }
+
+        .chip input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+        .chip:has(input:checked) {
+            background-color: #3498db;
+            color: #fff;
+            border-color: #3498db;
+        }
+
+        .chip.toggle:has(input:checked) {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+
+        .section-hint {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
         /* Режим друку */
         @media print {
             body {
@@ -346,15 +390,27 @@
 
         <form id="patientForm">
             <div class="form-group">
+                <label for="patientFullName">
+                    ПІБ пацієнта
+                </label>
+                <input
+                    type="text"
+                    id="patientFullName"
+                    name="patient_full_name"
+                    placeholder="Прізвище Ім'я По батькові"
+                >
+            </div>
+
+            <div class="form-group">
                 <label for="patientNickname">
-                    Кодовий нікнейм пацієнта
+                    Study ID
                     <span class="required">*</span>
                 </label>
                 <input
                     type="text"
                     id="patientNickname"
                     name="patient_nickname"
-                    placeholder="Напр., P001 або RES-002"
+                    placeholder="Напр., P-001 або C-001"
                     required
                 >
             </div>
@@ -398,6 +454,220 @@
                     placeholder="дд.мм.рррр"
                     aria-label="Дата народження пацієнта (дд.мм.рррр)"
                 >
+            </div>
+
+            <div class="form-group">
+                <label for="patientUnit">Військова частина</label>
+                <input type="text" id="patientUnit" name="patient_unit" placeholder="Напр., в/ч А1234">
+            </div>
+
+            <div class="form-group">
+                <label for="patientWard">№ палати</label>
+                <input type="text" id="patientWard" name="patient_ward" placeholder="Напр., 12">
+            </div>
+
+            <div class="form-group">
+                <label for="personType">Тип учасника</label>
+                <select id="personType" name="person_type" class="screen-only">
+                    <option value="">-- Виберіть --</option>
+                    <option value="Пацієнт">Пацієнт</option>
+                    <option value="Контроль">Контроль</option>
+                    <option value="Обидва">Обидва</option>
+                </select>
+                <div class="print-checkbox-group print-only" aria-label="Тип учасника для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Пацієнт</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Контроль</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Обидва</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Наявність феноменів</label>
+                <div class="chips-group screen-only">
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasAmputation" name="has_amputation">
+                        <span>Ампутація</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasFB" name="has_fb">
+                        <span>Фантомний біль</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasFV" name="has_fv">
+                        <span>Фантомні відчуття</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasBK" name="has_bk">
+                        <span>Біль кукси</span>
+                    </label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Наявність феноменів для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Ампутація</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Фантомний біль</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Фантомні відчуття</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Біль кукси</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="patientSubst">Вживання ПАР</label>
+                <select id="patientSubst" name="patient_subst" class="screen-only">
+                    <option value="">-- Виберіть --</option>
+                    <option value="Відсутнє">Відсутнє</option>
+                    <option value="Періодичне">Періодичне</option>
+                    <option value="Регулярне">Регулярне</option>
+                    <option value="В минулому">В минулому</option>
+                </select>
+                <div class="print-checkbox-group print-only" aria-label="Вживання ПАР для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Відсутнє</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Періодичне</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Регулярне</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>В минулому</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Ризики та анамнез</label>
+                <div class="chips-group screen-only">
+                    <label class="chip toggle">
+                        <input type="checkbox" id="patientSmoke" name="patient_smoke">
+                        <span>Курить</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="patientSuic" name="patient_suic">
+                        <span>Суїцидальний ризик</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="patientPsych" name="patient_psych">
+                        <span>Психіатричний анамнез</span>
+                    </label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Ризики та анамнез для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Курить</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Суїцидальний ризик</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Психіатричний анамнез</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Симптоматика</label>
+                <div class="chips-group screen-only" id="symChips">
+                    <label class="chip"><input type="checkbox" value="Порушення сну"><span>Порушення сну</span></label>
+                    <label class="chip"><input type="checkbox" value="Тривожність"><span>Тривожність</span></label>
+                    <label class="chip"><input type="checkbox" value="Дратівливість / спалахи гніву"><span>Дратівливість / спалахи гніву</span></label>
+                    <label class="chip"><input type="checkbox" value="Флешбеки / нав'язливі згадки"><span>Флешбеки / нав'язливі згадки</span></label>
+                    <label class="chip"><input type="checkbox" value="Уникання"><span>Уникання</span></label>
+                    <label class="chip"><input type="checkbox" value="Емоційне оніміння"><span>Емоційне оніміння</span></label>
+                    <label class="chip"><input type="checkbox" value="Гіперзбудливість / настороженість"><span>Гіперзбудливість / настороженість</span></label>
+                    <label class="chip"><input type="checkbox" value="Труднощі концентрації"><span>Труднощі концентрації</span></label>
+                    <label class="chip"><input type="checkbox" value="Головний біль"><span>Головний біль</span></label>
+                    <label class="chip"><input type="checkbox" value="Запаморочення"><span>Запаморочення</span></label>
+                    <label class="chip"><input type="checkbox" value="Тахікардія / серцебиття"><span>Тахікардія / серцебиття</span></label>
+                    <label class="chip"><input type="checkbox" value="Проблеми з апетитом"><span>Проблеми з апетитом</span></label>
+                    <label class="chip"><input type="checkbox" value="Знижений настрій"><span>Знижений настрій</span></label>
+                    <label class="chip"><input type="checkbox" value="Соціальна замкненість"><span>Соціальна замкненість</span></label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Симптоматика для друку">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Порушення сну</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тривожність</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Дратівливість / спалахи гніву</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Флешбеки / нав'язливі згадки</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Уникання</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Емоційне оніміння</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Гіперзбудливість / настороженість</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Труднощі концентрації</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Головний біль</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Запаморочення</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тахікардія / серцебиття</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Проблеми з апетитом</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знижений настрій</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Соціальна замкненість</span></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Дослідницька згода</label>
+                <div class="chips-group screen-only">
+                    <label class="chip toggle">
+                        <input type="checkbox" id="researchConsent" name="research_consent">
+                        <span>Згода надана</span>
+                    </label>
+                </div>
+                <div class="print-checkbox-group print-only">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Згода надана</span></div>
+                </div>
+                <div class="section-hint">Пункти, на які поширюється згода:</div>
+                <div class="chips-group screen-only" id="consentItemsChips">
+                    <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
+                    <label class="chip"><input type="checkbox" value="Аудіозапис"><span>Аудіозапис</span></label>
+                    <label class="chip"><input type="checkbox" value="Використання цитат"><span>Використання цитат</span></label>
+                    <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
+                    <label class="chip"><input type="checkbox" value="Анонімізовані дані"><span>Анонімізовані дані</span></label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Пункти згоди для друку">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання цитат</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Анонімізовані дані</span></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="researchConfidence">Впевненість дослідника</label>
+                <select id="researchConfidence" name="research_confidence" class="screen-only">
+                    <option value="">-- Виберіть --</option>
+                    <option value="Низька">Низька</option>
+                    <option value="Помірна">Помірна</option>
+                    <option value="Висока">Висока</option>
+                </select>
+                <div class="print-checkbox-group print-only" aria-label="Впевненість дослідника для друку">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Низька</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Помірна</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Висока</span></div>
+                </div>
             </div>
 
             <div class="button-group">
@@ -503,13 +773,42 @@
 
         document.getElementById('patientBirthdate').addEventListener('input', updateAgeDisplay);
 
+        // Зчитує значення позначених чекбоксів-чипів у контейнері
+        function getCheckedValues(containerId) {
+            return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
+        }
+
+        // Позначає чекбокси-чипи в контейнері за списком значень
+        function setCheckedValues(containerId, values) {
+            const selected = new Set(values || []);
+            document.querySelectorAll(`#${containerId} input[type="checkbox"]`).forEach(el => {
+                el.checked = selected.has(el.value);
+            });
+        }
+
         function getFormData() {
             const birthdate = document.getElementById('patientBirthdate').value;
             return {
+                patient_full_name: document.getElementById('patientFullName').value,
                 patient_nickname: document.getElementById('patientNickname').value,
                 patient_gender: document.getElementById('patientGender').value,
                 patient_birthdate: birthdate,
-                patient_age: calcAge(birthdate)
+                patient_age: calcAge(birthdate),
+                patient_unit: document.getElementById('patientUnit').value,
+                patient_ward: document.getElementById('patientWard').value,
+                person_type: document.getElementById('personType').value,
+                has_amputation: document.getElementById('hasAmputation').checked,
+                has_fb: document.getElementById('hasFB').checked,
+                has_fv: document.getElementById('hasFV').checked,
+                has_bk: document.getElementById('hasBK').checked,
+                patient_subst: document.getElementById('patientSubst').value,
+                patient_smoke: document.getElementById('patientSmoke').checked,
+                patient_suic: document.getElementById('patientSuic').checked,
+                patient_psych: document.getElementById('patientPsych').checked,
+                sym: getCheckedValues('symChips'),
+                research_consent: document.getElementById('researchConsent').checked,
+                research_consent_items: getCheckedValues('consentItemsChips'),
+                research_confidence: document.getElementById('researchConfidence').value
             };
         }
 
@@ -536,9 +835,9 @@
             return new TextDecoder().decode(plaintext);
         }
 
-        // Пошук існуючого запису пацієнта в Airtable за кодовим нікнеймом
+        // Пошук існуючого запису пацієнта в Airtable за Study ID
         async function findRecordIdByNickname(apiKey, nickname) {
-            const formula = encodeURIComponent(`{Ім'я}="${nickname}"`);
+            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
             const response = await fetch(
                 `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
                 {
@@ -563,7 +862,20 @@
         // це дозволяє виправляти помилково введені дані без появи дублікатів пацієнтів.
         async function saveToAirtable(apiKey, formData) {
             const fields = {
-                'Ім\'я': formData.patient_nickname
+                'Study ID': formData.patient_nickname,
+                'ПІБ': formData.patient_full_name,
+                'Військова частина': formData.patient_unit,
+                'Палата': formData.patient_ward,
+                'Є ампутація': formData.has_amputation,
+                'Фантомний біль (наявність)': formData.has_fb,
+                'Фантомні відчуття (наявність)': formData.has_fv,
+                'Біль кукси (наявність)': formData.has_bk,
+                'Курить': formData.patient_smoke,
+                'Суїцидальний ризик': formData.patient_suic,
+                'Психіатричний анамнез': formData.patient_psych,
+                'Симптоматика': formData.sym,
+                'Згода на дослідження': formData.research_consent,
+                'Пункти згоди': formData.research_consent_items
             };
 
             const genderValue = GENDER_MAP[formData.patient_gender];
@@ -573,6 +885,18 @@
 
             if (formData.patient_age !== null && formData.patient_age !== undefined) {
                 fields['Вік'] = formData.patient_age;
+            }
+
+            if (formData.person_type) {
+                fields['Тип учасника'] = formData.person_type;
+            }
+
+            if (formData.patient_subst) {
+                fields['Вживання ПАР'] = formData.patient_subst;
+            }
+
+            if (formData.research_confidence) {
+                fields['Впевненість дослідника'] = formData.research_confidence;
             }
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
@@ -652,21 +976,32 @@
             const savedData = localStorage.getItem('patientFormData');
             if (savedData) {
                 const data = JSON.parse(savedData);
+                document.getElementById('patientFullName').value = data.patient_full_name || '';
                 document.getElementById('patientNickname').value = data.patient_nickname || '';
                 document.getElementById('patientGender').value = data.patient_gender || '';
                 document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
+                document.getElementById('patientUnit').value = data.patient_unit || '';
+                document.getElementById('patientWard').value = data.patient_ward || '';
+                document.getElementById('personType').value = data.person_type || '';
+                document.getElementById('hasAmputation').checked = !!data.has_amputation;
+                document.getElementById('hasFB').checked = !!data.has_fb;
+                document.getElementById('hasFV').checked = !!data.has_fv;
+                document.getElementById('hasBK').checked = !!data.has_bk;
+                document.getElementById('patientSubst').value = data.patient_subst || '';
+                document.getElementById('patientSmoke').checked = !!data.patient_smoke;
+                document.getElementById('patientSuic').checked = !!data.patient_suic;
+                document.getElementById('patientPsych').checked = !!data.patient_psych;
+                setCheckedValues('symChips', data.sym);
+                document.getElementById('researchConsent').checked = !!data.research_consent;
+                setCheckedValues('consentItemsChips', data.research_consent_items);
+                document.getElementById('researchConfidence').value = data.research_confidence || '';
                 updateAgeDisplay();
             }
         });
 
         // Зберегти дані в localStorage при змінах
         form.addEventListener('change', function() {
-            const formData = {
-                patient_nickname: document.getElementById('patientNickname').value,
-                patient_gender: document.getElementById('patientGender').value,
-                patient_birthdate: document.getElementById('patientBirthdate').value
-            };
-            localStorage.setItem('patientFormData', JSON.stringify(formData));
+            localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
         });
     </script>
 </body>
