@@ -864,6 +864,29 @@
                 <div id="dogBlocksContainer"></div>
             </div>
 
+            <div id="sleepSection">
+                <h2 class="section-title">Скринінг сну</h2>
+                <div class="section-hint">Заповнюється для всіх учасників. Розділ А — поточний стан сну (15 питань, по одному варіанту, крім п.2). Розділ Б — таймлайн порушень сну за періодами служби. Розділ В — наскільки кожен зі стресорів служби впливав на сон. Розділ Г — зв'язок болю і сну.</div>
+                <h3 class="section-title">А. Поточний стан сну</h3>
+                <div id="sleepSectionA"></div>
+                <h3 class="section-title">Б. Таймлайн порушень сну</h3>
+                <div id="sleepSectionB"></div>
+                <h3 class="section-title">В. Стресори, що впливали на сон</h3>
+                <div id="sleepSectionC"></div>
+                <h3 class="section-title">Г. Біль і сон</h3>
+                <div id="sleepSectionD"></div>
+                <h3 class="section-title">Підсумок скринінгу сну</h3>
+                <div class="form-group screen-only" id="sleepSummary"></div>
+                <div class="form-group print-only">
+                    <label>Домінуючий ґенез порушень сну</label>
+                    <input type="text" class="print-only">
+                    <label>Фаза</label>
+                    <input type="text" class="print-only">
+                    <label>Бідирекційність біль↔сон</label>
+                    <input type="text" class="print-only">
+                </div>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -1374,6 +1397,368 @@
             updateDogTotals();
         }
 
+        // Скринінг сну — розділ А: 15 питань про поточний стан сну.
+        // Кожен варіант відповіді може мати бали для розрахунку домінуючого ґенезу порушень сну (dep/anx/ptsd/pain).
+        // Відома неузгодженість Airtable: варіант "Жахіття будять" створено з друкарською помилкою "Ахиття будять"
+        const SLEEP_PROBLEM_AIRTABLE_MAP = { 'Жахіття будять': 'Ахиття будять' };
+
+        const SLEEP_QUESTIONS_A = [
+            { key: 'sleepHours', airtable: 'Сон — тривалість сну', label: 'Скільки годин зазвичай спите за ніч?',
+                options: ['<4', '4–5', '5–6', '6–7', '7–8', '8–9', '>9'].map(o => ({ label: o, scores: {} })) },
+            { key: 'sleepProblem', airtable: 'Сон — основна проблема', label: 'Основна проблема зі сном (можна кілька)', multi: true, airtableMap: SLEEP_PROBLEM_AIRTABLE_MAP,
+                options: [
+                    { label: 'Довго не можу заснути', scores: { anx: 2 } },
+                    { label: 'Часті прокидання серед ночі', scores: { anx: 1, ptsd: 1 } },
+                    { label: 'Прокидаюсь занадто рано', scores: { dep: 2 } },
+                    { label: 'Сон не відновлює', scores: { dep: 1, pain: 1 } },
+                    { label: 'Жахіття будять', scores: { ptsd: 2 } },
+                    { label: 'Біль будить', scores: { pain: 2 } }
+                ] },
+            { key: 'preSleepThoughts', airtable: 'Сон — думки перед сном', label: 'Про що думки перед сном, коли не можете заснути?',
+                options: [
+                    { label: 'Про минуле — аналіз подій, помилок, втрат', scores: { dep: 2 } },
+                    { label: 'Про майбутнє — що може піти не так', scores: { anx: 2 } },
+                    { label: 'Образи травматичної події', scores: { ptsd: 2 } },
+                    { label: 'Біль не дає зосередитись', scores: { pain: 2 } },
+                    { label: 'Нічого конкретного / порожнеча', scores: {} }
+                ] },
+            { key: 'dreamContent', airtable: 'Сон — характер сновидінь', label: 'Характер сновидінь',
+                options: [
+                    { label: 'Тьмяні, вербальні (слова, «думання» уві сні)', scores: { dep: 2 } },
+                    { label: 'Яскраві, образні (сцени, обличчя, кольори)', scores: { anx: 2 } },
+                    { label: 'Травматичні, повторювані', scores: { ptsd: 2 } },
+                    { label: "Не пам'ятаю снів", scores: { dep: 1 } }
+                ] },
+            { key: 'waking', airtable: 'Сон — пробудження вранці', label: 'Як прокидаєтесь вранці?',
+                options: [
+                    { label: 'Важко, «одурманення», не можу ввімкнутись', scores: { dep: 2 } },
+                    { label: 'Різко — одразу повна свідомість', scores: { anx: 1 } },
+                    { label: 'Різко — з дезорієнтацією або відчуттям загрози', scores: { ptsd: 2 } },
+                    { label: 'Нормально', scores: {} }
+                ] },
+            { key: 'lyingWorsen', airtable: 'Сон — лежання після пробудження', label: 'Якщо лежите після прокидання ще 1–2 години — стан стає...',
+                options: [
+                    { label: 'Гірше (важче, темніше)', scores: { dep: 2 } },
+                    { label: 'Легше', scores: {} },
+                    { label: 'Не помічав різниці', scores: {} }
+                ] },
+            { key: 'motorSleep', airtable: 'Сон — моторика під час сну', label: 'Моторика під час сну (за словами оточуючих)',
+                options: [
+                    { label: 'Спокійний, практично не рухаюсь', scores: { dep: 1 } },
+                    { label: 'Кручусь, часто міняю пози', scores: { anx: 2 } },
+                    { label: 'Крики, удари, падіння з ліжка', scores: { ptsd: 3 } },
+                    { label: 'Не знаю', scores: {} }
+                ] },
+            { key: 'fearSleep', airtable: 'Сон — страх засинання', label: 'Чи є страх засинання?',
+                options: [
+                    { label: 'Ні', scores: {} },
+                    { label: 'Боюсь жахіть / того що буде уві сні', scores: { ptsd: 3 } },
+                    { label: 'Тривога що не засну і завтра не зможу', scores: { anx: 1 } },
+                    { label: 'Відкладаю засинання (телефон, алкоголь)', scores: { ptsd: 2 } }
+                ] },
+            { key: 'somaticPreSleep', airtable: 'Сон — тілесні відчуття перед сном', label: 'Тілесні відчуття перед сном',
+                options: [
+                    { label: "Серцебиття, напруга м'язів, потіння", scores: { anx: 2, ptsd: 1 } },
+                    { label: 'Тіло розслаблене, але голова не дає', scores: { dep: 1, anx: 1 } },
+                    { label: 'Біль заважає знайти позу', scores: { pain: 2 } },
+                    { label: 'Нічого особливого', scores: {} }
+                ] },
+            { key: 'vigilance', airtable: 'Сон — відчуття безпеки при засинанні', label: 'Відчуття безпеки при засинанні',
+                options: [
+                    { label: 'Потрібно бути напоготові, перевіряю двері', scores: { ptsd: 2 } },
+                    { label: 'Обираю позу щоб бачити двері/вікно', scores: { ptsd: 1 } },
+                    { label: 'Відчуваю себе безпечно', scores: {} }
+                ] },
+            { key: 'nightWake', airtable: 'Сон — що будить вночі', label: 'При нічних прокиданнях — що будить?',
+                options: [
+                    { label: 'Жахіття', scores: { ptsd: 2 } },
+                    { label: 'Звуки (будь-який шум)', scores: { anx: 1, ptsd: 1 } },
+                    { label: 'Біль', scores: { pain: 2 } },
+                    { label: 'Просто прокидаюсь — невідомо чому', scores: { anx: 1 } },
+                    { label: 'Не прокидаюсь серед ночі', scores: {} }
+                ] },
+            { key: 'sleepiness', airtable: 'Сон — денна сонливість', label: 'Денна сонливість — яка?',
+                options: [
+                    { label: 'Як одурманення (ніби снодійне/алкоголь)', scores: { dep: 2 } },
+                    { label: 'Звичайна втома — хочеться прилягти', scores: { pain: 1 } },
+                    { label: 'Немає денної сонливості', scores: {} }
+                ] },
+            { key: 'diurnal', airtable: 'Сон — найважчий час доби', label: 'В який час доби найважче?',
+                options: [
+                    { label: 'Вранці — до вечора легше', scores: { dep: 2 } },
+                    { label: 'Ввечері — перед сном найгірше', scores: { anx: 2 } },
+                    { label: 'Постійно однаково', scores: {} },
+                    { label: 'Після фізичного навантаження', scores: { pain: 1 } }
+                ] },
+            { key: 'sleepMisperception', airtable: 'Сон — розбіжність сприйняття сну', label: 'Оточуючі кажуть що ви спали, а ви відчуваєте що ні?',
+                options: [
+                    { label: 'Так, є розбіжність', scores: { ptsd: 2 } },
+                    { label: 'Ні, моє відчуття збігається', scores: {} },
+                    { label: 'Не знаю / нікого поруч', scores: {} }
+                ] },
+            { key: 'residual', airtable: 'Сон — сон після лікування', label: 'Якщо проходили лікування (ПТСР, депресії, тривоги) — чи покращився сон?',
+                options: [
+                    { label: 'Так, сон покращився разом з іншим', scores: {} },
+                    { label: 'Інше покращилось, але сон — ні', scores: {} },
+                    { label: 'Не проходив лікування', scores: {} }
+                ] }
+        ];
+
+        // Будує одне питання розділу А: екранний select (для одиничного вибору) або мультичіпи (для sleepProblem)
+        function renderSleepQuestionA(q, index) {
+            const id = `sleep_a_${q.key}`;
+            if (q.multi) {
+                const chips = q.options.map(o => `<label class="chip"><input type="checkbox" value="${o.label}"><span>${o.label}</span></label>`).join('');
+                const print = q.options.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o.label}</span></div>`).join('');
+                return `
+                    <div class="form-group">
+                        <label>${index + 1}. ${q.label}</label>
+                        <div class="chips-group screen-only" id="${id}Chips">${chips}</div>
+                        <div class="print-checkbox-group print-only" aria-label="${q.label} для друку">${print}</div>
+                    </div>
+                `;
+            }
+            const screenOptions = q.options.map(o => `<option value="${o.label}">${o.label}</option>`).join('');
+            const printOptions = q.options.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o.label}</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label for="${id}">${index + 1}. ${q.label}</label>
+                    <select id="${id}" class="screen-only">
+                        <option value="">—</option>
+                        ${screenOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="${q.label} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Скринінг сну — розділ Б: таймлайн порушень сну за 8 періодами служби + перше стійке порушення
+        const SLEEP_TIMELINE_PERIODS = ['До служби / до мобілізації', 'БЗВП / злагодження', 'Ротація в тил / ППД', 'Відпустка', 'Бойові дії (передова / «нуль»)', 'Після поранення / травми (гострий період)', 'Реабілітація / госпіталь', 'Повернення / очікування переводу'];
+        const SLEEP_TIMELINE_AIRTABLE_FIELDS = ['до служби / до мобілізації', 'БЗВП / злагодження', 'ротація в тил / ППД', 'відпустка', 'бойові дії (передова / «нуль»)', 'після поранення / травми (гострий період)', 'реабілітація / госпіталь', 'повернення / очікування переводу'];
+        const SLEEP_TL_OPTS = [{ label: 'Не було', value: -1 }, { label: 'Сон ОК', value: 0 }, { label: 'Помічав порушення', value: 2 }, { label: 'Виражені порушення', value: 3 }];
+
+        function renderSleepTimeline() {
+            const rows = SLEEP_TIMELINE_PERIODS.map((period, i) => {
+                const id = `sleep_b_${i}`;
+                const screenOptions = SLEEP_TL_OPTS.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+                const printOptions = SLEEP_TL_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o.label}</span></div>`).join('');
+                return `
+                    <div class="form-group">
+                        <label for="${id}">${period}</label>
+                        <select id="${id}" class="screen-only">
+                            ${screenOptions}
+                        </select>
+                        <div class="print-checkbox-group print-only" aria-label="${period} для друку">${printOptions}</div>
+                    </div>
+                `;
+            }).join('');
+            const firstOptions = SLEEP_TIMELINE_PERIODS.map(p => `<option value="${p}">${p}</option>`).join('');
+            const firstPrint = SLEEP_TIMELINE_PERIODS.map(p => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${p}</span></div>`).join('');
+            return rows + `
+                <div class="form-group">
+                    <label for="sleep_b_first">Період, коли вперше з'явилося стійке порушення сну</label>
+                    <select id="sleep_b_first" class="screen-only">
+                        <option value="">Не визначено</option>
+                        ${firstOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Перше стійке порушення сну для друку">${firstPrint}</div>
+                </div>
+            `;
+        }
+
+        // Скринінг сну — розділ В: вплив 9 стресорів служби на сон
+        const SLEEP_STRESSORS = ['нерегулярний графік (наряди, бойове чергування, добові)', 'хронічний біль (будь-якого походження)', 'контузія / наслідки ЧМТ', 'втрата побратимів', 'важкі бойові події (обстріли, штурми, оточення)', 'непередбачуваність загрози (тиша після обстрілу, ДРГ, штурм)', 'сімейні проблеми під час служби', 'поранення / травма та її наслідки', 'госпіталізація / тривала реабілітація'];
+        const SLEEP_STRESS_OPTS = [{ label: 'Не було такого', value: -1 }, { label: 'Не впливає', value: 0 }, { label: 'Трохи', value: 1 }, { label: 'Помірно', value: 2 }, { label: 'Сильно', value: 3 }];
+        // Для кожного стресора — на які складові домінуючого ґенезу він впливає (якщо позначено "Помірно"/"Сильно")
+        const SLEEP_STRESSOR_MAP = [{ anx: 1 }, { pain: 1 }, { ptsd: 1 }, { ptsd: 1 }, { ptsd: 1 }, { ptsd: 1, anx: 1 }, { dep: 1 }, { pain: 1 }, { dep: 1 }];
+
+        function renderSleepStressors() {
+            return SLEEP_STRESSORS.map((stressor, i) => {
+                const id = `sleep_c_${i}`;
+                const screenOptions = SLEEP_STRESS_OPTS.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+                const printOptions = SLEEP_STRESS_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o.label}</span></div>`).join('');
+                return `
+                    <div class="form-group">
+                        <label for="${id}">${stressor}</label>
+                        <select id="${id}" class="screen-only">
+                            ${screenOptions}
+                        </select>
+                        <div class="print-checkbox-group print-only" aria-label="${stressor} для друку">${printOptions}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Скринінг сну — розділ Г: зв'язок болю і сну
+        const SLEEP_PAIN_TYPES = ['Фантомний', 'Стумповий', 'У місці перелому', 'Контрактурний', 'Головний (після контузії)', 'Інший хронічний', 'Немає'];
+        const SLEEP_CHANGE_OPTS = ['Сильніший', 'Такий самий', 'Слабший'];
+
+        function renderSleepSectionD() {
+            const painWakesOptions = ['Так', 'Іноді', 'Ні'].map(o => `<option value="${o}">${o}</option>`).join('');
+            const painWakesPrint = ['Так', 'Іноді', 'Ні'].map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            const painTypesChips = SLEEP_PAIN_TYPES.map(o => `<label class="chip"><input type="checkbox" value="${o}"><span>${o}</span></label>`).join('');
+            const painTypesPrint = SLEEP_PAIN_TYPES.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            const changeOptions = SLEEP_CHANGE_OPTS.map(o => `<option value="${o}">${o}</option>`).join('');
+            const changePrint = SLEEP_CHANGE_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            const yesNoOptions = ['Так', 'Ні'].map(o => `<option value="${o}">${o}</option>`).join('');
+            const yesNoPrint = ['Так', 'Ні'].map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label for="sleep_d_painWakes">Біль будить вас серед ночі?</label>
+                    <select id="sleep_d_painWakes" class="screen-only">
+                        <option value="">—</option>
+                        ${painWakesOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Біль будить вночі для друку">${painWakesPrint}</div>
+                </div>
+                <div class="form-group">
+                    <label>Який біль найбільше заважає сну? (можна кілька)</label>
+                    <div class="chips-group screen-only" id="sleep_d_painTypesChips">${painTypesChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="Типи болю, що заважають сну, для друку">${painTypesPrint}</div>
+                </div>
+                <div class="form-group">
+                    <label for="sleep_d_badNight">Після ПОГАНОЇ ночі біль наступного дня...</label>
+                    <select id="sleep_d_badNight" class="screen-only">
+                        <option value="">—</option>
+                        ${changeOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Біль після поганої ночі для друку">${changePrint}</div>
+                </div>
+                <div class="form-group">
+                    <label for="sleep_d_goodNight">Після ГАРНОЇ ночі біль наступного дня...</label>
+                    <select id="sleep_d_goodNight" class="screen-only">
+                        <option value="">—</option>
+                        ${changeOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Біль після гарної ночі для друку">${changePrint}</div>
+                </div>
+                <div class="form-group">
+                    <label for="sleep_d_bodyPosition">Чи впливає положення тіла на сон? (гіпс, фіксатор, протез, біль при повороті)</label>
+                    <select id="sleep_d_bodyPosition" class="screen-only">
+                        <option value="">—</option>
+                        ${yesNoOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Вплив положення тіла на сон для друку">${yesNoPrint}</div>
+                </div>
+            `;
+        }
+
+        // Назви для домінуючого ґенезу порушень сну за сумами балів dep/anx/ptsd/pain
+        const SLEEP_DOMINANT_LABELS = { dep: 'Депресивний', anx: 'Тривожний', ptsd: 'ПТСР', pain: 'Больовий' };
+
+        // Підраховує бали dep/anx/ptsd/pain з відповідей розділу А, стресорів (розділ В) та зв'язку біль-сон (розділ Г)
+        function computeSleepScores(data) {
+            const scores = { dep: 0, anx: 0, ptsd: 0, pain: 0 };
+            SLEEP_QUESTIONS_A.forEach(q => {
+                const val = data.a[q.key];
+                const apply = opt => {
+                    if (!opt || !opt.scores) return;
+                    Object.entries(opt.scores).forEach(([k, v]) => { scores[k] += v; });
+                };
+                if (q.multi) {
+                    (val || []).forEach(label => apply(q.options.find(o => o.label === label)));
+                } else {
+                    apply(q.options.find(o => o.label === val));
+                }
+            });
+            (data.c || []).forEach((val, i) => {
+                if (val >= 2) {
+                    const add = val >= 3 ? 2 : 1;
+                    Object.entries(SLEEP_STRESSOR_MAP[i]).forEach(([k, v]) => { if (v) scores[k] += add; });
+                }
+            });
+            if (data.d.painWakes === 'Так') scores.pain += 2;
+            else if (data.d.painWakes === 'Іноді') scores.pain += 1;
+            if (data.d.badNight === 'Сильніший') scores.pain += 2;
+            if (data.d.goodNight === 'Слабший') scores.pain += 1;
+            return scores;
+        }
+
+        // Визначає домінуючий (або змішаний) ґенез порушень сну за сумами балів
+        function getSleepDominant(scores) {
+            const entries = Object.entries(scores).map(([k, v]) => ({ label: SLEEP_DOMINANT_LABELS[k], sum: v })).sort((a, b) => b.sum - a.sum);
+            if (entries[0].sum === 0) return null;
+            if (entries[1].sum > 0 && (entries[0].sum - entries[1].sum) <= 2) {
+                return `${entries[0].label} + ${entries[1].label}`;
+            }
+            return entries[0].label;
+        }
+
+        // Визначає фазу інсомнії за таймлайном (розділ Б), залишковими проявами (А15) та бідирекційністю (Г)
+        function getSleepPhase(data) {
+            const tl = data.b || [];
+            let anchor = -1;
+            if (data.bFirst) {
+                anchor = SLEEP_TIMELINE_PERIODS.indexOf(data.bFirst);
+            } else {
+                anchor = tl.findIndex(v => v >= 2);
+            }
+            const preSleep = data.a.residual;
+            const bidir = data.d.badNight === 'Сильніший' || data.d.goodNight === 'Слабший';
+            if (anchor === 0) return 'Преморбідна інсомнія';
+            if (anchor >= 1 && anchor <= 4) return `Коморбідна реактивна інсомнія (${SLEEP_TIMELINE_PERIODS[anchor]})`;
+            if (preSleep === 'Інше покращилось, але сон — ні') return 'Персистуюча (резидуальна) інсомнія';
+            if (anchor >= 5 && bidir) return 'Хронічна бідирекційна інсомнія';
+            if (anchor >= 5) return 'Коморбідна інсомнія (ризик хронізації)';
+            return 'Недостатньо даних';
+        }
+
+        // Визначає тип бідирекційного зв'язку біль↔сон за відповідями розділу Г
+        function getSleepBidirectional(data) {
+            const bad = data.d.badNight === 'Сильніший';
+            const good = data.d.goodNight === 'Слабший';
+            if (bad && good) return 'Повне порочне коло: сон↔біль';
+            if (bad) return 'Сон→біль (поганий сон посилює біль)';
+            if (good) return 'Сон→біль (гарний сон зменшує біль)';
+            return 'Бідирекційність не виявлена';
+        }
+
+        // Перераховує підсумок скринінгу сну (домінуючий ґенез, фаза, бідирекційність) на екрані
+        function updateSleepSummary() {
+            const data = getSleepRawData();
+            const scores = computeSleepScores(data);
+            const dominant = getSleepDominant(scores);
+            const phase = getSleepPhase(data);
+            const bidir = getSleepBidirectional(data);
+            document.getElementById('sleepSummary').innerHTML = `
+                Домінуючий ґенез порушень сну: ${dominant || '—'}<br>
+                Фаза: ${phase}<br>
+                Бідирекційність біль↔сон: ${bidir}
+            `;
+        }
+
+        // Зчитує сирі відповіді скринінгу сну (для розрахунку домінуючого ґенезу, фази, бідирекційності)
+        function getSleepRawData() {
+            const a = {};
+            SLEEP_QUESTIONS_A.forEach(q => {
+                a[q.key] = q.multi ? getCheckedValues(`sleep_a_${q.key}Chips`) : document.getElementById(`sleep_a_${q.key}`).value;
+            });
+            const b = [];
+            for (let i = 0; i < 8; i++) b.push(Number(document.getElementById(`sleep_b_${i}`).value));
+            const bFirst = document.getElementById('sleep_b_first').value || null;
+            const c = [];
+            for (let i = 0; i < 9; i++) c.push(Number(document.getElementById(`sleep_c_${i}`).value));
+            const d = {
+                painWakes: document.getElementById('sleep_d_painWakes').value,
+                painTypes: getCheckedValues('sleep_d_painTypesChips'),
+                badNight: document.getElementById('sleep_d_badNight').value,
+                goodNight: document.getElementById('sleep_d_goodNight').value,
+                bodyPosition: document.getElementById('sleep_d_bodyPosition').value
+            };
+            return { a, b, bFirst, c, d };
+        }
+
+        function renderSleepSection() {
+            document.getElementById('sleepSectionA').innerHTML = SLEEP_QUESTIONS_A.map(renderSleepQuestionA).join('');
+            document.getElementById('sleepSectionB').innerHTML = renderSleepTimeline();
+            document.getElementById('sleepSectionC').innerHTML = renderSleepStressors();
+            document.getElementById('sleepSectionD').innerHTML = renderSleepSectionD();
+            document.querySelectorAll('#sleepSection select, #sleepSection input[type="checkbox"]').forEach(el => {
+                el.addEventListener('change', updateSleepSummary);
+            });
+            updateSleepSummary();
+        }
+
         const printModeToggle = document.getElementById('printModeToggle');
         const form = document.getElementById('patientForm');
         const successMessage = document.getElementById('successMessage');
@@ -1415,6 +1800,9 @@
 
         // Побудувати блоки опитувальника ДОГ ФБіФВ
         renderDogSection();
+
+        // Побудувати блоки скринінгу сну
+        renderSleepSection();
 
         // Показувати блоки "Біль", "Генез" і "ДОГ ФБіФВ" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
         const painSection = document.getElementById('painSection');
@@ -1582,7 +1970,8 @@
                 stump_path_source: getCheckedValues('stumpPathSourceChips'),
                 som_react: getCheckedValues('somReactChips'),
                 ...getGenesisData(),
-                ...getDogData()
+                ...getDogData(),
+                sleep: getSleepRawData()
             };
         }
 
@@ -1725,6 +2114,36 @@
             const dominantSums = {};
             DOG_DOMINANT_KEYS.forEach(k => { dominantSums[k] = formData[`${k}_sum`]; });
             fields['ДОГ — домінантний генез'] = computeDominantGenesis(dominantSums);
+
+            const sleep = formData.sleep;
+            SLEEP_QUESTIONS_A.forEach(q => {
+                const val = sleep.a[q.key];
+                if (q.multi) {
+                    fields[q.airtable] = mapGenesisValues(val, q.airtableMap);
+                } else if (val) {
+                    fields[q.airtable] = val;
+                }
+            });
+            SLEEP_TIMELINE_AIRTABLE_FIELDS.forEach((fieldName, i) => {
+                const opt = SLEEP_TL_OPTS.find(o => o.value === sleep.b[i]);
+                if (opt) fields[`Сон — таймлайн: ${fieldName}`] = opt.label;
+            });
+            if (sleep.bFirst) fields['Сон — перше стійке порушення (період)'] = sleep.bFirst;
+            SLEEP_STRESSORS.forEach((stressor, i) => {
+                const opt = SLEEP_STRESS_OPTS.find(o => o.value === sleep.c[i]);
+                if (opt) fields[`Сон — стресор: ${stressor}`] = opt.label;
+            });
+            if (sleep.d.painWakes) fields['Сон — біль будить вночі'] = sleep.d.painWakes;
+            fields['Сон — типи болю, що заважають сну'] = sleep.d.painTypes;
+            if (sleep.d.badNight) fields['Сон — біль після поганої ночі'] = sleep.d.badNight;
+            if (sleep.d.goodNight) fields['Сон — біль після гарної ночі'] = sleep.d.goodNight;
+            if (sleep.d.bodyPosition) fields['Сон — вплив положення тіла на сон'] = sleep.d.bodyPosition;
+
+            const sleepScores = computeSleepScores(sleep);
+            const sleepDominant = getSleepDominant(sleepScores);
+            if (sleepDominant) fields['Сон — домінуючий ґенез'] = sleepDominant;
+            fields['Сон — фаза'] = getSleepPhase(sleep);
+            fields['Сон — бідирекціональність біль↔сон'] = getSleepBidirectional(sleep);
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
@@ -1869,6 +2288,28 @@
                     document.getElementById(`${block.key}Other`).value = data[`${block.key}_other`] || '';
                 });
                 updateDogTotals();
+                if (data.sleep) {
+                    SLEEP_QUESTIONS_A.forEach(q => {
+                        if (q.multi) {
+                            setCheckedValues(`sleep_a_${q.key}Chips`, data.sleep.a[q.key]);
+                        } else {
+                            document.getElementById(`sleep_a_${q.key}`).value = data.sleep.a[q.key] || '';
+                        }
+                    });
+                    for (let i = 0; i < 8; i++) {
+                        document.getElementById(`sleep_b_${i}`).value = data.sleep.b[i] ?? -1;
+                    }
+                    document.getElementById('sleep_b_first').value = data.sleep.bFirst || '';
+                    for (let i = 0; i < 9; i++) {
+                        document.getElementById(`sleep_c_${i}`).value = data.sleep.c[i] ?? -1;
+                    }
+                    document.getElementById('sleep_d_painWakes').value = data.sleep.d.painWakes || '';
+                    setCheckedValues('sleep_d_painTypesChips', data.sleep.d.painTypes);
+                    document.getElementById('sleep_d_badNight').value = data.sleep.d.badNight || '';
+                    document.getElementById('sleep_d_goodNight').value = data.sleep.d.goodNight || '';
+                    document.getElementById('sleep_d_bodyPosition').value = data.sleep.d.bodyPosition || '';
+                    updateSleepSummary();
+                }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
             }
