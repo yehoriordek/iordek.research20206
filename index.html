@@ -910,6 +910,21 @@
                     <label>Інтерпретація (Норма / Реакція адаптації / ПТСР)</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">HADS — шкала тривоги та депресії</h3>
+                <div class="section-hint">Прочитайте кожне твердження та позначте варіант, який найкраще відповідає вашому стану протягом останнього тижня.</div>
+                <div id="psiHadsContainer"></div>
+                <h3 class="section-title">Підсумок HADS</h3>
+                <div class="form-group screen-only" id="psiHadsSummary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів Т — тривога (0-21)</label>
+                    <input type="text" class="print-only">
+                    <label>Інтерпретація Т (Норма / Субклінічна тривога / Клінічна тривога)</label>
+                    <input type="text" class="print-only">
+                    <label>Сума балів Д — депресія (0-21)</label>
+                    <input type="text" class="print-only">
+                    <label>Інтерпретація Д (Норма / Субклінічна депресія / Клінічна депресія)</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -1923,17 +1938,100 @@
                 : `Сума балів: ${sum}/80<br>Інтерпретація: ${interpretation}`;
         }
 
+        // ПСІ-батарея — HADS: шкала тривоги (Т) та депресії (Д)
+        const PSI_HADS_ITEMS = [
+            { s: 'Т', q: 'Я відчуваю напруженість, мені не по собі', o: ['Весь час', 'Часто', 'Час від часу, іноді', 'Зовсім не відчуваю'], sc: [3, 2, 1, 0] },
+            { s: 'Д', q: 'Те, що раніше приносило задоволення, і зараз викликає таке ж почуття', o: ['Це так', 'Напевно, це так', 'В дуже малій мірі', 'Це зовсім не так'], sc: [0, 1, 2, 3] },
+            { s: 'Т', q: 'Я відчуваю страх, здається, ніби щось жахливе може статися', o: ['Безумовно, страх сильний', 'Так, але страх не сильний', 'Іноді, але не турбує', 'Зовсім не відчуваю'], sc: [3, 2, 1, 0] },
+            { s: 'Д', q: 'Я здатний розсміятися і побачити смішне', o: ['Безумовно так', 'Напевно, так', 'Лише в малому ступені', 'Зовсім не здатен'], sc: [0, 1, 2, 3] },
+            { s: 'Т', q: 'Неспокійні думки крутяться в голові', o: ['Постійно', 'Велику частину часу', 'Час від часу', 'Тільки іноді'], sc: [3, 2, 1, 0] },
+            { s: 'Д', q: 'Я відчуваю бадьорість', o: ['Зовсім ні', 'Дуже рідко', 'Іноді', 'Практично весь час'], sc: [3, 2, 1, 0] },
+            { s: 'Т', q: 'Я легко можу сісти і розслабитися', o: ['Безумовно так', 'Напевно, так', 'Лише зрідка', 'Зовсім не можу'], sc: [0, 1, 2, 3] },
+            { s: 'Д', q: 'Мені здається, що я все роблю повільно', o: ['Практично весь час', 'Часто', 'Іноді', 'Зовсім ні'], sc: [3, 2, 1, 0] },
+            { s: 'Т', q: 'Я відчуваю внутрішнє напруження або тремтіння', o: ['Зовсім ні', 'Іноді', 'Часто', 'Дуже часто'], sc: [0, 1, 2, 3] },
+            { s: 'Д', q: 'Я не стежу за своєю зовнішністю', o: ['Безумовно так', 'Не приділяю достатньо часу', 'Може менше уваги', 'Стежу як раніше'], sc: [3, 2, 1, 0] },
+            { s: 'Т', q: 'Відчуваю непосидючість, потрібно рухатися', o: ['Безумовно так', 'Напевно, так', 'Лише в деякій мірі', 'Зовсім ні'], sc: [3, 2, 1, 0] },
+            { s: 'Д', q: 'Мої справи можуть принести задоволення', o: ['Як і зазвичай', 'Не в тій мірі', 'Значно менше', 'Зовсім ні'], sc: [0, 1, 2, 3] },
+            { s: 'Т', q: 'У мене буває раптове відчуття паніки', o: ['Дуже часто', 'Досить часто', 'Не так часто', 'Зовсім ні'], sc: [3, 2, 1, 0] },
+            { s: 'Д', q: 'Можу отримати задоволення від книги, радіо, ТБ', o: ['Часто', 'Іноді', 'Рідко', 'Дуже рідко'], sc: [0, 1, 2, 3] }
+        ];
+        const PSI_HADS_AIRTABLE_FIELDS = [
+            'Пси — HADS, 1 (Т): Напруженість, неспокій',
+            'Пси — HADS, 2 (Д): Задоволення як раніше',
+            'Пси — HADS, 3 (Т): Відчуття страху',
+            'Пси — HADS, 4 (Д): Здатність сміятися',
+            'Пси — HADS, 5 (Т): Неспокійні думки',
+            'Пси — HADS, 6 (Д): Бадьорість',
+            'Пси — HADS, 7 (Т): Здатність розслабитися',
+            'Пси — HADS, 8 (Д): Загальмованість',
+            'Пси — HADS, 9 (Т): Внутрішнє напруження або тремтіння',
+            'Пси — HADS, 10 (Д): Турбота про зовнішність',
+            'Пси — HADS, 11 (Т): Непосидючість',
+            'Пси — HADS, 12 (Д): Задоволення від справ',
+            'Пси — HADS, 13 (Т): Раптова паніка',
+            'Пси — HADS, 14 (Д): Задоволення від дозвілля (книга/радіо/ТБ)'
+        ];
+
+        function renderPsiHadsItem(item, index) {
+            const options = item.o.map((o, oi) => `<option value="${oi}">${o}</option>`).join('');
+            const printOptions = item.o.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label for="psi_hads_${index}">${index + 1} (${item.s}). ${item.q}</label>
+                    <select id="psi_hads_${index}" class="screen-only">
+                        <option value="">—</option>
+                        ${options}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Питання ${index + 1} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Зчитує відповіді HADS (масив з 14 значень '0'-'3' або '' якщо не вибрано)
+        function getPsiHadsData() {
+            return PSI_HADS_ITEMS.map((item, index) => document.getElementById(`psi_hads_${index}`).value);
+        }
+
+        // Підраховує суми Т/Д (0-21) та інтерпретації; null, якщо не всі питання заповнені
+        function computePsiHadsSummary(answers) {
+            if (answers.some(a => a === '')) return { sumT: null, sumD: null, interpretationT: '', interpretationD: '' };
+            let sumT = 0, sumD = 0;
+            PSI_HADS_ITEMS.forEach((item, i) => {
+                const score = item.sc[Number(answers[i])];
+                if (item.s === 'Т') sumT += score; else sumD += score;
+            });
+            const interpret = s => s <= 7 ? 'Норма' : s <= 10 ? 'Субклінічна' : 'Клінічна';
+            return {
+                sumT, sumD,
+                interpretationT: interpret(sumT) === 'Норма' ? 'Норма' : `${interpret(sumT)} тривога`,
+                interpretationD: interpret(sumD) === 'Норма' ? 'Норма' : `${interpret(sumD)} депресія`
+            };
+        }
+
+        // Перераховує підсумок HADS на екрані
+        function updatePsiHadsSummary() {
+            const { sumT, sumD, interpretationT, interpretationD } = computePsiHadsSummary(getPsiHadsData());
+            document.getElementById('psiHadsSummary').innerHTML = sumT === null
+                ? 'Заповніть усі 14 питань для розрахунку суми'
+                : `Сума Т (тривога): ${sumT}/21, інтерпретація: ${interpretationT}<br>Сума Д (депресія): ${sumD}/21, інтерпретація: ${interpretationD}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
             document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
+            document.getElementById('psiHadsContainer').innerHTML = PSI_HADS_ITEMS.map(renderPsiHadsItem).join('');
             document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', updatePsiSummary);
             });
             document.querySelectorAll('#psiPcl5Container select').forEach(el => {
                 el.addEventListener('change', updatePsiPcl5Summary);
             });
+            document.querySelectorAll('#psiHadsContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiHadsSummary);
+            });
             updatePsiSummary();
             updatePsiPcl5Summary();
+            updatePsiHadsSummary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2152,7 +2250,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData() }
             };
         }
 
@@ -2344,6 +2442,18 @@
                 fields['Пси — PCL-5: інтерпретація'] = pcl5Summary.interpretation;
             }
 
+            const hads = formData.psi.hads;
+            PSI_HADS_AIRTABLE_FIELDS.forEach((fieldName, i) => {
+                if (hads[i] !== '') fields[fieldName] = PSI_HADS_ITEMS[i].o[Number(hads[i])];
+            });
+            const hadsSummary = computePsiHadsSummary(hads);
+            if (hadsSummary.sumT !== null) {
+                fields['Пси — HADS: сума Т (тривога)'] = hadsSummary.sumT;
+                fields['Пси — HADS: сума Д (депресія)'] = hadsSummary.sumD;
+                fields['Пси — HADS: інтерпретація Т'] = hadsSummary.interpretationT;
+                fields['Пси — HADS: інтерпретація Д'] = hadsSummary.interpretationD;
+            }
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2520,6 +2630,12 @@
                         document.getElementById(`psi_pcl5_${i}`).value = val;
                     });
                     updatePsiPcl5Summary();
+                }
+                if (data.psi && data.psi.hads) {
+                    data.psi.hads.forEach((val, i) => {
+                        document.getElementById(`psi_hads_${i}`).value = val;
+                    });
+                    updatePsiHadsSummary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
