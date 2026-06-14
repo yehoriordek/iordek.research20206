@@ -936,6 +936,17 @@
                     <label>Інтерпретація (Норма / Порушення сну)</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">DN-4 — опитувальник нейропатичного болю</h3>
+                <div class="section-hint">Для кожної ознаки позначте, чи присутня вона у ділянці болю.</div>
+                <div id="psiDn4Container"></div>
+                <h3 class="section-title">Підсумок DN-4</h3>
+                <div class="form-group screen-only" id="psiDn4Summary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-10)</label>
+                    <input type="text" class="print-only">
+                    <label>Інтерпретація (Не нейропатичний / Нейропатичний біль, ≥4)</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -2096,11 +2107,78 @@
                 : `Сума балів: ${sum}/24<br>Інтерпретація: ${interpretation}`;
         }
 
+        // ПСІ-батарея — DN-4: опитувальник нейропатичного болю
+        const PSI_DN4_ITEMS = [
+            { cat: 'Опитування', q: 'Печіння' },
+            { cat: 'Опитування', q: 'Відчуття холоду в болючій ділянці' },
+            { cat: 'Опитування', q: 'Відчуття удару електричним струмом' },
+            { cat: 'Опитування', q: 'Поколювання' },
+            { cat: 'Опитування', q: 'Мурашки' },
+            { cat: 'Опитування', q: 'Оніміння' },
+            { cat: 'Опитування', q: 'Свербіж' },
+            { cat: 'Огляд', q: 'Гіпоестезія при дотику' },
+            { cat: 'Огляд', q: 'Гіпоестезія при уколі' },
+            { cat: 'Огляд', q: 'Біль посилюється при проведенні пензлика' }
+        ];
+        const PSI_DN4_AIRTABLE_FIELDS = [
+            'Пси — DN-4, 1 (Опитування): Печіння',
+            'Пси — DN-4, 2 (Опитування): Відчуття холоду в болючій ділянці',
+            'Пси — DN-4, 3 (Опитування): Відчуття удару електричним струмом',
+            'Пси — DN-4, 4 (Опитування): Поколювання',
+            'Пси — DN-4, 5 (Опитування): Мурашки',
+            'Пси — DN-4, 6 (Опитування): Оніміння',
+            'Пси — DN-4, 7 (Опитування): Свербіж',
+            'Пси — DN-4, 8 (Огляд): Гіпоестезія при дотику',
+            'Пси — DN-4, 9 (Огляд): Гіпоестезія при уколі',
+            'Пси — DN-4, 10 (Огляд): Біль посилюється при проведенні пензилика'
+        ];
+        const PSI_DN4_OPTS = ['Ні', 'Так'];
+
+        function renderPsiDn4Item(item, index) {
+            const options = PSI_DN4_OPTS.map((o, oi) => `<option value="${oi}">${o}</option>`).join('');
+            const printOptions = PSI_DN4_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            const showCat = index === 0 || item.cat !== PSI_DN4_ITEMS[index - 1].cat;
+            const catHeading = showCat ? `<div class="section-hint">${item.cat}</div>` : '';
+            return `
+                ${catHeading}
+                <div class="form-group">
+                    <label for="psi_dn4_${index}">${index + 1}. ${item.q}</label>
+                    <select id="psi_dn4_${index}" class="screen-only">
+                        <option value="">—</option>
+                        ${options}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Питання ${index + 1} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Зчитує відповіді DN-4 (масив з 10 значень '0'-'1' або '' якщо не вибрано)
+        function getPsiDn4Data() {
+            return PSI_DN4_ITEMS.map((item, index) => document.getElementById(`psi_dn4_${index}`).value);
+        }
+
+        // Підраховує суму балів DN-4 (0-10) та інтерпретацію; null, якщо не всі питання заповнені
+        function computePsiDn4Summary(answers) {
+            if (answers.some(a => a === '')) return { sum: null, interpretation: '' };
+            const sum = answers.reduce((s, v) => s + Number(v), 0);
+            const interpretation = sum >= 4 ? 'Нейропатичний біль' : 'Не нейропатичний';
+            return { sum, interpretation };
+        }
+
+        // Перераховує підсумок DN-4 на екрані
+        function updatePsiDn4Summary() {
+            const { sum, interpretation } = computePsiDn4Summary(getPsiDn4Data());
+            document.getElementById('psiDn4Summary').innerHTML = sum === null
+                ? 'Заповніть усі 10 питань для розрахунку суми'
+                : `Сума балів: ${sum}/10<br>Інтерпретація: ${interpretation}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
             document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
             document.getElementById('psiHadsContainer').innerHTML = PSI_HADS_ITEMS.map(renderPsiHadsItem).join('');
             document.getElementById('psiAisContainer').innerHTML = PSI_AIS_ITEMS.map(renderPsiAisItem).join('');
+            document.getElementById('psiDn4Container').innerHTML = PSI_DN4_ITEMS.map(renderPsiDn4Item).join('');
             document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', updatePsiSummary);
             });
@@ -2113,10 +2191,14 @@
             document.querySelectorAll('#psiAisContainer select').forEach(el => {
                 el.addEventListener('change', updatePsiAisSummary);
             });
+            document.querySelectorAll('#psiDn4Container select').forEach(el => {
+                el.addEventListener('change', updatePsiDn4Summary);
+            });
             updatePsiSummary();
             updatePsiPcl5Summary();
             updatePsiHadsSummary();
             updatePsiAisSummary();
+            updatePsiDn4Summary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2335,7 +2417,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data() }
             };
         }
 
@@ -2549,6 +2631,16 @@
                 fields['Пси — AIS: інтерпретація'] = aisSummary.interpretation;
             }
 
+            const dn4 = formData.psi.dn4;
+            PSI_DN4_AIRTABLE_FIELDS.forEach((fieldName, i) => {
+                if (dn4[i] !== '') fields[fieldName] = PSI_DN4_OPTS[Number(dn4[i])];
+            });
+            const dn4Summary = computePsiDn4Summary(dn4);
+            if (dn4Summary.sum !== null) {
+                fields['Пси — DN-4: сума балів'] = dn4Summary.sum;
+                fields['Пси — DN-4: інтерпретація'] = dn4Summary.interpretation;
+            }
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2737,6 +2829,12 @@
                         document.getElementById(`psi_ais_${i}`).value = val;
                     });
                     updatePsiAisSummary();
+                }
+                if (data.psi && data.psi.dn4) {
+                    data.psi.dn4.forEach((val, i) => {
+                        document.getElementById(`psi_dn4_${i}`).value = val;
+                    });
+                    updatePsiDn4Summary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
