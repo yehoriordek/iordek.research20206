@@ -899,6 +899,17 @@
                     <label>Подій як свідок</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">PCL-5 — опитувальник симптомів ПТСР</h3>
+                <div class="section-hint">Протягом останнього місяця, наскільки вас турбували наступні симптоми? Позначте один варіант для кожного питання.</div>
+                <div id="psiPcl5Container"></div>
+                <h3 class="section-title">Підсумок PCL-5</h3>
+                <div class="form-group screen-only" id="psiPcl5Summary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-80)</label>
+                    <input type="text" class="print-only">
+                    <label>Інтерпретація (Норма / Реакція адаптації / ПТСР)</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -1829,12 +1840,100 @@
             `;
         }
 
+        // ПСІ-батарея — PCL-5: опитувальник симптомів ПТСР
+        const PSI_PCL5_QUESTIONS = [
+            'Повторювані, хвилюючі та небажані спогади стресового досвіду?',
+            'Повторювані, хвилюючі сновидіння про стресовий досвід?',
+            'Раптове почуття, ніби стресовий досвід знову трапляється?',
+            'Почуття засмученості при нагадуванні про стресовий досвід?',
+            'Сильні фізичні реакції при нагадуванні про стресовий досвід?',
+            'Уникання спогадів, думок або почуттів, пов\'язаних зі стресовим досвідом?',
+            'Уникання зовнішніх стимулів, що нагадують про стресовий досвід?',
+            'Проблеми згадування важливих моментів стресового досвіду?',
+            'Сильні негативні переконання про себе, інших або світ?',
+            'Самозвинувачення або звинувачення інших щодо стресового досвіду?',
+            'Сильні негативні емоції: страх, жах, злість, провина, сором?',
+            'Втрата інтересу до діяльності, що раніше приносила задоволення?',
+            'Відчуття віддаленості або відокремленості від інших?',
+            'Проблеми у переживанні позитивних емоцій?',
+            'Роздратування, спалахи гніву, агресивна поведінка?',
+            'Ризикована поведінка або дії, що можуть зашкодити?',
+            'Бути «на взводі» або «на сторожі»?',
+            'Відчуття постійної напруги?',
+            'Труднощі із зосередженістю?',
+            'Проблеми із засинанням або нічні прокидання?'
+        ];
+        const PSI_PCL5_OPTS = ['Зовсім ні', 'Трохи', 'Помірно', 'Відчутно', 'Дуже'];
+        const PSI_PCL5_AIRTABLE_FIELDS = [
+            'Пси — PCL-5, 1: Спогади про подію',
+            'Пси — PCL-5, 2: Сновидіння про подію',
+            'Пси — PCL-5, 3: Раптове відчуття повторення події',
+            'Пси — PCL-5, 4: Засмученість при нагадуванні',
+            'Пси — PCL-5, 5: Фізичні реакції при нагадуванні',
+            'Пси — PCL-5, 6: Уникання думок і почуттів про подію',
+            'Пси — PCL-5, 7: Уникання зовнішніх нагадувань про подію',
+            'Пси — PCL-5, 8: Проблеми зі згадуванням події',
+            'Пси — PCL-5, 9: Негативні переконання про себе/світ',
+            'Пси — PCL-5, 10: Самозвинуватення або звинуватення інших',
+            'Пси — PCL-5, 11: Негативні емоції (страх, злість, вина, сором)',
+            'Пси — PCL-5, 12: Втрата інтересу до діяльності',
+            'Пси — PCL-5, 13: Віддаленість від інших',
+            'Пси — PCL-5, 14: Проблеми з позитивними емоціями',
+            'Пси — PCL-5, 15: Роздратованість, спалахи гніву/агресія',
+            'Пси — PCL-5, 16: Ризикована поведінка',
+            'Пси — PCL-5, 17: Гіпернастороженість («на взводі»)',
+            'Пси — PCL-5, 18: Постійна напруга',
+            'Пси — PCL-5, 19: Важко зосередитися',
+            'Пси — PCL-5, 20: Проблеми зі сном'
+        ];
+
+        function renderPsiPcl5Question(q, index) {
+            const options = PSI_PCL5_OPTS.map((o, oi) => `<option value="${oi}">${o}</option>`).join('');
+            const printOptions = PSI_PCL5_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label for="psi_pcl5_${index}">${index + 1}. ${q}</label>
+                    <select id="psi_pcl5_${index}" class="screen-only">
+                        <option value="">—</option>
+                        ${options}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Питання ${index + 1} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Зчитує відповіді PCL-5 (масив з 20 значень '0'-'4' або '' якщо не вибрано)
+        function getPsiPcl5Data() {
+            return PSI_PCL5_QUESTIONS.map((q, index) => document.getElementById(`psi_pcl5_${index}`).value);
+        }
+
+        // Підраховує суму балів PCL-5 (0-80) та інтерпретацію; null, якщо не всі питання заповнені
+        function computePsiPcl5Summary(answers) {
+            if (answers.some(a => a === '')) return { sum: null, interpretation: '' };
+            const sum = answers.reduce((s, v) => s + Number(v), 0);
+            const interpretation = sum <= 20 ? 'Норма' : sum <= 33 ? 'Реакція адаптації (РА)' : 'ПТСР';
+            return { sum, interpretation };
+        }
+
+        // Перераховує підсумок PCL-5 на екрані
+        function updatePsiPcl5Summary() {
+            const { sum, interpretation } = computePsiPcl5Summary(getPsiPcl5Data());
+            document.getElementById('psiPcl5Summary').innerHTML = sum === null
+                ? 'Заповніть усі 20 питань для розрахунку суми'
+                : `Сума балів: ${sum}/80<br>Інтерпретація: ${interpretation}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
+            document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
             document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', updatePsiSummary);
             });
+            document.querySelectorAll('#psiPcl5Container select').forEach(el => {
+                el.addEventListener('change', updatePsiPcl5Summary);
+            });
             updatePsiSummary();
+            updatePsiPcl5Summary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2053,7 +2152,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data() }
             };
         }
 
@@ -2235,6 +2334,16 @@
             fields['Пси — LEC-5: прямих травматичних подій (зі мною)'] = lec5Summary.direct;
             fields['Пси — LEC-5: подій як свідок'] = lec5Summary.witness;
 
+            const pcl5 = formData.psi.pcl5;
+            PSI_PCL5_AIRTABLE_FIELDS.forEach((fieldName, i) => {
+                if (pcl5[i] !== '') fields[fieldName] = PSI_PCL5_OPTS[Number(pcl5[i])];
+            });
+            const pcl5Summary = computePsiPcl5Summary(pcl5);
+            if (pcl5Summary.sum !== null) {
+                fields['Пси — PCL-5: сума балів'] = pcl5Summary.sum;
+                fields['Пси — PCL-5: інтерпретація'] = pcl5Summary.interpretation;
+            }
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2405,6 +2514,12 @@
                         setCheckedValues(`psi_lec5_${i}Chips`, vals);
                     });
                     updatePsiSummary();
+                }
+                if (data.psi && data.psi.pcl5) {
+                    data.psi.pcl5.forEach((val, i) => {
+                        document.getElementById(`psi_pcl5_${i}`).value = val;
+                    });
+                    updatePsiPcl5Summary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
