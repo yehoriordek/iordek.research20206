@@ -925,6 +925,17 @@
                     <label>Інтерпретація Д (Норма / Субклінічна депресія / Клінічна депресія)</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">AIS — Афінська шкала інсомнії</h3>
+                <div class="section-hint">Якщо протягом останнього місяця ви мали наступні проблеми хоча б тричі на тиждень, позначте варіант, що найкраще описує ваш стан.</div>
+                <div id="psiAisContainer"></div>
+                <h3 class="section-title">Підсумок AIS</h3>
+                <div class="form-group screen-only" id="psiAisSummary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-24)</label>
+                    <input type="text" class="print-only">
+                    <label>Інтерпретація (Норма / Порушення сну)</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -2016,10 +2027,80 @@
                 : `Сума Т (тривога): ${sumT}/21, інтерпретація: ${interpretationT}<br>Сума Д (депресія): ${sumD}/21, інтерпретація: ${interpretationD}`;
         }
 
+        // ПСІ-батарея — AIS: Афінська шкала інсомнії
+        const PSI_AIS_ITEMS = [
+            { q: 'Час засинання', o: ['Дуже швидко', 'З невеликою затримкою', 'З помітною затримкою', 'Тривала затримка / не сплю'] },
+            { q: 'Пробудження вночі', o: ['Ні', 'Рідко', 'Доволі часто', 'Часто / не сплю'] },
+            { q: 'Остаточне пробудження раніше, ніж бажано', o: ['Ні', 'Дещо раніше', 'Істотно раніше', 'Набагато раніше / не сплю'] },
+            { q: 'Загальна тривалість сну', o: ['Достатньо', 'Недостатньо', 'Помітно недостатньо', 'Дуже недостатньо'] },
+            { q: 'Якість сну (незалежно від тривалості)', o: ['Задовільна', 'Трохи незадовільна', 'Погана', 'Дуже погана'] },
+            { q: 'Самопочуття протягом дня', o: ['Нормальне', 'Трохи знижене', 'Помітно знижене', 'Дуже знижене'] },
+            { q: 'Працездатність (фізична та психічна) протягом дня', o: ['Нормальне', 'Трохи знижене', 'Помітно знижене', 'Дуже знижене'] },
+            { q: 'Денна сонливість', o: ['Ні', 'Мало виражена', 'Суттєво виражена', 'Дуже сильно виражена'] }
+        ];
+        const PSI_AIS_AIRTABLE_FIELDS = [
+            'Пси — AIS, 1: Час засипання',
+            'Пси — AIS, 2: Пробудження вночі',
+            'Пси — AIS, 3: Остаточне пробудження раніше',
+            'Пси — AIS, 4: Загальна тривалість сну',
+            'Пси — AIS, 5: Якість сну',
+            'Пси — AIS, 6: Самопочуття наступного дня',
+            'Пси — AIS, 7: Працездатність наступного дня',
+            'Пси — AIS, 8: Денна сонливість'
+        ];
+        // Точні варіанти, як вони збережені в Airtable (з малої букви для другого варіанту в пп. 1, 5, 6, 7)
+        const PSI_AIS_AIRTABLE_OPTS = [
+            ['Дуже швидко', 'з невеликою затримкою', 'з помітною затримкою', 'тривала затримка / не сплю'],
+            ['Ні', 'Рідко', 'Доволі часто', 'Часто / не сплю'],
+            ['Ні', 'Дещо раніше', 'Істотно раніше', 'Набагато раніше / не сплю'],
+            ['Достатньо', 'Недостатньо', 'Помітно недостатньо', 'Дуже недостатньо'],
+            ['Задовільна', 'трохи незадовільна', 'Погана', 'Дуже погана'],
+            ['Нормальне', 'трохи знижене', 'Помітно знижене', 'Дуже знижене'],
+            ['Нормальне', 'трохи знижене', 'Помітно знижене', 'Дуже знижене'],
+            ['Ні', 'Мало виражена', 'Суттєво виражена', 'Дуже сильно виражена']
+        ];
+
+        function renderPsiAisItem(item, index) {
+            const options = item.o.map((o, oi) => `<option value="${oi}">${o}</option>`).join('');
+            const printOptions = item.o.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label for="psi_ais_${index}">${index + 1}. ${item.q}</label>
+                    <select id="psi_ais_${index}" class="screen-only">
+                        <option value="">—</option>
+                        ${options}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Питання ${index + 1} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Зчитує відповіді AIS (масив з 8 значень '0'-'3' або '' якщо не вибрано)
+        function getPsiAisData() {
+            return PSI_AIS_ITEMS.map((item, index) => document.getElementById(`psi_ais_${index}`).value);
+        }
+
+        // Підраховує суму балів AIS (0-24) та інтерпретацію; null, якщо не всі питання заповнені
+        function computePsiAisSummary(answers) {
+            if (answers.some(a => a === '')) return { sum: null, interpretation: '' };
+            const sum = answers.reduce((s, v) => s + Number(v), 0);
+            const interpretation = sum <= 6 ? 'Норма' : 'Порушення сну';
+            return { sum, interpretation };
+        }
+
+        // Перераховує підсумок AIS на екрані
+        function updatePsiAisSummary() {
+            const { sum, interpretation } = computePsiAisSummary(getPsiAisData());
+            document.getElementById('psiAisSummary').innerHTML = sum === null
+                ? 'Заповніть усі 8 питань для розрахунку суми'
+                : `Сума балів: ${sum}/24<br>Інтерпретація: ${interpretation}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
             document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
             document.getElementById('psiHadsContainer').innerHTML = PSI_HADS_ITEMS.map(renderPsiHadsItem).join('');
+            document.getElementById('psiAisContainer').innerHTML = PSI_AIS_ITEMS.map(renderPsiAisItem).join('');
             document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', updatePsiSummary);
             });
@@ -2029,9 +2110,13 @@
             document.querySelectorAll('#psiHadsContainer select').forEach(el => {
                 el.addEventListener('change', updatePsiHadsSummary);
             });
+            document.querySelectorAll('#psiAisContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiAisSummary);
+            });
             updatePsiSummary();
             updatePsiPcl5Summary();
             updatePsiHadsSummary();
+            updatePsiAisSummary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2250,7 +2335,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData() }
             };
         }
 
@@ -2454,6 +2539,16 @@
                 fields['Пси — HADS: інтерпретація Д'] = hadsSummary.interpretationD;
             }
 
+            const ais = formData.psi.ais;
+            PSI_AIS_AIRTABLE_FIELDS.forEach((fieldName, i) => {
+                if (ais[i] !== '') fields[fieldName] = PSI_AIS_AIRTABLE_OPTS[i][Number(ais[i])];
+            });
+            const aisSummary = computePsiAisSummary(ais);
+            if (aisSummary.sum !== null) {
+                fields['Пси — AIS: сума балів'] = aisSummary.sum;
+                fields['Пси — AIS: інтерпретація'] = aisSummary.interpretation;
+            }
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2636,6 +2731,12 @@
                         document.getElementById(`psi_hads_${i}`).value = val;
                     });
                     updatePsiHadsSummary();
+                }
+                if (data.psi && data.psi.ais) {
+                    data.psi.ais.forEach((val, i) => {
+                        document.getElementById(`psi_ais_${i}`).value = val;
+                    });
+                    updatePsiAisSummary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
