@@ -947,6 +947,15 @@
                     <label>Інтерпретація (Не нейропатичний / Нейропатичний біль, ≥4)</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">C-SSRS — оцінка суїцидального ризику</h3>
+                <div class="section-hint">Дайте відповідь "Так" або "Ні" на кожне питання.</div>
+                <div id="psiCssrsContainer"></div>
+                <h3 class="section-title">Підсумок C-SSRS</h3>
+                <div class="form-group screen-only" id="psiCssrsSummary"></div>
+                <div class="form-group print-only">
+                    <label>Рівень ризику</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -2173,12 +2182,83 @@
                 : `Сума балів: ${sum}/10<br>Інтерпретація: ${interpretation}`;
         }
 
+        // ПСІ-батарея — C-SSRS: оцінка суїцидального ризику
+        const PSI_CSSRS_ITEMS = [
+            { id: 'q1', q: 'Чи бажали Ви бути мертвим/мертвою або заснути і не прокинутись?' },
+            { id: 'q2', q: 'Чи мали Ви реальні думки про те, щоб покінчити з собою?' },
+            { id: 'q3', q: 'Чи думали Ви про те, ЯК би Ви це зробили? (метод, засіб)' },
+            { id: 'q4', q: 'Чи мали Ви намір діяти за цими думками (не просто фантазія)?' },
+            { id: 'q5', q: 'Чи розробляли Ви деталі плану або готували щось?' },
+            { id: 'q6life', q: 'Чи робили Ви будь-коли щось, щоб покінчити з собою? (за все життя)' },
+            { id: 'q6recent', q: 'Чи робили Ви щось за останні 3 місяці?' }
+        ];
+        const PSI_CSSRS_AIRTABLE_FIELDS = [
+            'Пси — C-SSRS, 1: Бажання бути мертвим/заснути і не прокинутись',
+            'Пси — C-SSRS, 2: Думки про самогубство',
+            'Пси — C-SSRS, 3: Думки про спосіб (метод)',
+            'Пси — C-SSRS, 4: Намір діяти за думками',
+            'Пси — C-SSRS, 5: План або підготовка',
+            'Пси — C-SSRS, 6: Спроба самогубства за все життя',
+            'Пси — C-SSRS, 7: Спроба за останні 3 місяці'
+        ];
+        const PSI_CSSRS_OPTS = ['Так', 'Ні'];
+
+        function renderPsiCssrsItem(item, index) {
+            const options = PSI_CSSRS_OPTS.map(o => `<option value="${o}">${o}</option>`).join('');
+            const printOptions = PSI_CSSRS_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            const methodField = item.id === 'q3' ? `
+                <div class="form-group">
+                    <label for="psi_cssrs_q3method">Якщо так — який метод/засіб?</label>
+                    <input type="text" id="psi_cssrs_q3method" placeholder="Опис методу...">
+                </div>
+            ` : '';
+            return `
+                <div class="form-group">
+                    <label for="psi_cssrs_${item.id}">${index + 1}. ${item.q}</label>
+                    <select id="psi_cssrs_${item.id}" class="screen-only">
+                        <option value="">—</option>
+                        ${options}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Питання ${index + 1} для друку">${printOptions}</div>
+                </div>
+                ${methodField}
+            `;
+        }
+
+        // Зчитує відповіді C-SSRS (об'єкт {q1: 'Так'/'Ні'/'', ..., q3method: '...'})
+        function getPsiCssrsData() {
+            const data = {};
+            PSI_CSSRS_ITEMS.forEach(item => {
+                data[item.id] = document.getElementById(`psi_cssrs_${item.id}`).value;
+            });
+            data.q3method = document.getElementById('psi_cssrs_q3method').value;
+            return data;
+        }
+
+        // Визначає рівень суїцидального ризику за відповідями C-SSRS
+        function computePsiCssrsLevel(data) {
+            if (data.q6recent === 'Так') return 'Невідкладний ризик';
+            if (data.q6life === 'Так') return 'Високий ризик (анамнез спроби)';
+            if (data.q5 === 'Так' || data.q4 === 'Так' || data.q3 === 'Так') return 'Високий ризик';
+            if (data.q2 === 'Так') return 'Помірний ризик';
+            if (data.q1 === 'Так') return 'Низький ризик';
+            if (PSI_CSSRS_ITEMS.some(item => data[item.id] !== '')) return 'Ризик не виявлено';
+            return 'Не оцінено';
+        }
+
+        // Перераховує підсумок C-SSRS на екрані
+        function updatePsiCssrsSummary() {
+            const level = computePsiCssrsLevel(getPsiCssrsData());
+            document.getElementById('psiCssrsSummary').innerHTML = `Рівень ризику: ${level}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
             document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
             document.getElementById('psiHadsContainer').innerHTML = PSI_HADS_ITEMS.map(renderPsiHadsItem).join('');
             document.getElementById('psiAisContainer').innerHTML = PSI_AIS_ITEMS.map(renderPsiAisItem).join('');
             document.getElementById('psiDn4Container').innerHTML = PSI_DN4_ITEMS.map(renderPsiDn4Item).join('');
+            document.getElementById('psiCssrsContainer').innerHTML = PSI_CSSRS_ITEMS.map(renderPsiCssrsItem).join('');
             document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', updatePsiSummary);
             });
@@ -2194,11 +2274,15 @@
             document.querySelectorAll('#psiDn4Container select').forEach(el => {
                 el.addEventListener('change', updatePsiDn4Summary);
             });
+            document.querySelectorAll('#psiCssrsContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiCssrsSummary);
+            });
             updatePsiSummary();
             updatePsiPcl5Summary();
             updatePsiHadsSummary();
             updatePsiAisSummary();
             updatePsiDn4Summary();
+            updatePsiCssrsSummary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2417,7 +2501,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data(), cssrs: getPsiCssrsData() }
             };
         }
 
@@ -2641,6 +2725,13 @@
                 fields['Пси — DN-4: інтерпретація'] = dn4Summary.interpretation;
             }
 
+            const cssrs = formData.psi.cssrs;
+            PSI_CSSRS_ITEMS.forEach((item, i) => {
+                if (cssrs[item.id] !== '') fields[PSI_CSSRS_AIRTABLE_FIELDS[i]] = cssrs[item.id];
+            });
+            if (cssrs.q3method) fields['Пси — C-SSRS, 3a: Метод/засіб (опис)'] = cssrs.q3method;
+            fields['Пси — C-SSRS: рівень ризику'] = computePsiCssrsLevel(cssrs);
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2835,6 +2926,13 @@
                         document.getElementById(`psi_dn4_${i}`).value = val;
                     });
                     updatePsiDn4Summary();
+                }
+                if (data.psi && data.psi.cssrs) {
+                    PSI_CSSRS_ITEMS.forEach(item => {
+                        document.getElementById(`psi_cssrs_${item.id}`).value = data.psi.cssrs[item.id] || '';
+                    });
+                    document.getElementById('psi_cssrs_q3method').value = data.psi.cssrs.q3method || '';
+                    updatePsiCssrsSummary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
