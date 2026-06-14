@@ -956,6 +956,17 @@
                     <label>Рівень ризику</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">DES-T — шкала дисоціативних переживань</h3>
+                <div class="section-hint">Оцініть, який відсоток часу (0-100%, з кроком 10%) відбувається кожне з переживань.</div>
+                <div id="psiDestContainer"></div>
+                <h3 class="section-title">Підсумок DES-T</h3>
+                <div class="form-group screen-only" id="psiDestSummary"></div>
+                <div class="form-group print-only">
+                    <label>Середній відсоток (M)</label>
+                    <input type="text" class="print-only">
+                    <label>Інтерпретація (Норма / Підвищена дисоціація / Ймовірна патологічна дисоціація / Виражена патологічна дисоціація)</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -2252,6 +2263,70 @@
             document.getElementById('psiCssrsSummary').innerHTML = `Рівень ризику: ${level}`;
         }
 
+        // ПСІ-батарея — DES-T: шкала дисоціативних переживань
+        const PSI_DEST_ITEMS = [
+            "Виявляю серед своїх речей те, що не пам'ятаю як придбав/ла",
+            'Знаходжу докази того, що робив/ла щось, чого не пам\'ятаю',
+            'Відчуття що стою поруч із собою або спостерігаю за собою зі сторони',
+            'Не впізнаю друзів або рідних',
+            'Відчуття що інші люди або предмети навколо — нереальні',
+            'Відчуття що моє тіло мені не належить',
+            'Поводжусь настільки по-різному в різних ситуаціях, наче я дві різні людини',
+            'Чую голоси у своїй голові'
+        ];
+        const PSI_DEST_AIRTABLE_FIELDS = [
+            "Пси — DES-T, 1: Виявляю серед своїх речей те, що не пам'ятаю як придбав/ла",
+            "Пси — DES-T, 2: Знаходжу докази того, що робив/ла щось, чого не пам'ятаю",
+            'Пси — DES-T, 3: Відчуття що стою поруч із собою або спостерігаю за собою зі сторони',
+            'Пси — DES-T, 4: Не візнаю друзів або рідних',
+            'Пси — DES-T, 5: Відчуття що інші люди або предмети навколо — нереальні',
+            'Пси — DES-T, 6: Відчуття що моє тіло мені не належить',
+            'Пси — DES-T, 7: Поводжусь настільки по-різному в різних ситуаціях, наче я дві різні людини',
+            'Пси — DES-T, 8: Чую голоси у своїй голові'
+        ];
+        const PSI_DEST_OPTS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+        function renderPsiDestItem(item, index) {
+            const options = PSI_DEST_OPTS.map(o => `<option value="${o}">${o}%</option>`).join('');
+            const printOptions = PSI_DEST_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}%</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label for="psi_dest_${index}">${index + 1}. ${item}</label>
+                    <select id="psi_dest_${index}" class="screen-only">
+                        <option value="">—</option>
+                        ${options}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Питання ${index + 1} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Зчитує відповіді DES-T (масив з 8 значень '0'-'100' або '' якщо не вибрано)
+        function getPsiDestData() {
+            return PSI_DEST_ITEMS.map((item, index) => document.getElementById(`psi_dest_${index}`).value);
+        }
+
+        // Підраховує середній відсоток (M) DES-T та інтерпретацію; null, якщо нічого не заповнено
+        function computePsiDestSummary(answers) {
+            const valid = answers.filter(a => a !== '').map(Number);
+            if (!valid.length) return { mean: null, interpretation: '' };
+            const mean = Math.round(valid.reduce((s, v) => s + v, 0) / valid.length);
+            let interpretation;
+            if (mean >= 30) interpretation = 'Виражена патологічна дисоціація';
+            else if (mean >= 20) interpretation = 'Ймовірна патологічна дисоціація';
+            else if (mean >= 10) interpretation = 'Підвищена дисоціація';
+            else interpretation = 'Норма';
+            return { mean, interpretation };
+        }
+
+        // Перераховує підсумок DES-T на екрані
+        function updatePsiDestSummary() {
+            const { mean, interpretation } = computePsiDestSummary(getPsiDestData());
+            document.getElementById('psiDestSummary').innerHTML = mean === null
+                ? 'Заповніть хоча б одне питання для розрахунку середнього'
+                : `Середній відсоток (M): ${mean}%<br>Інтерпретація: ${interpretation}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
             document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
@@ -2259,6 +2334,7 @@
             document.getElementById('psiAisContainer').innerHTML = PSI_AIS_ITEMS.map(renderPsiAisItem).join('');
             document.getElementById('psiDn4Container').innerHTML = PSI_DN4_ITEMS.map(renderPsiDn4Item).join('');
             document.getElementById('psiCssrsContainer').innerHTML = PSI_CSSRS_ITEMS.map(renderPsiCssrsItem).join('');
+            document.getElementById('psiDestContainer').innerHTML = PSI_DEST_ITEMS.map(renderPsiDestItem).join('');
             document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', updatePsiSummary);
             });
@@ -2277,12 +2353,16 @@
             document.querySelectorAll('#psiCssrsContainer select').forEach(el => {
                 el.addEventListener('change', updatePsiCssrsSummary);
             });
+            document.querySelectorAll('#psiDestContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiDestSummary);
+            });
             updatePsiSummary();
             updatePsiPcl5Summary();
             updatePsiHadsSummary();
             updatePsiAisSummary();
             updatePsiDn4Summary();
             updatePsiCssrsSummary();
+            updatePsiDestSummary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2501,7 +2581,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data(), cssrs: getPsiCssrsData() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data(), cssrs: getPsiCssrsData(), dest: getPsiDestData() }
             };
         }
 
@@ -2732,6 +2812,16 @@
             if (cssrs.q3method) fields['Пси — C-SSRS, 3a: Метод/засіб (опис)'] = cssrs.q3method;
             fields['Пси — C-SSRS: рівень ризику'] = computePsiCssrsLevel(cssrs);
 
+            const dest = formData.psi.dest;
+            PSI_DEST_AIRTABLE_FIELDS.forEach((fieldName, i) => {
+                if (dest[i] !== '') fields[fieldName] = Number(dest[i]);
+            });
+            const destSummary = computePsiDestSummary(dest);
+            if (destSummary.mean !== null) {
+                fields['Пси — DES-T: M (середній %)'] = destSummary.mean;
+                fields['Пси — DES-T: інтерпретація'] = destSummary.interpretation;
+            }
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2933,6 +3023,12 @@
                     });
                     document.getElementById('psi_cssrs_q3method').value = data.psi.cssrs.q3method || '';
                     updatePsiCssrsSummary();
+                }
+                if (data.psi && data.psi.dest) {
+                    data.psi.dest.forEach((val, i) => {
+                        document.getElementById(`psi_dest_${i}`).value = val;
+                    });
+                    updatePsiDestSummary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
