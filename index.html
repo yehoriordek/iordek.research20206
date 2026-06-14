@@ -142,6 +142,15 @@
             background-color: #7f8c8d;
         }
 
+        .btn-new {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-new:hover {
+            background-color: #2980b9;
+        }
+
         .success-message {
             display: none;
             padding: 15px;
@@ -1478,6 +1487,7 @@ Email: yehor.iordek@gmail.com
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
+                <button type="button" class="btn-new" id="newPatientBtn">Новий пацієнт</button>
             </div>
         </form>
     </div>
@@ -3738,6 +3748,14 @@ Email: yehor.iordek@gmail.com
         // Зберегти дані в localStorage при змінах
         form.addEventListener('change', function() {
             localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
+        });
+
+        // Новий пацієнт — очистити форму та почати нову анкету
+        document.getElementById('newPatientBtn').addEventListener('click', function() {
+            if (confirm('Усі незбережені дані поточної анкети буде видалено. Створити нову анкету для нового пацієнта?')) {
+                localStorage.removeItem('patientFormData');
+                location.reload();
+            }
         });
     </script>
 </body>
