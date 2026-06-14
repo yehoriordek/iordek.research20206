@@ -967,6 +967,18 @@
                     <label>Інтерпретація (Норма / Підвищена дисоціація / Ймовірна патологічна дисоціація / Виражена патологічна дисоціація)</label>
                     <input type="text" class="print-only">
                 </div>
+                <h3 class="section-title">MoCA — Монреальська шкала оцінки когнітивних функцій</h3>
+                <div class="section-hint">Введіть загальний бал після проведення тесту (0-30, норма ≥ 26).</div>
+                <div class="form-group">
+                    <label for="psi_moca">Загальний бал MoCA (0-30)</label>
+                    <input type="number" id="psi_moca" class="screen-only" min="0" max="30" step="1">
+                    <input type="text" class="print-only">
+                </div>
+                <div class="form-group screen-only" id="psiMocaSummary"></div>
+                <div class="form-group print-only">
+                    <label>Інтерпретація (Норма / Когнітивний дефіцит, &lt; 26)</label>
+                    <input type="text" class="print-only">
+                </div>
             </div>
 
             <div class="button-group">
@@ -2327,6 +2339,26 @@
                 : `Середній відсоток (M): ${mean}%<br>Інтерпретація: ${interpretation}`;
         }
 
+        // ПСІ-батарея — MoCA: Монреальська шкала оцінки когнітивних функцій
+        function getPsiMocaData() {
+            return document.getElementById('psi_moca').value;
+        }
+
+        // Визначає інтерпретацію MoCA за загальним балом; '', якщо не заповнено
+        function computePsiMocaInterpretation(score) {
+            if (score === '') return '';
+            return Number(score) >= 26 ? 'Норма' : 'Когнітивний дефіцит';
+        }
+
+        // Перераховує підсумок MoCA на екрані
+        function updatePsiMocaSummary() {
+            const score = getPsiMocaData();
+            const interpretation = computePsiMocaInterpretation(score);
+            document.getElementById('psiMocaSummary').innerHTML = interpretation === ''
+                ? 'Введіть загальний бал для розрахунку інтерпретації'
+                : `Інтерпретація: ${interpretation}`;
+        }
+
         function renderPsiSection() {
             document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
             document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
@@ -2356,6 +2388,7 @@
             document.querySelectorAll('#psiDestContainer select').forEach(el => {
                 el.addEventListener('change', updatePsiDestSummary);
             });
+            document.getElementById('psi_moca').addEventListener('input', updatePsiMocaSummary);
             updatePsiSummary();
             updatePsiPcl5Summary();
             updatePsiHadsSummary();
@@ -2363,6 +2396,7 @@
             updatePsiDn4Summary();
             updatePsiCssrsSummary();
             updatePsiDestSummary();
+            updatePsiMocaSummary();
         }
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -2581,7 +2615,7 @@
                 ...getGenesisData(),
                 ...getDogData(),
                 sleep: getSleepRawData(),
-                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data(), cssrs: getPsiCssrsData(), dest: getPsiDestData() }
+                psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data(), cssrs: getPsiCssrsData(), dest: getPsiDestData(), moca: getPsiMocaData() }
             };
         }
 
@@ -2822,6 +2856,11 @@
                 fields['Пси — DES-T: інтерпретація'] = destSummary.interpretation;
             }
 
+            if (formData.psi.moca !== '') {
+                fields['Пси — MoCA: загальний бал'] = Number(formData.psi.moca);
+                fields['Пси — MoCA: інтерпретація'] = computePsiMocaInterpretation(formData.psi.moca);
+            }
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -3029,6 +3068,10 @@
                         document.getElementById(`psi_dest_${i}`).value = val;
                     });
                     updatePsiDestSummary();
+                }
+                if (data.psi && data.psi.moca !== undefined) {
+                    document.getElementById('psi_moca').value = data.psi.moca;
+                    updatePsiMocaSummary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
