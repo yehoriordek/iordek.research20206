@@ -887,6 +887,20 @@
                 </div>
             </div>
 
+            <div id="psiSection">
+                <h2 class="section-title">ПСІ-батарея — LEC-5 (перелік травматичних подій)</h2>
+                <div class="section-hint">Заповнюється для всіх учасників. Для кожної події позначте, як вона стосується вас (можна позначити декілька варіантів, або "Ні", якщо такого не було).</div>
+                <div id="psiLec5Container"></div>
+                <h3 class="section-title">Підсумок LEC-5</h3>
+                <div class="form-group screen-only" id="psiLec5Summary"></div>
+                <div class="form-group print-only">
+                    <label>Прямих травматичних подій (зі мною)</label>
+                    <input type="text" class="print-only">
+                    <label>Подій як свідок</label>
+                    <input type="text" class="print-only">
+                </div>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -1759,6 +1773,70 @@
             updateSleepSummary();
         }
 
+        // ПСІ-батарея — LEC-5: перелік травматичних подій
+        const PSI_LEC5_EVENTS = [
+            { label: 'Стихійне лихо (повінь, ураган, землетрус)', airtable: 'Пси — LEC-5: стихійне лихо (повінь, ураган, землетрус)' },
+            { label: 'Пожежа або вибух', airtable: 'Пси — LEC-5: пожежа або вибух' },
+            { label: 'Транспортна аварія', airtable: 'Пси — LEC-5: транспортна аварія' },
+            { label: 'Серйозний нещасний випадок (робота/дім/відпочинок)', airtable: 'Пси — LEC-5: серйозний нещасний випадок (робота/дім/відпочинок)' },
+            { label: 'Вплив токсичних речовин (хімічні, радіаційні)', airtable: 'Пси — LEC-5: вплив токсичних речовин (хімічні, радіаційні)' },
+            { label: 'Фізичний напад (удар, побиття)', airtable: 'Пси — LEC-5: фізичний напад (удар, побиття)' },
+            { label: 'Напад зі зброєю (ніж, вогнепальна зброя)', airtable: 'Пси — LEC-5: напад зі зброєю (ніж, вогнепальна зброя)' },
+            { label: 'Сексуальне насильство', airtable: 'Пси — LEC-5: сексуальне насильство' },
+            { label: 'Інший небажаний сексуальний досвід', airtable: 'Пси — LEC-5: інший небажаний сексуальний досвід' },
+            { label: 'Участь у бойових діях / перебування в зоні БД', airtable: 'Пси — LEC-5: участь у бойових діях / перебування в зоні БД' },
+            { label: 'Полон (заручник, військовополонений, викрадення)', airtable: 'Пси — LEC-5: полон (заручник, військовополонений, викрадення)' },
+            { label: 'Загрозливе для життя захворювання або травма', airtable: 'Пси — LEC-5: загрозливе для життя захворювання або травма' },
+            { label: 'Тяжкі страждання інших людей', airtable: 'Пси — LEC-5: тяжкі страждання інших людей' },
+            { label: 'Раптова насильницька смерть (вбивство, самогубство)', airtable: 'Пси — LEC-5: раптова насильницька смерть (вбивство, самогубство)' },
+            { label: 'Раптова випадкова смерть', airtable: 'Пси — LEC-5: раптова випадкова смерть' },
+            { label: 'Серйозна шкода або смерть, яку ви спричинили іншій особі', airtable: 'Пси — LEC-5: серйозна шкода або смерть, яку ви спричинили іншій особі' },
+            { label: 'Інша дуже стресова подія', airtable: 'Пси — LEC-5: інша дуже стресова подія' }
+        ];
+        const PSI_LEC5_OPTS = ['Зі мною', 'Свідок', 'Дізнався', 'Робота', 'Не впевнений', 'Ні'];
+
+        function renderPsiLec5Event(ev, index) {
+            const chips = PSI_LEC5_OPTS.map(o => `<label class="chip"><input type="checkbox" value="${o}"><span>${o}</span></label>`).join('');
+            const printOptions = PSI_LEC5_OPTS.map(o => `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${o}</span></div>`).join('');
+            return `
+                <div class="form-group">
+                    <label>${index + 1}. ${ev.label}</label>
+                    <div class="chips-group screen-only" id="psi_lec5_${index}Chips">${chips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${ev.label} для друку">${printOptions}</div>
+                </div>
+            `;
+        }
+
+        // Зчитує відповіді LEC-5 (масив масивів обраних варіантів по кожній події)
+        function getPsiLec5Data() {
+            return PSI_LEC5_EVENTS.map((ev, index) => getCheckedValues(`psi_lec5_${index}Chips`));
+        }
+
+        // Підраховує кількість подій "Зі мною" та "Свідок" для підсумку LEC-5
+        function computePsiLec5Summary(lec5) {
+            const direct = lec5.filter(vals => vals.includes('Зі мною')).length;
+            const witness = lec5.filter(vals => vals.includes('Свідок')).length;
+            return { direct, witness };
+        }
+
+        // Перераховує підсумок LEC-5 на екрані
+        function updatePsiSummary() {
+            const lec5 = getPsiLec5Data();
+            const { direct, witness } = computePsiLec5Summary(lec5);
+            document.getElementById('psiLec5Summary').innerHTML = `
+                Прямих травматичних подій (зі мною): ${direct}<br>
+                Подій як свідок: ${witness}
+            `;
+        }
+
+        function renderPsiSection() {
+            document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
+            document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
+                el.addEventListener('change', updatePsiSummary);
+            });
+            updatePsiSummary();
+        }
+
         const printModeToggle = document.getElementById('printModeToggle');
         const form = document.getElementById('patientForm');
         const successMessage = document.getElementById('successMessage');
@@ -1803,6 +1881,9 @@
 
         // Побудувати блоки скринінгу сну
         renderSleepSection();
+
+        // Побудувати блок ПСІ-батареї (LEC-5)
+        renderPsiSection();
 
         // Показувати блоки "Біль", "Генез" і "ДОГ ФБіФВ" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
         const painSection = document.getElementById('painSection');
@@ -1971,7 +2052,8 @@
                 som_react: getCheckedValues('somReactChips'),
                 ...getGenesisData(),
                 ...getDogData(),
-                sleep: getSleepRawData()
+                sleep: getSleepRawData(),
+                psi: { lec5: getPsiLec5Data() }
             };
         }
 
@@ -2145,6 +2227,14 @@
             fields['Сон — фаза'] = getSleepPhase(sleep);
             fields['Сон — бідирекціональність біль↔сон'] = getSleepBidirectional(sleep);
 
+            const lec5 = formData.psi.lec5;
+            PSI_LEC5_EVENTS.forEach((ev, i) => {
+                if (lec5[i].length) fields[ev.airtable] = lec5[i];
+            });
+            const lec5Summary = computePsiLec5Summary(lec5);
+            fields['Пси — LEC-5: прямих травматичних подій (зі мною)'] = lec5Summary.direct;
+            fields['Пси — LEC-5: подій як свідок'] = lec5Summary.witness;
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -2309,6 +2399,12 @@
                     document.getElementById('sleep_d_goodNight').value = data.sleep.d.goodNight || '';
                     document.getElementById('sleep_d_bodyPosition').value = data.sleep.d.bodyPosition || '';
                     updateSleepSummary();
+                }
+                if (data.psi && data.psi.lec5) {
+                    data.psi.lec5.forEach((vals, i) => {
+                        setCheckedValues(`psi_lec5_${i}Chips`, vals);
+                    });
+                    updatePsiSummary();
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
