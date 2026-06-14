@@ -1261,6 +1261,79 @@
                 </div>
             </div>
 
+            <div id="objectiveSection">
+                <h2 class="section-title">Об'єктивні дослідження</h2>
+                <div class="section-hint">Опишіть наявні дослідження, втручання та призначення. Якщо чогось немає — залиште поле порожнім.</div>
+
+                <div class="form-group">
+                    <label for="obj_imaging_desc">Інструментальні дослідження (УЗД, рентген, КТ, МРТ)</label>
+                    <textarea id="obj_imaging_desc" placeholder="Тип дослідження, дата, заключення — для кожного дослідження"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="obj_imaging_photo">Чи є фото результатів інструментальних досліджень?</label>
+                    <select id="obj_imaging_photo" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Фото інструментальних досліджень для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="obj_surgery_desc">Оперативні втручання</label>
+                    <textarea id="obj_surgery_desc" placeholder="Назва втручання та дата — для кожного втручання"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="obj_surgery_photo">Чи є фото документів про оперативні втручання?</label>
+                    <select id="obj_surgery_photo" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Фото оперативних втручань для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="obj_regional_desc">Регіонарне знеболення (блокади тощо)</label>
+                    <textarea id="obj_regional_desc" placeholder="Назва блокади/методу та дата — для кожної процедури"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="obj_regional_photo">Чи є фото документів про регіонарне знеболення?</label>
+                    <select id="obj_regional_photo" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Фото регіонарного знеболення для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="obj_systemic_desc">Системне знеболення / фармакотерапія</label>
+                    <textarea id="obj_systemic_desc" placeholder="Препарат, дозування/схема, дата призначення — для кожного препарату"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="obj_systemic_photo">Чи є фото призначень системного знеболення / фармакотерапії?</label>
+                    <select id="obj_systemic_photo" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Фото призначень фармакотерапії для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
@@ -2664,6 +2737,20 @@
             };
         }
 
+        // Об'єктивні дослідження — зчитує всі відповіді блоку
+        function getObjectiveData() {
+            return {
+                imagingDesc: document.getElementById('obj_imaging_desc').value,
+                imagingPhoto: document.getElementById('obj_imaging_photo').value,
+                surgeryDesc: document.getElementById('obj_surgery_desc').value,
+                surgeryPhoto: document.getElementById('obj_surgery_photo').value,
+                regionalDesc: document.getElementById('obj_regional_desc').value,
+                regionalPhoto: document.getElementById('obj_regional_photo').value,
+                systemicDesc: document.getElementById('obj_systemic_desc').value,
+                systemicPhoto: document.getElementById('obj_systemic_photo').value
+            };
+        }
+
         // Сексуальна функція — показ/приховування залежних полів на екрані
         function updateSexFunctionVisibility() {
             const consent = document.getElementById('sf_consent').value;
@@ -2943,7 +3030,8 @@
                 ...getDogData(),
                 sleep: getSleepRawData(),
                 psi: { lec5: getPsiLec5Data(), pcl5: getPsiPcl5Data(), hads: getPsiHadsData(), ais: getPsiAisData(), dn4: getPsiDn4Data(), cssrs: getPsiCssrsData(), dest: getPsiDestData(), moca: getPsiMocaData() },
-                sexFunction: getSexFunctionData()
+                sexFunction: getSexFunctionData(),
+                objective: getObjectiveData()
             };
         }
 
@@ -3210,6 +3298,16 @@
             if (sf.bodyImage) fields['Сексуальна функція — вплив образу тіла на сексуальне життя'] = sf.bodyImage;
             if (sf.discussed) fields['Сексуальна функція — обговорення з лікарем/психологом'] = sf.discussed;
 
+            const obj = formData.objective;
+            if (obj.imagingDesc) fields["Об'єктивні дослідження — інструментальні (УЗД/Рентген/КТ/МРТ)"] = obj.imagingDesc;
+            if (obj.imagingPhoto) fields["Об'єктивні дослідження — фото інструментальних досліджень"] = obj.imagingPhoto;
+            if (obj.surgeryDesc) fields["Об'єктивні дослідження — оперативні втручання"] = obj.surgeryDesc;
+            if (obj.surgeryPhoto) fields["Об'єктивні дослідження — фото оперативних втручань"] = obj.surgeryPhoto;
+            if (obj.regionalDesc) fields["Об'єктивні дослідження — регіонарне знеболення"] = obj.regionalDesc;
+            if (obj.regionalPhoto) fields["Об'єктивні дослідження — фото регіонарного знеболення"] = obj.regionalPhoto;
+            if (obj.systemicDesc) fields["Об'єктивні дослідження — системне знеболення / фармакотерапія"] = obj.systemicDesc;
+            if (obj.systemicPhoto) fields["Об'єктивні дослідження — фото системного знеболення / фармакотерапії"] = obj.systemicPhoto;
+
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
                 ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
@@ -3444,6 +3542,17 @@
                     document.getElementById('sf_body_image').value = sf.bodyImage || '';
                     document.getElementById('sf_discussed').value = sf.discussed || '';
                     updateSexFunctionVisibility();
+                }
+                if (data.objective) {
+                    const obj = data.objective;
+                    document.getElementById('obj_imaging_desc').value = obj.imagingDesc || '';
+                    document.getElementById('obj_imaging_photo').value = obj.imagingPhoto || '';
+                    document.getElementById('obj_surgery_desc').value = obj.surgeryDesc || '';
+                    document.getElementById('obj_surgery_photo').value = obj.surgeryPhoto || '';
+                    document.getElementById('obj_regional_desc').value = obj.regionalDesc || '';
+                    document.getElementById('obj_regional_photo').value = obj.regionalPhoto || '';
+                    document.getElementById('obj_systemic_desc').value = obj.systemicDesc || '';
+                    document.getElementById('obj_systemic_photo').value = obj.systemicPhoto || '';
                 }
                 updatePainSectionVisibility();
                 updateAgeDisplay();
