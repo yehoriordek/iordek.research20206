@@ -1246,19 +1246,6 @@ Email: yehor.iordek@gmail.com
             <div id="sexFunctionSection">
                 <h2 class="section-title">Сексуальна функція</h2>
 
-                <div class="form-group">
-                    <label for="sf_consent">Чи готові ви відповісти на питання цього блоку?</label>
-                    <select id="sf_consent" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Згода відповідати для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-
                 <div id="sfDetails">
                 <h3 class="section-title">Загальна сексуальна активність</h3>
 
@@ -3143,7 +3130,6 @@ Email: yehor.iordek@gmail.com
         // Сексуальна функція — зчитує всі відповіді блоку
         function getSexFunctionData() {
             return {
-                consent: document.getElementById('sf_consent').value,
                 activity: document.getElementById('sf_activity').value,
                 activityChange: document.getElementById('sf_activity_change').value,
                 erection: document.getElementById('sf_erection').value,
@@ -3280,9 +3266,6 @@ Email: yehor.iordek@gmail.com
 
         // Сексуальна функція — показ/приховування залежних полів на екрані
         function updateSexFunctionVisibility() {
-            const consent = document.getElementById('sf_consent').value;
-            document.getElementById('sfDetails').classList.toggle('screen-hidden', consent === 'Ні');
-
             const phantomSex = document.getElementById('sf_phantom_sex').value;
             const showPhantomDetails = phantomSex === 'Так';
             document.getElementById('sfPhantomOrgasmLocGroup').classList.toggle('screen-hidden', !showPhantomDetails);
@@ -3442,7 +3425,6 @@ Email: yehor.iordek@gmail.com
         renderPsiSection();
 
         // Показ/приховування залежних полів блоку "Сексуальна функція"
-        document.getElementById('sf_consent').addEventListener('change', updateSexFunctionVisibility);
         document.getElementById('sf_phantom_sex').addEventListener('change', updateSexFunctionVisibility);
         document.getElementById('sf_pain_during_sex').addEventListener('change', updateSexFunctionVisibility);
         updateSexFunctionVisibility();
@@ -3863,7 +3845,6 @@ Email: yehor.iordek@gmail.com
             }
 
             const sf = formData.sexFunction;
-            if (sf.consent) fields['Сексуальна функція — згода відповідати'] = sf.consent;
             if (sf.activity) fields['Сексуальна функція — наявність активності'] = sf.activity;
             if (sf.activityChange) fields['Сексуальна функція — зміна активності після ампутації'] = sf.activityChange;
             if (sf.erection) fields['Сексуальна функція — мимовільні ерекції'] = sf.erection;
@@ -4117,7 +4098,6 @@ Email: yehor.iordek@gmail.com
                 }
                 if (data.sexFunction) {
                     const sf = data.sexFunction;
-                    document.getElementById('sf_consent').value = sf.consent || '';
                     document.getElementById('sf_activity').value = sf.activity || '';
                     document.getElementById('sf_activity_change').value = sf.activityChange || '';
                     document.getElementById('sf_erection').value = sf.erection || '';
