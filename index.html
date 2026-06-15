@@ -700,6 +700,7 @@
                         placeholder="Напр., P-001 або C-001"
                         required
                     >
+                    <button type="button" class="btn-new screen-only" id="loadPatientBtn" style="margin-top: 8px;">Завантажити дані пацієнта</button>
                 </div>
 
                 <div class="form-group">
@@ -1680,7 +1681,7 @@ Email: yehor.iordek@gmail.com
 
     <div class="password-overlay" id="passwordOverlay">
         <div class="password-dialog">
-            <h2>Збереження в Airtable</h2>
+            <h2>Доступ до Airtable</h2>
             <p>Введіть пароль для розблокування доступу до Airtable.</p>
             <div class="form-group">
                 <input type="password" id="airtablePassword" placeholder="Пароль">
@@ -1941,6 +1942,15 @@ Email: yehor.iordek@gmail.com
         function mapGenesisValues(values, map) {
             if (!map) return values;
             return values.map(v => map[v] || v);
+        }
+
+        // Зворотна заміна: повертає значення Airtable до варіантів форми за картою мапінгу (mapGenesisValues навпаки)
+        function reverseMapGenesisValues(values, map) {
+            if (!values) return [];
+            if (!map) return values;
+            const reverse = {};
+            Object.keys(map).forEach(k => { reverse[map[k]] = k; });
+            return values.map(v => reverse[v] || v);
         }
 
         // Будує блок мультивибору ознак генезу + поле "інше" для одного типу генезу
@@ -3345,6 +3355,9 @@ Email: yehor.iordek@gmail.com
             }
         });
 
+        // Дія, яку виконає пароль-діалог після введення пароля ('save' або 'load')
+        let pendingAction = 'save';
+
         // Покрокова навігація по розділах форми
         const TOTAL_STEPS = 8;
         let currentStep = 1;
@@ -3604,6 +3617,230 @@ Email: yehor.iordek@gmail.com
                 consent: getConsentData(),
                 psychotherapy: getPsychotherapyData()
             };
+        }
+
+        // Повертає ключ за значенням у мапі (зворотній пошук); якщо не знайдено — undefined
+        function reverseLookup(map, value) {
+            return Object.keys(map).find(k => map[k] === value);
+        }
+
+        // Перетворює об'єкт полів Airtable у формат даних анкети (зворотнє до saveToAirtable)
+        function fieldsToFormData(fields) {
+            const data = {
+                patient_nickname: fields['Study ID'] || '',
+                patient_full_name: fields['ПІБ'] || '',
+                patient_ward: fields['Палата'] || '',
+                has_amputation: !!fields['Є ампутація'],
+                has_fb: !!fields['Фантомний біль (наявність)'],
+                has_fv: !!fields['Фантомні відчуття (наявність)'],
+                has_bk: !!fields['Біль кукси (наявність)'],
+                patient_complaints: fields['Скарги'] || '',
+                research_consent: !!fields['Згода на дослідження'],
+                research_consent_items: fields['Пункти згоди'] || [],
+                patient_birthdate: '',
+                person_type: fields['Тип учасника'] || '',
+                research_confidence: fields['Впевненість дослідника'] || '',
+                rpni: !!fields['RPNI виконано'],
+                tmr: !!fields['TMR виконано'],
+                amp_type: fields['Тип ампутації'] || '',
+                inj_date: fields['Дата поранення'] || '',
+                amp_date: fields['Дата ампутації'] || '',
+                adm_date: fields['Дата госпіталізації'] || '',
+                reamp_date: fields['Дата реампутації'] || ''
+            };
+
+            data.patient_gender = reverseLookup(GENDER_MAP, fields['Стать']) || '';
+
+            AMP_LIMBS.forEach(limb => {
+                data[`amp_${limb.key}_level`] = fields[`${limb.airtablePrefix} — рівень ампутації`] || '';
+                data[`amp_${limb.key}_sub`] = fields[`${limb.airtablePrefix} — третина`] || '';
+            });
+
+            PAIN_PHENOMENA.forEach(p => {
+                const k = p.key.toLowerCase();
+                if (!fields[`${p.airtablePrefix} — локалізація`] && !fields[`${p.airtablePrefix} — інтенсивність (VAS)`] && !fields[`${p.airtablePrefix} — добовий ритм`]) {
+                    data[`pain_${k}_loc`] = '';
+                    data[`pain_${k}_vas`] = 0;
+                    data[`pain_${k}_rhythm`] = [];
+                    return;
+                }
+                data[`pain_${k}_loc`] = fields[`${p.airtablePrefix} — локалізація`] || '';
+                data[`pain_${k}_vas`] = fields[`${p.airtablePrefix} — інтенсивність (VAS)`] || 0;
+                data[`pain_${k}_rhythm`] = fields[`${p.airtablePrefix} — добовий ритм`] || [];
+            });
+
+            data.pain_flow = fields['Характер протікання болю'] || [];
+            data.stump_path = fields['Патологія кукси'] || [];
+            data.stump_path_note = fields['Патологія кукси — примітка'] || '';
+            data.stump_path_source = fields['Патологія кукси — джерело виявлення'] || [];
+            data.som_react = fields['Соматичні реакції на біль'] || [];
+            data.traum_mem = fields["Травматичні спогади, пов'язані з болем"] || '';
+
+            GENESIS_DESCRIPTORS.forEach(g => {
+                data[g.key] = fields[`Генез — ${g.airtableLabel} (дескриптори)`] || [];
+                data[g.otherKey] = fields[`Генез — ${g.airtableLabel} (інше)`] || '';
+                if (g.descKey) data[g.descKey] = fields['Генез — дескриптори болю (оцінка дослідника)'] || [];
+            });
+
+            GENESIS_TESTS.forEach(t => {
+                data[t.key] = reverseMapGenesisValues(fields[`Тести — ${t.airtableLabel} (позитивні)`], t.airtableMap);
+                data[`${t.key}Reactions`] = reverseMapGenesisValues(fields[`Тести — ${t.airtableLabel} (реакції)`], GENESIS_REACTION_AIRTABLE_MAP);
+            });
+
+            DOG_BLOCKS.forEach(block => {
+                data[`${block.key}_descriptors`] = fields[`ДОГ — ${block.airtableLabel} (дескриптори)`] || [];
+                data[`${block.key}_other`] = fields[`ДОГ — ${block.airtableLabel} (інше)`] || '';
+            });
+
+            // Сон
+            const sleepA = {};
+            SLEEP_QUESTIONS_A.forEach(q => {
+                const val = fields[q.airtable];
+                if (q.multi) {
+                    sleepA[q.key] = reverseMapGenesisValues(val, q.airtableMap);
+                } else {
+                    sleepA[q.key] = val || '';
+                }
+            });
+            const sleepB = [];
+            for (let i = 0; i < 8; i++) {
+                const label = fields[`Сон — таймлайн: ${SLEEP_TIMELINE_AIRTABLE_FIELDS[i]}`];
+                const opt = SLEEP_TL_OPTS.find(o => o.label === label);
+                sleepB.push(opt ? opt.value : -1);
+            }
+            const sleepC = [];
+            for (let i = 0; i < 9; i++) {
+                const label = fields[`Сон — стресор: ${SLEEP_STRESSORS[i]}`];
+                const opt = SLEEP_STRESS_OPTS.find(o => o.label === label);
+                sleepC.push(opt ? opt.value : -1);
+            }
+            data.sleep = {
+                a: sleepA,
+                b: sleepB,
+                bFirst: fields['Сон — перше стійке порушення (період)'] || '',
+                c: sleepC,
+                d: {
+                    painWakes: fields['Сон — біль будить вночі'] || '',
+                    painTypes: fields['Сон — типи болю, що заважають сну'] || [],
+                    badNight: fields['Сон — біль після поганої ночі'] || '',
+                    goodNight: fields['Сон — біль після гарної ночі'] || '',
+                    bodyPosition: fields['Сон — вплив положення тіла на сон'] || ''
+                }
+            };
+
+            // ПСІ-батарея
+            const lec5 = PSI_LEC5_EVENTS.map(ev => fields[ev.airtable] || []);
+
+            const pcl5 = PSI_PCL5_AIRTABLE_FIELDS.map(fieldName => {
+                const label = fields[fieldName];
+                const idx = PSI_PCL5_OPTS.indexOf(label);
+                return idx >= 0 ? String(idx) : '';
+            });
+
+            const hads = PSI_HADS_AIRTABLE_FIELDS.map((fieldName, i) => {
+                const label = fields[fieldName];
+                const idx = PSI_HADS_ITEMS[i].o.indexOf(label);
+                return idx >= 0 ? String(idx) : '';
+            });
+
+            const ais = PSI_AIS_AIRTABLE_FIELDS.map((fieldName, i) => {
+                const label = fields[fieldName];
+                const idx = PSI_AIS_AIRTABLE_OPTS[i].indexOf(label);
+                return idx >= 0 ? String(idx) : '';
+            });
+
+            const dn4 = PSI_DN4_AIRTABLE_FIELDS.map(fieldName => {
+                const label = fields[fieldName];
+                const idx = PSI_DN4_OPTS.indexOf(label);
+                return idx >= 0 ? String(idx) : '';
+            });
+
+            const cssrs = {};
+            PSI_CSSRS_ITEMS.forEach((item, i) => {
+                cssrs[item.id] = fields[PSI_CSSRS_AIRTABLE_FIELDS[i]] || '';
+            });
+            cssrs.q3method = fields['Пси — C-SSRS, 3a: Метод/засіб (опис)'] || '';
+
+            const dest = PSI_DEST_AIRTABLE_FIELDS.map(fieldName => {
+                const val = fields[fieldName];
+                return (val !== undefined && val !== null) ? String(val) : '';
+            });
+
+            data.psi = { lec5, pcl5, hads, ais, dn4, cssrs, dest };
+            if (fields['Пси — MoCA: загальний бал'] !== undefined) {
+                data.psi.moca = String(fields['Пси — MoCA: загальний бал']);
+            }
+
+            // Сексуальна функція
+            data.sexFunction = {
+                activity: fields['Сексуальна функція — наявність активності'] || '',
+                activityChange: fields['Сексуальна функція — зміна активності після ампутації'] || '',
+                erection: fields['Сексуальна функція — мимовільні ерекції'] || '',
+                erectionDiff: fields['Сексуальна функція — труднощі з ерекцією'] || '',
+                orgasm: fields['Сексуальна функція — досягнення оргазму'] || '',
+                orgasmChange: fields['Сексуальна функція — зміна характеру оргазму'] || '',
+                orgasmLoc: fields['Сексуальна функція — локалізація відчуття оргазму'] || [],
+                bodyZonesDesc: fields['Сексуальна функція — опис локалізації відчуттів'] || '',
+                phantomSex: fields['Сексуальна функція — відчуття у фантомній кінцівці при збудженні'] || '',
+                phantomOrgasmLoc: fields['Сексуальна функція — локалізація фантомного оргазму'] || [],
+                phantomDesc: fields['Сексуальна функція — характер фантомного оргазму'] || [],
+                phantomDescOther: fields['Сексуальна функція — характер фантомного оргазму, інше'] || '',
+                painDuringSex: fields['Сексуальна функція — зміна фантомного болю під час сексу'] || '',
+                painIncrease: fields['Сексуальна функція — посилення болю під час сексу (0-10)'] !== undefined ? String(fields['Сексуальна функція — посилення болю під час сексу (0-10)']) : '',
+                painDecrease: fields['Сексуальна функція — зменшення болю під час сексу (0-10)'] !== undefined ? String(fields['Сексуальна функція — зменшення болю під час сексу (0-10)']) : '',
+                satisfaction: fields['Сексуальна функція — задоволеність сексуальним життям (0-10)'] !== undefined ? String(fields['Сексуальна функція — задоволеність сексуальним життям (0-10)']) : '',
+                bodyImage: fields['Сексуальна функція — вплив образу тіла на сексуальне життя'] || '',
+                discussed: fields['Сексуальна функція — обговорення з лікарем/психологом'] || ''
+            };
+
+            // Об'єктивні дослідження
+            data.objective = {
+                imagingDesc: fields["Об'єктивні дослідження — інструментальні (УЗД/Рентген/КТ/МРТ)"] || '',
+                imagingPhoto: fields["Об'єктивні дослідження — фото інструментальних досліджень"] || '',
+                surgeryDesc: fields["Об'єктивні дослідження — оперативні втручання"] || '',
+                surgeryPhoto: fields["Об'єктивні дослідження — фото оперативних втручань"] || '',
+                regionalDesc: fields["Об'єктивні дослідження — регіонарне знеболення"] || '',
+                regionalPhoto: fields["Об'єктивні дослідження — фото регіонарного знеболення"] || '',
+                systemicDesc: fields["Об'єктивні дослідження — системне знеболення / фармакотерапія"] || '',
+                systemicPhoto: fields["Об'єктивні дослідження — фото системного знеболення / фармакотерапії"] || ''
+            };
+
+            // Інформована згода
+            data.consent = {
+                given: fields['Згода — надана'] || '',
+                date: fields['Згода — дата'] || '',
+                researchItems: fields['Згода — дослідницькі дозволи'] || []
+            };
+
+            // Психотерапія
+            data.psychotherapy = {
+                requestCats: fields['Психотерапія — тип запиту'] || []
+            };
+
+            return data;
+        }
+
+        // Завантажує запис пацієнта з Airtable за Study ID. Повертає об'єкт fields або null, якщо не знайдено
+        async function loadPatientFromAirtable(apiKey, nickname) {
+            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
+            const response = await fetch(
+                `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                const message = errorBody?.error?.message || response.statusText;
+                throw new Error(`Airtable: ${message}`);
+            }
+
+            const data = await response.json();
+            if (data.records.length === 0) return null;
+            return data.records[0].fields;
         }
 
         // Розшифрування Airtable API-ключа за паролем користувача
@@ -3943,12 +4180,35 @@ Email: yehor.iordek@gmail.com
 
             try {
                 const apiKey = await decryptAirtableKey(password);
-                const wasUpdated = await saveToAirtable(apiKey, getFormData());
-                closePasswordDialog();
-                showSuccess(wasUpdated);
+
+                if (pendingAction === 'load') {
+                    const nickname = document.getElementById('patientNickname').value;
+                    const fields = await loadPatientFromAirtable(apiKey, nickname);
+                    if (!fields) {
+                        passwordError.textContent = 'Пацієнта з таким Study ID не знайдено.';
+                        passwordError.style.display = 'block';
+                        passwordConfirm.disabled = false;
+                        return;
+                    }
+                    const data = fieldsToFormData(fields);
+                    applyFormData(data);
+                    localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
+                    closePasswordDialog();
+                    successMessage.textContent = '✓ Дані пацієнта завантажено.';
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    const wasUpdated = await saveToAirtable(apiKey, getFormData());
+                    closePasswordDialog();
+                    showSuccess(wasUpdated);
+                }
             } catch (err) {
-                console.error('Не вдалося зберегти запис в Airtable:', err);
-                passwordError.textContent = 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
+                console.error('Не вдалося виконати операцію з Airtable:', err);
+                passwordError.textContent = pendingAction === 'load'
+                    ? 'Неправильний пароль або помилка завантаження. Спробуйте ще раз.'
+                    : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
                 passwordError.style.display = 'block';
             } finally {
                 passwordConfirm.disabled = false;
@@ -3964,190 +4224,212 @@ Email: yehor.iordek@gmail.com
                 return;
             }
 
+            pendingAction = 'save';
             openPasswordDialog();
         });
+
+        // Завантажити дані пацієнта з Airtable за Study ID
+        document.getElementById('loadPatientBtn').addEventListener('click', function() {
+            const nickname = document.getElementById('patientNickname').value;
+            if (!nickname) {
+                showError('Спочатку введіть Study ID пацієнта.');
+                return;
+            }
+
+            if (!AIRTABLE_KEY_CIPHERTEXT) {
+                showError('Збереження в Airtable ще не налаштоване. Зверніться до адміністратора форми.');
+                return;
+            }
+
+            pendingAction = 'load';
+            openPasswordDialog();
+        });
+
+        // Застосовує об'єкт даних анкети (у форматі getFormData()) до полів форми
+        function applyFormData(data) {
+            document.getElementById('patientFullName').value = data.patient_full_name || '';
+            document.getElementById('patientNickname').value = data.patient_nickname || '';
+            document.getElementById('patientGender').value = data.patient_gender || '';
+            document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
+            document.getElementById('patientWard').value = data.patient_ward || '';
+            document.getElementById('personType').value = data.person_type || '';
+            document.getElementById('hasAmputation').checked = !!data.has_amputation;
+            document.getElementById('hasFB').checked = !!data.has_fb;
+            document.getElementById('hasFV').checked = !!data.has_fv;
+            document.getElementById('hasBK').checked = !!data.has_bk;
+            document.getElementById('patientComplaints').value = data.patient_complaints || '';
+            document.getElementById('researchConsent').checked = !!data.research_consent;
+            setCheckedValues('consentItemsChips', data.research_consent_items);
+            document.getElementById('researchConfidence').value = data.research_confidence || '';
+            AMP_LIMBS.forEach(limb => {
+                const levelSelect = document.getElementById(`amp_${limb.key}_level`);
+                const subSelect = document.getElementById(`amp_${limb.key}_sub`);
+                levelSelect.value = data[`amp_${limb.key}_level`] || '';
+                const level = limb.levels.find(l => l.label === levelSelect.value);
+                if (level && level.sub) {
+                    subSelect.style.display = '';
+                    subSelect.value = data[`amp_${limb.key}_sub`] || '';
+                }
+            });
+            document.getElementById('rpni').checked = !!data.rpni;
+            document.getElementById('tmr').checked = !!data.tmr;
+            document.getElementById('ampType').value = data.amp_type || '';
+            document.getElementById('injDate').value = data.inj_date || '';
+            document.getElementById('ampDate').value = data.amp_date || '';
+            document.getElementById('admDate').value = data.adm_date || '';
+            document.getElementById('reampDate').value = data.reamp_date || '';
+            updateAmputationSectionVisibility();
+            PAIN_PHENOMENA.forEach(p => {
+                const k = p.key.toLowerCase();
+                document.getElementById(`pain${p.key}Loc`).value = data[`pain_${k}_loc`] || '';
+                const vas = data[`pain_${k}_vas`] || 0;
+                document.getElementById(`pain${p.key}Vas`).value = vas;
+                document.getElementById(`pain${p.key}VasValue`).textContent = vas;
+                setCheckedValues(`pain${p.key}Rhythm`, data[`pain_${k}_rhythm`]);
+            });
+            setCheckedValues('painFlowChips', data.pain_flow);
+            document.getElementById('traumMem').value = data.traum_mem || '';
+            setCheckedValues('stumpPathChips', data.stump_path);
+            document.getElementById('stumpPathNote').value = data.stump_path_note || '';
+            setCheckedValues('stumpPathSourceChips', data.stump_path_source);
+            setCheckedValues('somReactChips', data.som_react);
+            GENESIS_DESCRIPTORS.forEach(g => {
+                setCheckedValues(`${g.key}Chips`, data[g.key]);
+                document.getElementById(g.otherKey).value = data[g.otherKey] || '';
+                if (g.descKey) setCheckedValues(`${g.descKey}Chips`, data[g.descKey]);
+            });
+            GENESIS_TESTS.forEach(t => {
+                setCheckedValues(`${t.key}Chips`, data[t.key]);
+                setCheckedValues(`${t.key}ReactionsChips`, data[`${t.key}Reactions`]);
+            });
+            DOG_BLOCKS.forEach(block => {
+                for (let i = 0; i < 8; i++) {
+                    document.getElementById(`${block.key}_q${i}`).value = data[`${block.key}_q${i}`] || 0;
+                }
+                setCheckedValues(`${block.key}DescChips`, data[`${block.key}_descriptors`]);
+                document.getElementById(`${block.key}Other`).value = data[`${block.key}_other`] || '';
+            });
+            updateDogTotals();
+            if (data.sleep) {
+                SLEEP_QUESTIONS_A.forEach(q => {
+                    if (q.multi) {
+                        setCheckedValues(`sleep_a_${q.key}Chips`, data.sleep.a[q.key]);
+                    } else {
+                        document.getElementById(`sleep_a_${q.key}`).value = data.sleep.a[q.key] || '';
+                    }
+                });
+                for (let i = 0; i < 8; i++) {
+                    document.getElementById(`sleep_b_${i}`).value = data.sleep.b[i] ?? -1;
+                }
+                document.getElementById('sleep_b_first').value = data.sleep.bFirst || '';
+                for (let i = 0; i < 9; i++) {
+                    document.getElementById(`sleep_c_${i}`).value = data.sleep.c[i] ?? -1;
+                }
+                document.getElementById('sleep_d_painWakes').value = data.sleep.d.painWakes || '';
+                setCheckedValues('sleep_d_painTypesChips', data.sleep.d.painTypes);
+                document.getElementById('sleep_d_badNight').value = data.sleep.d.badNight || '';
+                document.getElementById('sleep_d_goodNight').value = data.sleep.d.goodNight || '';
+                document.getElementById('sleep_d_bodyPosition').value = data.sleep.d.bodyPosition || '';
+                updateSleepSummary();
+            }
+            if (data.psi && data.psi.lec5) {
+                data.psi.lec5.forEach((vals, i) => {
+                    setCheckedValues(`psi_lec5_${i}Chips`, vals);
+                });
+                updatePsiSummary();
+            }
+            if (data.psi && data.psi.pcl5) {
+                data.psi.pcl5.forEach((val, i) => {
+                    document.getElementById(`psi_pcl5_${i}`).value = val;
+                });
+                updatePsiPcl5Summary();
+            }
+            if (data.psi && data.psi.hads) {
+                data.psi.hads.forEach((val, i) => {
+                    document.getElementById(`psi_hads_${i}`).value = val;
+                });
+                updatePsiHadsSummary();
+            }
+            if (data.psi && data.psi.ais) {
+                data.psi.ais.forEach((val, i) => {
+                    document.getElementById(`psi_ais_${i}`).value = val;
+                });
+                updatePsiAisSummary();
+            }
+            if (data.psi && data.psi.dn4) {
+                data.psi.dn4.forEach((val, i) => {
+                    document.getElementById(`psi_dn4_${i}`).value = val;
+                });
+                updatePsiDn4Summary();
+            }
+            if (data.psi && data.psi.cssrs) {
+                PSI_CSSRS_ITEMS.forEach(item => {
+                    document.getElementById(`psi_cssrs_${item.id}`).value = data.psi.cssrs[item.id] || '';
+                });
+                document.getElementById('psi_cssrs_q3method').value = data.psi.cssrs.q3method || '';
+                updatePsiCssrsSummary();
+            }
+            if (data.psi && data.psi.dest) {
+                data.psi.dest.forEach((val, i) => {
+                    document.getElementById(`psi_dest_${i}`).value = val;
+                });
+                updatePsiDestSummary();
+            }
+            if (data.psi && data.psi.moca !== undefined) {
+                document.getElementById('psi_moca').value = data.psi.moca;
+                updatePsiMocaSummary();
+            }
+            if (data.sexFunction) {
+                const sf = data.sexFunction;
+                document.getElementById('sf_activity').value = sf.activity || '';
+                document.getElementById('sf_activity_change').value = sf.activityChange || '';
+                document.getElementById('sf_erection').value = sf.erection || '';
+                document.getElementById('sf_erection_diff').value = sf.erectionDiff || '';
+                document.getElementById('sf_orgasm').value = sf.orgasm || '';
+                document.getElementById('sf_orgasm_change').value = sf.orgasmChange || '';
+                setCheckedValues('sfOrgasmLocChips', sf.orgasmLoc);
+                document.getElementById('sf_body_zones_desc').value = sf.bodyZonesDesc || '';
+                document.getElementById('sf_phantom_sex').value = sf.phantomSex || '';
+                setCheckedValues('sfPhantomOrgasmLocChips', sf.phantomOrgasmLoc);
+                setCheckedValues('sfPhantomDescChips', sf.phantomDesc);
+                document.getElementById('sf_phantom_desc_other').value = sf.phantomDescOther || '';
+                document.getElementById('sf_pain_during_sex').value = sf.painDuringSex || '';
+                document.getElementById('sf_pain_increase').value = sf.painIncrease ?? '';
+                document.getElementById('sf_pain_decrease').value = sf.painDecrease ?? '';
+                document.getElementById('sf_satisfaction').value = sf.satisfaction ?? '';
+                document.getElementById('sf_body_image').value = sf.bodyImage || '';
+                document.getElementById('sf_discussed').value = sf.discussed || '';
+                updateSexFunctionVisibility();
+            }
+            if (data.objective) {
+                const obj = data.objective;
+                document.getElementById('obj_imaging_desc').value = obj.imagingDesc || '';
+                document.getElementById('obj_imaging_photo').value = obj.imagingPhoto || '';
+                document.getElementById('obj_surgery_desc').value = obj.surgeryDesc || '';
+                document.getElementById('obj_surgery_photo').value = obj.surgeryPhoto || '';
+                document.getElementById('obj_regional_desc').value = obj.regionalDesc || '';
+                document.getElementById('obj_regional_photo').value = obj.regionalPhoto || '';
+                document.getElementById('obj_systemic_desc').value = obj.systemicDesc || '';
+                document.getElementById('obj_systemic_photo').value = obj.systemicPhoto || '';
+            }
+            if (data.consent) {
+                const consent = data.consent;
+                document.getElementById('consent_given').value = consent.given || '';
+                document.getElementById('consent_date').value = consent.date || '';
+                setCheckedValues('consentResearchItemsChips', consent.researchItems);
+            }
+            if (data.psychotherapy) {
+                setCheckedValues('therapyRequestCatsChips', data.psychotherapy.requestCats);
+            }
+            updatePainSectionVisibility();
+            updateAgeDisplay();
+        }
 
         // Завантажити дані з localStorage (якщо були збережені)
         window.addEventListener('load', function() {
             const savedData = localStorage.getItem('patientFormData');
             if (savedData) {
-                const data = JSON.parse(savedData);
-                document.getElementById('patientFullName').value = data.patient_full_name || '';
-                document.getElementById('patientNickname').value = data.patient_nickname || '';
-                document.getElementById('patientGender').value = data.patient_gender || '';
-                document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
-                document.getElementById('patientWard').value = data.patient_ward || '';
-                document.getElementById('personType').value = data.person_type || '';
-                document.getElementById('hasAmputation').checked = !!data.has_amputation;
-                document.getElementById('hasFB').checked = !!data.has_fb;
-                document.getElementById('hasFV').checked = !!data.has_fv;
-                document.getElementById('hasBK').checked = !!data.has_bk;
-                document.getElementById('patientComplaints').value = data.patient_complaints || '';
-                document.getElementById('researchConsent').checked = !!data.research_consent;
-                setCheckedValues('consentItemsChips', data.research_consent_items);
-                document.getElementById('researchConfidence').value = data.research_confidence || '';
-                AMP_LIMBS.forEach(limb => {
-                    const levelSelect = document.getElementById(`amp_${limb.key}_level`);
-                    const subSelect = document.getElementById(`amp_${limb.key}_sub`);
-                    levelSelect.value = data[`amp_${limb.key}_level`] || '';
-                    const level = limb.levels.find(l => l.label === levelSelect.value);
-                    if (level && level.sub) {
-                        subSelect.style.display = '';
-                        subSelect.value = data[`amp_${limb.key}_sub`] || '';
-                    }
-                });
-                document.getElementById('rpni').checked = !!data.rpni;
-                document.getElementById('tmr').checked = !!data.tmr;
-                document.getElementById('ampType').value = data.amp_type || '';
-                document.getElementById('injDate').value = data.inj_date || '';
-                document.getElementById('ampDate').value = data.amp_date || '';
-                document.getElementById('admDate').value = data.adm_date || '';
-                document.getElementById('reampDate').value = data.reamp_date || '';
-                updateAmputationSectionVisibility();
-                PAIN_PHENOMENA.forEach(p => {
-                    const k = p.key.toLowerCase();
-                    document.getElementById(`pain${p.key}Loc`).value = data[`pain_${k}_loc`] || '';
-                    const vas = data[`pain_${k}_vas`] || 0;
-                    document.getElementById(`pain${p.key}Vas`).value = vas;
-                    document.getElementById(`pain${p.key}VasValue`).textContent = vas;
-                    setCheckedValues(`pain${p.key}Rhythm`, data[`pain_${k}_rhythm`]);
-                });
-                setCheckedValues('painFlowChips', data.pain_flow);
-                document.getElementById('traumMem').value = data.traum_mem || '';
-                setCheckedValues('stumpPathChips', data.stump_path);
-                document.getElementById('stumpPathNote').value = data.stump_path_note || '';
-                setCheckedValues('stumpPathSourceChips', data.stump_path_source);
-                setCheckedValues('somReactChips', data.som_react);
-                GENESIS_DESCRIPTORS.forEach(g => {
-                    setCheckedValues(`${g.key}Chips`, data[g.key]);
-                    document.getElementById(g.otherKey).value = data[g.otherKey] || '';
-                    if (g.descKey) setCheckedValues(`${g.descKey}Chips`, data[g.descKey]);
-                });
-                GENESIS_TESTS.forEach(t => {
-                    setCheckedValues(`${t.key}Chips`, data[t.key]);
-                    setCheckedValues(`${t.key}ReactionsChips`, data[`${t.key}Reactions`]);
-                });
-                DOG_BLOCKS.forEach(block => {
-                    for (let i = 0; i < 8; i++) {
-                        document.getElementById(`${block.key}_q${i}`).value = data[`${block.key}_q${i}`] || 0;
-                    }
-                    setCheckedValues(`${block.key}DescChips`, data[`${block.key}_descriptors`]);
-                    document.getElementById(`${block.key}Other`).value = data[`${block.key}_other`] || '';
-                });
-                updateDogTotals();
-                if (data.sleep) {
-                    SLEEP_QUESTIONS_A.forEach(q => {
-                        if (q.multi) {
-                            setCheckedValues(`sleep_a_${q.key}Chips`, data.sleep.a[q.key]);
-                        } else {
-                            document.getElementById(`sleep_a_${q.key}`).value = data.sleep.a[q.key] || '';
-                        }
-                    });
-                    for (let i = 0; i < 8; i++) {
-                        document.getElementById(`sleep_b_${i}`).value = data.sleep.b[i] ?? -1;
-                    }
-                    document.getElementById('sleep_b_first').value = data.sleep.bFirst || '';
-                    for (let i = 0; i < 9; i++) {
-                        document.getElementById(`sleep_c_${i}`).value = data.sleep.c[i] ?? -1;
-                    }
-                    document.getElementById('sleep_d_painWakes').value = data.sleep.d.painWakes || '';
-                    setCheckedValues('sleep_d_painTypesChips', data.sleep.d.painTypes);
-                    document.getElementById('sleep_d_badNight').value = data.sleep.d.badNight || '';
-                    document.getElementById('sleep_d_goodNight').value = data.sleep.d.goodNight || '';
-                    document.getElementById('sleep_d_bodyPosition').value = data.sleep.d.bodyPosition || '';
-                    updateSleepSummary();
-                }
-                if (data.psi && data.psi.lec5) {
-                    data.psi.lec5.forEach((vals, i) => {
-                        setCheckedValues(`psi_lec5_${i}Chips`, vals);
-                    });
-                    updatePsiSummary();
-                }
-                if (data.psi && data.psi.pcl5) {
-                    data.psi.pcl5.forEach((val, i) => {
-                        document.getElementById(`psi_pcl5_${i}`).value = val;
-                    });
-                    updatePsiPcl5Summary();
-                }
-                if (data.psi && data.psi.hads) {
-                    data.psi.hads.forEach((val, i) => {
-                        document.getElementById(`psi_hads_${i}`).value = val;
-                    });
-                    updatePsiHadsSummary();
-                }
-                if (data.psi && data.psi.ais) {
-                    data.psi.ais.forEach((val, i) => {
-                        document.getElementById(`psi_ais_${i}`).value = val;
-                    });
-                    updatePsiAisSummary();
-                }
-                if (data.psi && data.psi.dn4) {
-                    data.psi.dn4.forEach((val, i) => {
-                        document.getElementById(`psi_dn4_${i}`).value = val;
-                    });
-                    updatePsiDn4Summary();
-                }
-                if (data.psi && data.psi.cssrs) {
-                    PSI_CSSRS_ITEMS.forEach(item => {
-                        document.getElementById(`psi_cssrs_${item.id}`).value = data.psi.cssrs[item.id] || '';
-                    });
-                    document.getElementById('psi_cssrs_q3method').value = data.psi.cssrs.q3method || '';
-                    updatePsiCssrsSummary();
-                }
-                if (data.psi && data.psi.dest) {
-                    data.psi.dest.forEach((val, i) => {
-                        document.getElementById(`psi_dest_${i}`).value = val;
-                    });
-                    updatePsiDestSummary();
-                }
-                if (data.psi && data.psi.moca !== undefined) {
-                    document.getElementById('psi_moca').value = data.psi.moca;
-                    updatePsiMocaSummary();
-                }
-                if (data.sexFunction) {
-                    const sf = data.sexFunction;
-                    document.getElementById('sf_activity').value = sf.activity || '';
-                    document.getElementById('sf_activity_change').value = sf.activityChange || '';
-                    document.getElementById('sf_erection').value = sf.erection || '';
-                    document.getElementById('sf_erection_diff').value = sf.erectionDiff || '';
-                    document.getElementById('sf_orgasm').value = sf.orgasm || '';
-                    document.getElementById('sf_orgasm_change').value = sf.orgasmChange || '';
-                    setCheckedValues('sfOrgasmLocChips', sf.orgasmLoc);
-                    document.getElementById('sf_body_zones_desc').value = sf.bodyZonesDesc || '';
-                    document.getElementById('sf_phantom_sex').value = sf.phantomSex || '';
-                    setCheckedValues('sfPhantomOrgasmLocChips', sf.phantomOrgasmLoc);
-                    setCheckedValues('sfPhantomDescChips', sf.phantomDesc);
-                    document.getElementById('sf_phantom_desc_other').value = sf.phantomDescOther || '';
-                    document.getElementById('sf_pain_during_sex').value = sf.painDuringSex || '';
-                    document.getElementById('sf_pain_increase').value = sf.painIncrease ?? '';
-                    document.getElementById('sf_pain_decrease').value = sf.painDecrease ?? '';
-                    document.getElementById('sf_satisfaction').value = sf.satisfaction ?? '';
-                    document.getElementById('sf_body_image').value = sf.bodyImage || '';
-                    document.getElementById('sf_discussed').value = sf.discussed || '';
-                    updateSexFunctionVisibility();
-                }
-                if (data.objective) {
-                    const obj = data.objective;
-                    document.getElementById('obj_imaging_desc').value = obj.imagingDesc || '';
-                    document.getElementById('obj_imaging_photo').value = obj.imagingPhoto || '';
-                    document.getElementById('obj_surgery_desc').value = obj.surgeryDesc || '';
-                    document.getElementById('obj_surgery_photo').value = obj.surgeryPhoto || '';
-                    document.getElementById('obj_regional_desc').value = obj.regionalDesc || '';
-                    document.getElementById('obj_regional_photo').value = obj.regionalPhoto || '';
-                    document.getElementById('obj_systemic_desc').value = obj.systemicDesc || '';
-                    document.getElementById('obj_systemic_photo').value = obj.systemicPhoto || '';
-                }
-                if (data.consent) {
-                    const consent = data.consent;
-                    document.getElementById('consent_given').value = consent.given || '';
-                    document.getElementById('consent_date').value = consent.date || '';
-                    setCheckedValues('consentResearchItemsChips', consent.researchItems);
-                }
-                if (data.psychotherapy) {
-                    setCheckedValues('therapyRequestCatsChips', data.psychotherapy.requestCats);
-                }
-                updatePainSectionVisibility();
-                updateAgeDisplay();
+                applyFormData(JSON.parse(savedData));
             }
         });
 
