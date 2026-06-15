@@ -687,6 +687,24 @@
                 >
             </div>
 
+            <div class="form-group">
+                <label for="initialAssessmentDate">
+                    Дата первинного опитування
+                </label>
+                <input
+                    type="date"
+                    id="initialAssessmentDate"
+                    name="initial_assessment_date"
+                    class="screen-only"
+                >
+                <input
+                    type="text"
+                    class="print-only"
+                    placeholder="дд.мм.рррр"
+                    aria-label="Дата первинного опитування (дд.мм.рррр)"
+                >
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="patientNickname">
@@ -3583,6 +3601,7 @@ Email: yehor.iordek@gmail.com
                 patient_gender: document.getElementById('patientGender').value,
                 patient_birthdate: birthdate,
                 patient_age: calcAge(birthdate),
+                initial_assessment_date: document.getElementById('initialAssessmentDate').value,
                 patient_ward: document.getElementById('patientWard').value,
                 person_type: document.getElementById('personType').value,
                 has_amputation: document.getElementById('hasAmputation').checked,
@@ -3646,7 +3665,8 @@ Email: yehor.iordek@gmail.com
                 inj_date: fields['Дата поранення'] || '',
                 amp_date: fields['Дата ампутації'] || '',
                 adm_date: fields['Дата госпіталізації'] || '',
-                reamp_date: fields['Дата реампутації'] || ''
+                reamp_date: fields['Дата реампутації'] || '',
+                initial_assessment_date: fields['Дата первинного опитування'] || ''
             };
 
             data.patient_gender = reverseLookup(GENDER_MAP, fields['Стать']) || '';
@@ -3930,6 +3950,7 @@ Email: yehor.iordek@gmail.com
             if (formData.amp_date) fields['Дата ампутації'] = formData.amp_date;
             if (formData.adm_date) fields['Дата госпіталізації'] = formData.adm_date;
             if (formData.reamp_date) fields['Дата реампутації'] = formData.reamp_date;
+            if (formData.initial_assessment_date) fields['Дата первинного опитування'] = formData.initial_assessment_date;
 
             AMP_LIMBS.forEach(limb => {
                 const level = formData[`amp_${limb.key}_level`];
@@ -4251,6 +4272,7 @@ Email: yehor.iordek@gmail.com
             document.getElementById('patientNickname').value = data.patient_nickname || '';
             document.getElementById('patientGender').value = data.patient_gender || '';
             document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
+            document.getElementById('initialAssessmentDate').value = data.initial_assessment_date || '';
             document.getElementById('patientWard').value = data.patient_ward || '';
             document.getElementById('personType').value = data.person_type || '';
             document.getElementById('hasAmputation').checked = !!data.has_amputation;
@@ -4430,6 +4452,9 @@ Email: yehor.iordek@gmail.com
             const savedData = localStorage.getItem('patientFormData');
             if (savedData) {
                 applyFormData(JSON.parse(savedData));
+            }
+            if (!document.getElementById('initialAssessmentDate').value) {
+                document.getElementById('initialAssessmentDate').value = new Date().toISOString().slice(0, 10);
             }
         });
 
