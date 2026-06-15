@@ -194,6 +194,14 @@
 - **Тип**: Чекбокс (checkbox)
 - **Обов'язкове**: Ні
 
+#### 17a. TMR виконано
+- **ID в Airtable**: `fldHWDm5KbKTpnYtZ`
+- **Назва в Airtable**: TMR виконано
+- **Логічне ім'я**: `tmr`
+- **Тип**: Чекбокс (checkbox)
+- **Обов'язкове**: Ні
+- **Опис**: Targeted Muscle Reinnervation виконано
+
 #### 18. Тип ампутації
 - **ID в Airtable**: `fldNGts7XA7w7NkbU`
 - **Назва в Airtable**: Тип ампутації
