@@ -264,6 +264,76 @@
             display: none;
         }
 
+        .step-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 6px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .step-tab {
+            flex: 0 0 auto;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 16px;
+            white-space: nowrap;
+        }
+
+        .step-tab:hover {
+            background-color: #d5dbdb;
+        }
+
+        .step-tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-step-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .form-step-nav button {
+            flex: 1;
+        }
+
+        .btn-step-prev,
+        .btn-step-next {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-step-prev:hover,
+        .btn-step-next:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-step-prev:disabled,
+        .btn-step-next:disabled {
+            background-color: #bdc3c7;
+            cursor: default;
+        }
+
         /* Режим друку */
         @media print {
             body {
@@ -296,6 +366,15 @@
 
             .screen-hidden {
                 display: block !important;
+            }
+
+            .form-step {
+                display: block !important;
+            }
+
+            .step-tabs,
+            .form-step-nav {
+                display: none !important;
             }
 
             input[type="text"],
@@ -345,6 +424,15 @@
 
         body.print-layout .screen-hidden {
             display: block;
+        }
+
+        body.print-layout .form-step {
+            display: block !important;
+        }
+
+        body.print-layout .step-tabs,
+        body.print-layout .form-step-nav {
+            display: none !important;
         }
 
         body.print-layout input[type="text"],
@@ -446,6 +534,19 @@
         <div class="error-message" id="errorMessage"></div>
 
         <form id="patientForm">
+            <div class="step-tabs screen-only" id="stepTabs">
+                <button type="button" class="step-tab" data-step-tab="1">Паспорт</button>
+                <button type="button" class="step-tab" data-step-tab="2">Ампутація</button>
+                <button type="button" class="step-tab" data-step-tab="3">Біль та генез</button>
+                <button type="button" class="step-tab" data-step-tab="4">Сон</button>
+                <button type="button" class="step-tab" data-step-tab="5">ПСІ-батарея</button>
+                <button type="button" class="step-tab" data-step-tab="6">Сексуальна функція</button>
+                <button type="button" class="step-tab" data-step-tab="7">Об'єктивні дослідження</button>
+                <button type="button" class="step-tab" data-step-tab="8">Інформована згода</button>
+                <button type="button" class="step-tab" data-step-tab="9">Психотерапія</button>
+            </div>
+
+            <div class="form-step" data-step="1">
             <div class="form-group">
                 <label for="patientFullName">
                     ПІБ пацієнта
@@ -727,6 +828,12 @@
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="2">
             <div id="amputationSection" class="screen-hidden">
                 <h2 class="section-title">Ампутація — рівень та деталі</h2>
 
@@ -775,6 +882,13 @@
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="3">
             <div id="painSection" class="screen-hidden">
                 <h2 class="section-title">Біль — ФБ, ФВ, біль кукси</h2>
 
@@ -891,6 +1005,13 @@
                 <div id="dogBlocksContainer"></div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="4">
             <div id="sleepSection">
                 <h2 class="section-title">Скринінг сну</h2>
                 <div class="section-hint">Заповнюється для всіх учасників. Розділ А — поточний стан сну (15 питань, по одному варіанту, крім п.2). Розділ Б — таймлайн порушень сну за періодами служби. Розділ В — наскільки кожен зі стресорів служби впливав на сон. Розділ Г — зв'язок болю і сну.</div>
@@ -914,6 +1035,13 @@
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="5">
             <div id="psiSection">
                 <h2 class="section-title">ПСІ-батарея — LEC-5 (перелік травматичних подій)</h2>
                 <div class="section-hint">Заповнюється для всіх учасників. Для кожної події позначте, як вона стосується вас (можна позначити декілька варіантів, або "Ні", якщо такого не було).</div>
@@ -1008,6 +1136,13 @@
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="6">
             <div id="sexFunctionSection">
                 <h2 class="section-title">Сексуальна функція</h2>
                 <div class="section-hint">Цей блок є анонімним і використовується виключно для наукового дослідження. Заповнюється для всіх учасників, які погоджуються відповісти.</div>
@@ -1288,6 +1423,13 @@
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="7">
             <div id="objectiveSection">
                 <h2 class="section-title">Об'єктивні дослідження</h2>
                 <div class="section-hint">Опишіть наявні дослідження, втручання та призначення. Якщо чогось немає — залиште поле порожнім.</div>
@@ -1361,6 +1503,13 @@
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="8">
             <div id="consentSection">
                 <h2 class="section-title">Інформована згода</h2>
 
@@ -1444,6 +1593,13 @@ Email: yehor.iordek@gmail.com
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="9">
             <div id="psychotherapySection">
                 <h2 class="section-title">Психотерапія</h2>
 
@@ -1484,10 +1640,15 @@ Email: yehor.iordek@gmail.com
                 </div>
             </div>
 
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-submit">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
                 <button type="button" class="btn-new" id="newPatientBtn">Новий пацієнт</button>
+            </div>
             </div>
         </form>
     </div>
@@ -2993,6 +3154,53 @@ Email: yehor.iordek@gmail.com
                 document.body.classList.remove('print-layout');
             }
         });
+
+        // Покрокова навігація по розділах форми
+        const TOTAL_STEPS = 9;
+        let currentStep = 1;
+        const stepTabs = document.querySelectorAll('.step-tab');
+        const formSteps = document.querySelectorAll('.form-step');
+
+        function showStep(step) {
+            currentStep = step;
+            formSteps.forEach(function(el) {
+                el.classList.toggle('active', parseInt(el.dataset.step, 10) === step);
+            });
+            stepTabs.forEach(function(tab) {
+                tab.classList.toggle('active', parseInt(tab.dataset.stepTab, 10) === step);
+            });
+            document.querySelectorAll('.btn-step-prev').forEach(function(btn) {
+                btn.disabled = step === 1;
+            });
+            document.querySelectorAll('.btn-step-next').forEach(function(btn) {
+                btn.disabled = step === TOTAL_STEPS;
+            });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        stepTabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                showStep(parseInt(tab.dataset.stepTab, 10));
+            });
+        });
+
+        document.querySelectorAll('.btn-step-prev').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    showStep(currentStep - 1);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-step-next').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (currentStep < TOTAL_STEPS) {
+                    showStep(currentStep + 1);
+                }
+            });
+        });
+
+        showStep(1);
 
         // Побудувати селектори рівня ампутації для кожної кінцівки
         renderAmpLimbPickers();
