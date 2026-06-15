@@ -348,6 +348,46 @@
             display: block;
         }
 
+        .sub-step-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 6px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sub-step-tab {
+            flex: 0 0 auto;
+            background-color: #f4f6f7;
+            color: #2c3e50;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 14px;
+            white-space: nowrap;
+            border: 1px solid #ecf0f1;
+        }
+
+        .sub-step-tab:hover {
+            background-color: #ecf0f1;
+        }
+
+        .sub-step-tab.active {
+            background-color: #5dade2;
+            color: white;
+            border-color: #5dade2;
+        }
+
+        .sub-step {
+            display: none;
+        }
+
+        .sub-step.active {
+            display: block;
+        }
+
         .form-step-nav {
             display: flex;
             gap: 10px;
@@ -473,8 +513,13 @@
         }
 
         body.print-layout .step-tabs,
+        body.print-layout .sub-step-tabs,
         body.print-layout .form-step-nav {
             display: none !important;
+        }
+
+        body.print-layout .sub-step {
+            display: block !important;
         }
 
         body.print-layout input[type="text"],
@@ -924,7 +969,17 @@ Email: yehor.iordek@gmail.com
             </div>
 
             <div class="form-step" data-step="3">
-            <div id="painSection" class="screen-hidden">
+            <div id="painGenesisContent" class="screen-hidden">
+
+            <div class="sub-step-tabs screen-only">
+                <button type="button" class="sub-step-tab active" data-substep-tab="pain">Біль</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="stump">Патології кукси</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="genesis">Генез</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="tests">Тести</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="dog">ДОГ</button>
+            </div>
+
+            <div id="painSection" class="sub-step active" data-substep="pain">
                 <h2 class="section-title">Біль — ФБ, ФВ, біль кукси</h2>
 
                 <div id="painPhenomenaContainer"></div>
@@ -959,6 +1014,34 @@ Email: yehor.iordek@gmail.com
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Соматичні реакції на біль</label>
+                    <div class="chips-group screen-only" id="somReactChips">
+                        <label class="chip"><input type="checkbox" value="тахікардія"><span>Тахікардія</span></label>
+                        <label class="chip"><input type="checkbox" value="Підвищення артеріального тиску"><span>Підвищення артеріального тиску</span></label>
+                        <label class="chip"><input type="checkbox" value="Пітливість"><span>Пітливість</span></label>
+                        <label class="chip"><input type="checkbox" value="Тремор"><span>Тремор</span></label>
+                        <label class="chip"><input type="checkbox" value="Нудота"><span>Нудота</span></label>
+                        <label class="chip"><input type="checkbox" value="М'язова напруження"><span>М'язова напруга</span></label>
+                        <label class="chip"><input type="checkbox" value="Прискорене дихання"><span>Прискорене дихання</span></label>
+                        <label class="chip"><input type="checkbox" value="Відсутні"><span>Відсутні</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Соматичні реакції на біль для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тахікардія</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Підвищення артеріального тиску</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Пітливість</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тремор</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Нудота</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>М'язова напруга</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Прискорене дихання</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stumpPathSection" class="sub-step" data-substep="stump">
+                <h2 class="section-title">Патології кукси</h2>
 
                 <div class="form-group">
                     <label>Патологія кукси</label>
@@ -1002,42 +1085,24 @@ Email: yehor.iordek@gmail.com
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Спостереження</span></div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label>Соматичні реакції на біль</label>
-                    <div class="chips-group screen-only" id="somReactChips">
-                        <label class="chip"><input type="checkbox" value="тахікардія"><span>Тахікардія</span></label>
-                        <label class="chip"><input type="checkbox" value="Підвищення артеріального тиску"><span>Підвищення артеріального тиску</span></label>
-                        <label class="chip"><input type="checkbox" value="Пітливість"><span>Пітливість</span></label>
-                        <label class="chip"><input type="checkbox" value="Тремор"><span>Тремор</span></label>
-                        <label class="chip"><input type="checkbox" value="Нудота"><span>Нудота</span></label>
-                        <label class="chip"><input type="checkbox" value="М'язова напруження"><span>М'язова напруга</span></label>
-                        <label class="chip"><input type="checkbox" value="Прискорене дихання"><span>Прискорене дихання</span></label>
-                        <label class="chip"><input type="checkbox" value="Відсутні"><span>Відсутні</span></label>
-                    </div>
-                    <div class="print-checkbox-group print-only" aria-label="Соматичні реакції на біль для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тахікардія</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Підвищення артеріального тиску</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Пітливість</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тремор</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Нудота</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>М'язова напруга</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Прискорене дихання</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
-                    </div>
-                </div>
             </div>
 
-            <div id="genesisSection" class="screen-hidden">
-                <h2 class="section-title">Генез болю — клінічні ознаки та тести</h2>
+            <div id="genesisDescriptorsSection" class="sub-step" data-substep="genesis">
+                <h2 class="section-title">Генез болю — клінічні ознаки</h2>
                 <div id="genesisDescriptorsContainer"></div>
+            </div>
+
+            <div id="genesisTestsSection" class="sub-step" data-substep="tests">
+                <h2 class="section-title">Тести генезу</h2>
                 <div id="genesisTestsContainer"></div>
             </div>
 
-            <div id="dogSection" class="screen-hidden">
+            <div id="dogSection" class="sub-step" data-substep="dog">
                 <h2 class="section-title">ДОГ ФБіФВ — мультифакторний діагностичний опитувальник</h2>
                 <div class="section-hint">Варіант А — скорочена версія (4 генези × 8 питань + предиктор + модулятори). Перед заповненням пацієнт має бути проінформований про значення термінів «Біль у куксі», «Фантомний біль», «Фантомне відчуття». Перед кожним блоком пацієнт зосереджується на відповідному виді відчуттів, як того вимагає контекст блоку. Підрахунок балів: відповіді зліва направо від 0 до 4 балів.</div>
                 <div id="dogBlocksContainer"></div>
+            </div>
+
             </div>
 
             <div class="form-step-nav screen-only">
@@ -3250,6 +3315,18 @@ Email: yehor.iordek@gmail.com
             });
         });
 
+        // Підвкладки в кроці "Біль та генез"
+        const subStepTabs = document.querySelectorAll('.sub-step-tab');
+        const subSteps = document.querySelectorAll('.sub-step');
+
+        subStepTabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                const target = tab.dataset.substepTab;
+                subStepTabs.forEach(t => t.classList.toggle('active', t === tab));
+                subSteps.forEach(s => s.classList.toggle('active', s.dataset.substep === target));
+            });
+        });
+
         document.querySelectorAll('.btn-step-prev').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 if (currentStep > 1) {
@@ -3302,17 +3379,13 @@ Email: yehor.iordek@gmail.com
         document.getElementById('sf_pain_during_sex').addEventListener('change', updateSexFunctionVisibility);
         updateSexFunctionVisibility();
 
-        // Показувати блоки "Біль", "Генез" і "ДОГ ФБіФВ" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
-        const painSection = document.getElementById('painSection');
-        const genesisSection = document.getElementById('genesisSection');
-        const dogSection = document.getElementById('dogSection');
+        // Показувати підвкладки "Біль", "Патології кукси", "Генез", "Тести", "ДОГ" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
+        const painGenesisContent = document.getElementById('painGenesisContent');
         const painHasCheckboxes = PAIN_PHENOMENA.map(p => document.getElementById(p.hasField));
 
         function updatePainSectionVisibility() {
             const anyPhenomenon = painHasCheckboxes.some(cb => cb.checked);
-            painSection.classList.toggle('screen-hidden', !anyPhenomenon);
-            genesisSection.classList.toggle('screen-hidden', !anyPhenomenon);
-            dogSection.classList.toggle('screen-hidden', !anyPhenomenon);
+            painGenesisContent.classList.toggle('screen-hidden', !anyPhenomenon);
             PAIN_PHENOMENA.forEach((p, i) => {
                 document.getElementById(`painBlock${p.key}`).classList.toggle('screen-hidden', !painHasCheckboxes[i].checked);
             });
