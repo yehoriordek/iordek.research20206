@@ -584,11 +584,93 @@
                 <button type="button" class="step-tab" data-step-tab="5">ПСІ-батарея</button>
                 <button type="button" class="step-tab" data-step-tab="6">Сексуальна функція</button>
                 <button type="button" class="step-tab" data-step-tab="7">Об'єктивні дослідження</button>
-                <button type="button" class="step-tab" data-step-tab="8">Інформована згода</button>
-                <button type="button" class="step-tab" data-step-tab="9">Психотерапія</button>
+                <button type="button" class="step-tab" data-step-tab="8">Психотерапія</button>
             </div>
 
             <div class="form-step" data-step="1">
+            <div id="consentSection">
+                <h2 class="section-title">Інформована згода</h2>
+
+                <div class="consent-text">
+ІНФОРМОВАНА ЗГОДА
+на участь у науковому дослідженні та обробку персональних даних
+
+Дослідник: Іордек Єгор Борисович, психолог
+Установа: Військова частина А4799
+Контакти: тел. 096-119-40-20, yehor.iordek@gmail.com
+
+1. НАЗВА ДОСЛІДЖЕННЯ
+«Клінічне дослідження постампутаційного синдрому та коморбідних розладів: генез, симптоматика, діагностика та терапія»
+
+2. МЕТА ДОСЛІДЖЕННЯ
+Вивчення клінічних характеристик фантомного болю, фантомних відчуттів, психологічного стану та супутніх розладів у військовослужбовців з ампутацією кінцівок з метою розробки ефективних методів діагностики та лікування.
+
+3. ЯКІ ДАНІ ЗБИРАЮТЬСЯ
+Демографічні дані (вік, стать, військова частина), медичні дані (рівень та характер ампутації, больовий профіль, генез болю, результати психологічних тестів: PCL-5, HADS, AIS, DN-4, MoCA), дані про сексуальну функцію, заключення та рекомендації.
+
+4. ПОРЯДОК ЗБЕРІГАННЯ ТА ЗАХИСТУ ДАНИХ
+Усі дані зберігаються локально на захищеному пристрої дослідника. Дані знеособлюються перед будь-яким аналізом або публікацією — ваше ім'я та особисті ідентифікатори не з'являться в жодному звіті чи науковій публікації. Передача даних третім особам не здійснюється.
+
+5. ВИКОРИСТАННЯ ДАНИХ
+Зібрані дані можуть використовуватися виключно в наукових та освітніх цілях: для статистичного аналізу, підготовки наукових публікацій, дисертаційного дослідження та розробки клінічних рекомендацій. Усі публікації відповідають вимогам Гельсінської декларації WMA щодо етичних принципів медичних досліджень за участю людини та Закону України «Про захист персональних даних» №2297-VI.
+
+6. ДОБРОВІЛЬНІСТЬ УЧАСТІ
+Ваша участь є повністю добровільною. Ви маєте право:
+— відмовитися від участі в дослідженні без будь-яких наслідків;
+— відкликати цю згоду в будь-який момент, звернувшись до дослідника;
+— відмовитися відповідати на будь-яке питання без пояснення причин.
+Відмова від участі жодним чином не вплине на якість надання вам медичної та психологічної допомоги.
+
+7. КОНТАКТИ
+З будь-яких питань щодо дослідження звертайтесь:
+Іордек Єгор Борисович
+Тел.: 096-119-40-20
+Email: yehor.iordek@gmail.com
+                </div>
+
+                <div class="form-group">
+                    <label>Дослідницька згода (окремі дозволи) <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                    <div class="chips-group screen-only" id="consentResearchItemsChips">
+                        <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
+                        <label class="chip"><input type="checkbox" value="Аудіозапис інтерв'ю"><span>Аудіозапис інтерв'ю</span></label>
+                        <label class="chip"><input type="checkbox" value="Використання знеособлених цитат"><span>Використання знеособлених цитат</span></label>
+                        <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
+                        <label class="chip"><input type="checkbox" value="Знеособлене зберігання та аналіз даних"><span>Знеособлене зберігання та аналіз даних</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Дослідницькі дозволи для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис інтерв'ю</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання знеособлених цитат</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знеособлене зберігання та аналіз даних</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="consent_given">Чи надана згода на участь у дослідженні?</label>
+                    <select id="consent_given" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Згода надана для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="consent_date">Дата підписання</label>
+                    <input type="date" id="consent_date" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата підписання (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group print-only">
+                    <label>Підпис пацієнта</label>
+                    <div class="signature-line"></div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="patientFullName">
                     ПІБ пацієнта
@@ -623,30 +705,23 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="patientUnit">Військова частина</label>
-                    <input type="text" id="patientUnit" name="patient_unit" placeholder="Напр., в/ч А1234">
-                </div>
-
-                <div class="form-group">
-                    <label for="patientBirthdate">
-                        Дата народження пацієнта
-                    </label>
-                    <input
-                        type="date"
-                        id="patientBirthdate"
-                        name="patient_birthdate"
-                        class="screen-only"
-                    >
-                    <div class="age-display screen-only" id="patientAgeDisplay"></div>
-                    <input
-                        type="text"
-                        class="print-only"
-                        placeholder="дд.мм.рррр"
-                        aria-label="Дата народження пацієнта (дд.мм.рррр)"
-                    >
-                </div>
+            <div class="form-group">
+                <label for="patientBirthdate">
+                    Дата народження пацієнта
+                </label>
+                <input
+                    type="date"
+                    id="patientBirthdate"
+                    name="patient_birthdate"
+                    class="screen-only"
+                >
+                <div class="age-display screen-only" id="patientAgeDisplay"></div>
+                <input
+                    type="text"
+                    class="print-only"
+                    placeholder="дд.мм.рррр"
+                    aria-label="Дата народження пацієнта (дд.мм.рррр)"
+                >
             </div>
 
             <div class="form-row">
@@ -735,100 +810,8 @@
             </div>
 
             <div class="form-group">
-                <label for="patientSubst">Вживання ПАР</label>
-                <select id="patientSubst" name="patient_subst" class="screen-only">
-                    <option value="">-- Виберіть --</option>
-                    <option value="Відсутнє">Відсутнє</option>
-                    <option value="Періодичне">Періодичне</option>
-                    <option value="Регулярне">Регулярне</option>
-                    <option value="В минулому">В минулому</option>
-                </select>
-                <div class="print-checkbox-group print-only" aria-label="Вживання ПАР для друку">
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Відсутнє</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Періодичне</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Регулярне</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>В минулому</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Ризики та анамнез</label>
-                <div class="chips-group screen-only">
-                    <label class="chip toggle">
-                        <input type="checkbox" id="patientSmoke" name="patient_smoke">
-                        <span>Курить</span>
-                    </label>
-                    <label class="chip toggle">
-                        <input type="checkbox" id="patientSuic" name="patient_suic">
-                        <span>Суїцидальний ризик</span>
-                    </label>
-                    <label class="chip toggle">
-                        <input type="checkbox" id="patientPsych" name="patient_psych">
-                        <span>Психіатричний анамнез</span>
-                    </label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Ризики та анамнез для друку">
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Курить</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Суїцидальний ризик</span>
-                    </div>
-                    <div class="print-checkbox-option">
-                        <span class="print-checkbox-box" aria-hidden="true"></span>
-                        <span>Психіатричний анамнез</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Симптоматика</label>
-                <div class="chips-group screen-only" id="symChips">
-                    <label class="chip"><input type="checkbox" value="Порушення сну"><span>Порушення сну</span></label>
-                    <label class="chip"><input type="checkbox" value="Тривожність"><span>Тривожність</span></label>
-                    <label class="chip"><input type="checkbox" value="Дратівливість / спалахи гніву"><span>Дратівливість / спалахи гніву</span></label>
-                    <label class="chip"><input type="checkbox" value="Флешбеки / нав'язливі згадки"><span>Флешбеки / нав'язливі згадки</span></label>
-                    <label class="chip"><input type="checkbox" value="Уникання"><span>Уникання</span></label>
-                    <label class="chip"><input type="checkbox" value="Емоційне оніміння"><span>Емоційне оніміння</span></label>
-                    <label class="chip"><input type="checkbox" value="Гіперзбудливість / настороженість"><span>Гіперзбудливість / настороженість</span></label>
-                    <label class="chip"><input type="checkbox" value="Труднощі концентрації"><span>Труднощі концентрації</span></label>
-                    <label class="chip"><input type="checkbox" value="Головний біль"><span>Головний біль</span></label>
-                    <label class="chip"><input type="checkbox" value="Запаморочення"><span>Запаморочення</span></label>
-                    <label class="chip"><input type="checkbox" value="Тахікардія / серцебиття"><span>Тахікардія / серцебиття</span></label>
-                    <label class="chip"><input type="checkbox" value="Проблеми з апетитом"><span>Проблеми з апетитом</span></label>
-                    <label class="chip"><input type="checkbox" value="Знижений настрій"><span>Знижений настрій</span></label>
-                    <label class="chip"><input type="checkbox" value="Соціальна замкненість"><span>Соціальна замкненість</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Симптоматика для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Порушення сну</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тривожність</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Дратівливість / спалахи гніву</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Флешбеки / нав'язливі згадки</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Уникання</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Емоційне оніміння</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Гіперзбудливість / настороженість</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Труднощі концентрації</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Головний біль</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Запаморочення</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тахікардія / серцебиття</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Проблеми з апетитом</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знижений настрій</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Соціальна замкненість</span></div>
-                </div>
+                <label for="patientComplaints">Скарги</label>
+                <textarea id="patientComplaints" name="patient_complaints" rows="3" placeholder="Опишіть скарги пацієнта"></textarea>
             </div>
 
             <div class="form-group">
@@ -1577,96 +1560,6 @@
             </div>
 
             <div class="form-step" data-step="8">
-            <div id="consentSection">
-                <h2 class="section-title">Інформована згода</h2>
-
-                <div class="consent-text">
-ІНФОРМОВАНА ЗГОДА
-на участь у науковому дослідженні та обробку персональних даних
-
-Дослідник: Іордек Єгор Борисович, психолог
-Установа: Військова частина А4799
-Контакти: тел. 096-119-40-20, yehor.iordek@gmail.com
-
-1. НАЗВА ДОСЛІДЖЕННЯ
-«Клінічне дослідження постампутаційного синдрому та коморбідних розладів: генез, симптоматика, діагностика та терапія»
-
-2. МЕТА ДОСЛІДЖЕННЯ
-Вивчення клінічних характеристик фантомного болю, фантомних відчуттів, психологічного стану та супутніх розладів у військовослужбовців з ампутацією кінцівок з метою розробки ефективних методів діагностики та лікування.
-
-3. ЯКІ ДАНІ ЗБИРАЮТЬСЯ
-Демографічні дані (вік, стать, військова частина), медичні дані (рівень та характер ампутації, больовий профіль, генез болю, результати психологічних тестів: PCL-5, HADS, AIS, DN-4, MoCA), дані про сексуальну функцію, заключення та рекомендації.
-
-4. ПОРЯДОК ЗБЕРІГАННЯ ТА ЗАХИСТУ ДАНИХ
-Усі дані зберігаються локально на захищеному пристрої дослідника. Дані знеособлюються перед будь-яким аналізом або публікацією — ваше ім'я та особисті ідентифікатори не з'являться в жодному звіті чи науковій публікації. Передача даних третім особам не здійснюється.
-
-5. ВИКОРИСТАННЯ ДАНИХ
-Зібрані дані можуть використовуватися виключно в наукових та освітніх цілях: для статистичного аналізу, підготовки наукових публікацій, дисертаційного дослідження та розробки клінічних рекомендацій. Усі публікації відповідають вимогам Гельсінської декларації WMA щодо етичних принципів медичних досліджень за участю людини та Закону України «Про захист персональних даних» №2297-VI.
-
-6. ДОБРОВІЛЬНІСТЬ УЧАСТІ
-Ваша участь є повністю добровільною. Ви маєте право:
-— відмовитися від участі в дослідженні без будь-яких наслідків;
-— відкликати цю згоду в будь-який момент, звернувшись до дослідника;
-— відмовитися відповідати на будь-яке питання без пояснення причин.
-Відмова від участі жодним чином не вплине на якість надання вам медичної та психологічної допомоги.
-
-7. КОНТАКТИ
-З будь-яких питань щодо дослідження звертайтесь:
-Іордек Єгор Борисович
-Тел.: 096-119-40-20
-Email: yehor.iordek@gmail.com
-                </div>
-
-                <div class="form-group">
-                    <label>Дослідницька згода (окремі дозволи) <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                    <div class="chips-group screen-only" id="consentResearchItemsChips">
-                        <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
-                        <label class="chip"><input type="checkbox" value="Аудіозапис інтерв'ю"><span>Аудіозапис інтерв'ю</span></label>
-                        <label class="chip"><input type="checkbox" value="Використання знеособлених цитат"><span>Використання знеособлених цитат</span></label>
-                        <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
-                        <label class="chip"><input type="checkbox" value="Знеособлене зберігання та аналіз даних"><span>Знеособлене зберігання та аналіз даних</span></label>
-                    </div>
-                    <div class="print-checkbox-group print-only" aria-label="Дослідницькі дозволи для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис інтерв'ю</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання знеособлених цитат</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знеособлене зберігання та аналіз даних</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="consent_given">Чи надана згода на участь у дослідженні?</label>
-                    <select id="consent_given" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Згода надана для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="consent_date">Дата підписання</label>
-                    <input type="date" id="consent_date" class="screen-only">
-                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата підписання (дд.мм.рррр)">
-                </div>
-
-                <div class="form-group print-only">
-                    <label>Підпис пацієнта</label>
-                    <div class="signature-line"></div>
-                </div>
-            </div>
-
-            <div class="form-step-nav screen-only">
-                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
-                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
-            </div>
-            </div>
-
-            <div class="form-step" data-step="9">
             <div id="psychotherapySection">
                 <h2 class="section-title">Психотерапія</h2>
 
@@ -3323,7 +3216,7 @@ Email: yehor.iordek@gmail.com
         });
 
         // Покрокова навігація по розділах форми
-        const TOTAL_STEPS = 9;
+        const TOTAL_STEPS = 8;
         let currentStep = 1;
         const stepTabs = document.querySelectorAll('.step-tab');
         const formSteps = document.querySelectorAll('.form-step');
@@ -3539,18 +3432,13 @@ Email: yehor.iordek@gmail.com
                 patient_gender: document.getElementById('patientGender').value,
                 patient_birthdate: birthdate,
                 patient_age: calcAge(birthdate),
-                patient_unit: document.getElementById('patientUnit').value,
                 patient_ward: document.getElementById('patientWard').value,
                 person_type: document.getElementById('personType').value,
                 has_amputation: document.getElementById('hasAmputation').checked,
                 has_fb: document.getElementById('hasFB').checked,
                 has_fv: document.getElementById('hasFV').checked,
                 has_bk: document.getElementById('hasBK').checked,
-                patient_subst: document.getElementById('patientSubst').value,
-                patient_smoke: document.getElementById('patientSmoke').checked,
-                patient_suic: document.getElementById('patientSuic').checked,
-                patient_psych: document.getElementById('patientPsych').checked,
-                sym: getCheckedValues('symChips'),
+                patient_complaints: document.getElementById('patientComplaints').value,
                 research_consent: document.getElementById('researchConsent').checked,
                 research_consent_items: getCheckedValues('consentItemsChips'),
                 research_confidence: document.getElementById('researchConfidence').value,
@@ -3631,16 +3519,12 @@ Email: yehor.iordek@gmail.com
             const fields = {
                 'Study ID': formData.patient_nickname,
                 'ПІБ': formData.patient_full_name,
-                'Військова частина': formData.patient_unit,
                 'Палата': formData.patient_ward,
                 'Є ампутація': formData.has_amputation,
                 'Фантомний біль (наявність)': formData.has_fb,
                 'Фантомні відчуття (наявність)': formData.has_fv,
                 'Біль кукси (наявність)': formData.has_bk,
-                'Курить': formData.patient_smoke,
-                'Суїцидальний ризик': formData.patient_suic,
-                'Психіатричний анамнез': formData.patient_psych,
-                'Симптоматика': formData.sym,
+                'Скарги': formData.patient_complaints,
                 'Згода на дослідження': formData.research_consent,
                 'Пункти згоди': formData.research_consent_items
             };
@@ -3656,10 +3540,6 @@ Email: yehor.iordek@gmail.com
 
             if (formData.person_type) {
                 fields['Тип учасника'] = formData.person_type;
-            }
-
-            if (formData.patient_subst) {
-                fields['Вживання ПАР'] = formData.patient_subst;
             }
 
             if (formData.research_confidence) {
@@ -3946,18 +3826,13 @@ Email: yehor.iordek@gmail.com
                 document.getElementById('patientNickname').value = data.patient_nickname || '';
                 document.getElementById('patientGender').value = data.patient_gender || '';
                 document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
-                document.getElementById('patientUnit').value = data.patient_unit || '';
                 document.getElementById('patientWard').value = data.patient_ward || '';
                 document.getElementById('personType').value = data.person_type || '';
                 document.getElementById('hasAmputation').checked = !!data.has_amputation;
                 document.getElementById('hasFB').checked = !!data.has_fb;
                 document.getElementById('hasFV').checked = !!data.has_fv;
                 document.getElementById('hasBK').checked = !!data.has_bk;
-                document.getElementById('patientSubst').value = data.patient_subst || '';
-                document.getElementById('patientSmoke').checked = !!data.patient_smoke;
-                document.getElementById('patientSuic').checked = !!data.patient_suic;
-                document.getElementById('patientPsych').checked = !!data.patient_psych;
-                setCheckedValues('symChips', data.sym);
+                document.getElementById('patientComplaints').value = data.patient_complaints || '';
                 document.getElementById('researchConsent').checked = !!data.research_consent;
                 setCheckedValues('consentItemsChips', data.research_consent_items);
                 document.getElementById('researchConfidence').value = data.research_confidence || '';
