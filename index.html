@@ -584,11 +584,93 @@
                 <button type="button" class="step-tab" data-step-tab="5">ПСІ-батарея</button>
                 <button type="button" class="step-tab" data-step-tab="6">Сексуальна функція</button>
                 <button type="button" class="step-tab" data-step-tab="7">Об'єктивні дослідження</button>
-                <button type="button" class="step-tab" data-step-tab="8">Інформована згода</button>
-                <button type="button" class="step-tab" data-step-tab="9">Психотерапія</button>
+                <button type="button" class="step-tab" data-step-tab="8">Психотерапія</button>
             </div>
 
             <div class="form-step" data-step="1">
+            <div id="consentSection">
+                <h2 class="section-title">Інформована згода</h2>
+
+                <div class="consent-text">
+ІНФОРМОВАНА ЗГОДА
+на участь у науковому дослідженні та обробку персональних даних
+
+Дослідник: Іордек Єгор Борисович, психолог
+Установа: Військова частина А4799
+Контакти: тел. 096-119-40-20, yehor.iordek@gmail.com
+
+1. НАЗВА ДОСЛІДЖЕННЯ
+«Клінічне дослідження постампутаційного синдрому та коморбідних розладів: генез, симптоматика, діагностика та терапія»
+
+2. МЕТА ДОСЛІДЖЕННЯ
+Вивчення клінічних характеристик фантомного болю, фантомних відчуттів, психологічного стану та супутніх розладів у військовослужбовців з ампутацією кінцівок з метою розробки ефективних методів діагностики та лікування.
+
+3. ЯКІ ДАНІ ЗБИРАЮТЬСЯ
+Демографічні дані (вік, стать, військова частина), медичні дані (рівень та характер ампутації, больовий профіль, генез болю, результати психологічних тестів: PCL-5, HADS, AIS, DN-4, MoCA), дані про сексуальну функцію, заключення та рекомендації.
+
+4. ПОРЯДОК ЗБЕРІГАННЯ ТА ЗАХИСТУ ДАНИХ
+Усі дані зберігаються локально на захищеному пристрої дослідника. Дані знеособлюються перед будь-яким аналізом або публікацією — ваше ім'я та особисті ідентифікатори не з'являться в жодному звіті чи науковій публікації. Передача даних третім особам не здійснюється.
+
+5. ВИКОРИСТАННЯ ДАНИХ
+Зібрані дані можуть використовуватися виключно в наукових та освітніх цілях: для статистичного аналізу, підготовки наукових публікацій, дисертаційного дослідження та розробки клінічних рекомендацій. Усі публікації відповідають вимогам Гельсінської декларації WMA щодо етичних принципів медичних досліджень за участю людини та Закону України «Про захист персональних даних» №2297-VI.
+
+6. ДОБРОВІЛЬНІСТЬ УЧАСТІ
+Ваша участь є повністю добровільною. Ви маєте право:
+— відмовитися від участі в дослідженні без будь-яких наслідків;
+— відкликати цю згоду в будь-який момент, звернувшись до дослідника;
+— відмовитися відповідати на будь-яке питання без пояснення причин.
+Відмова від участі жодним чином не вплине на якість надання вам медичної та психологічної допомоги.
+
+7. КОНТАКТИ
+З будь-яких питань щодо дослідження звертайтесь:
+Іордек Єгор Борисович
+Тел.: 096-119-40-20
+Email: yehor.iordek@gmail.com
+                </div>
+
+                <div class="form-group">
+                    <label>Дослідницька згода (окремі дозволи) <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                    <div class="chips-group screen-only" id="consentResearchItemsChips">
+                        <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
+                        <label class="chip"><input type="checkbox" value="Аудіозапис інтерв'ю"><span>Аудіозапис інтерв'ю</span></label>
+                        <label class="chip"><input type="checkbox" value="Використання знеособлених цитат"><span>Використання знеособлених цитат</span></label>
+                        <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
+                        <label class="chip"><input type="checkbox" value="Знеособлене зберігання та аналіз даних"><span>Знеособлене зберігання та аналіз даних</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Дослідницькі дозволи для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис інтерв'ю</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання знеособлених цитат</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знеособлене зберігання та аналіз даних</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="consent_given">Чи надана згода на участь у дослідженні?</label>
+                    <select id="consent_given" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Згода надана для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="consent_date">Дата підписання</label>
+                    <input type="date" id="consent_date" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата підписання (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group print-only">
+                    <label>Підпис пацієнта</label>
+                    <div class="signature-line"></div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="patientFullName">
                     ПІБ пацієнта
@@ -1577,96 +1659,6 @@
             </div>
 
             <div class="form-step" data-step="8">
-            <div id="consentSection">
-                <h2 class="section-title">Інформована згода</h2>
-
-                <div class="consent-text">
-ІНФОРМОВАНА ЗГОДА
-на участь у науковому дослідженні та обробку персональних даних
-
-Дослідник: Іордек Єгор Борисович, психолог
-Установа: Військова частина А4799
-Контакти: тел. 096-119-40-20, yehor.iordek@gmail.com
-
-1. НАЗВА ДОСЛІДЖЕННЯ
-«Клінічне дослідження постампутаційного синдрому та коморбідних розладів: генез, симптоматика, діагностика та терапія»
-
-2. МЕТА ДОСЛІДЖЕННЯ
-Вивчення клінічних характеристик фантомного болю, фантомних відчуттів, психологічного стану та супутніх розладів у військовослужбовців з ампутацією кінцівок з метою розробки ефективних методів діагностики та лікування.
-
-3. ЯКІ ДАНІ ЗБИРАЮТЬСЯ
-Демографічні дані (вік, стать, військова частина), медичні дані (рівень та характер ампутації, больовий профіль, генез болю, результати психологічних тестів: PCL-5, HADS, AIS, DN-4, MoCA), дані про сексуальну функцію, заключення та рекомендації.
-
-4. ПОРЯДОК ЗБЕРІГАННЯ ТА ЗАХИСТУ ДАНИХ
-Усі дані зберігаються локально на захищеному пристрої дослідника. Дані знеособлюються перед будь-яким аналізом або публікацією — ваше ім'я та особисті ідентифікатори не з'являться в жодному звіті чи науковій публікації. Передача даних третім особам не здійснюється.
-
-5. ВИКОРИСТАННЯ ДАНИХ
-Зібрані дані можуть використовуватися виключно в наукових та освітніх цілях: для статистичного аналізу, підготовки наукових публікацій, дисертаційного дослідження та розробки клінічних рекомендацій. Усі публікації відповідають вимогам Гельсінської декларації WMA щодо етичних принципів медичних досліджень за участю людини та Закону України «Про захист персональних даних» №2297-VI.
-
-6. ДОБРОВІЛЬНІСТЬ УЧАСТІ
-Ваша участь є повністю добровільною. Ви маєте право:
-— відмовитися від участі в дослідженні без будь-яких наслідків;
-— відкликати цю згоду в будь-який момент, звернувшись до дослідника;
-— відмовитися відповідати на будь-яке питання без пояснення причин.
-Відмова від участі жодним чином не вплине на якість надання вам медичної та психологічної допомоги.
-
-7. КОНТАКТИ
-З будь-яких питань щодо дослідження звертайтесь:
-Іордек Єгор Борисович
-Тел.: 096-119-40-20
-Email: yehor.iordek@gmail.com
-                </div>
-
-                <div class="form-group">
-                    <label>Дослідницька згода (окремі дозволи) <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                    <div class="chips-group screen-only" id="consentResearchItemsChips">
-                        <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
-                        <label class="chip"><input type="checkbox" value="Аудіозапис інтерв'ю"><span>Аудіозапис інтерв'ю</span></label>
-                        <label class="chip"><input type="checkbox" value="Використання знеособлених цитат"><span>Використання знеособлених цитат</span></label>
-                        <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
-                        <label class="chip"><input type="checkbox" value="Знеособлене зберігання та аналіз даних"><span>Знеособлене зберігання та аналіз даних</span></label>
-                    </div>
-                    <div class="print-checkbox-group print-only" aria-label="Дослідницькі дозволи для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис інтерв'ю</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання знеособлених цитат</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знеособлене зберігання та аналіз даних</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="consent_given">Чи надана згода на участь у дослідженні?</label>
-                    <select id="consent_given" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Згода надана для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="consent_date">Дата підписання</label>
-                    <input type="date" id="consent_date" class="screen-only">
-                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата підписання (дд.мм.рррр)">
-                </div>
-
-                <div class="form-group print-only">
-                    <label>Підпис пацієнта</label>
-                    <div class="signature-line"></div>
-                </div>
-            </div>
-
-            <div class="form-step-nav screen-only">
-                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
-                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
-            </div>
-            </div>
-
-            <div class="form-step" data-step="9">
             <div id="psychotherapySection">
                 <h2 class="section-title">Психотерапія</h2>
 
@@ -3323,7 +3315,7 @@ Email: yehor.iordek@gmail.com
         });
 
         // Покрокова навігація по розділах форми
-        const TOTAL_STEPS = 9;
+        const TOTAL_STEPS = 8;
         let currentStep = 1;
         const stepTabs = document.querySelectorAll('.step-tab');
         const formSteps = document.querySelectorAll('.form-step');
