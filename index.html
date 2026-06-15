@@ -234,6 +234,32 @@
             margin-bottom: 8px;
         }
 
+        .file-list {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .file-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 4px 8px;
+            background: #f4f6f7;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .file-list-item button {
+            background: none;
+            border: none;
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 0 4px;
+        }
+
         .consent-text {
             font-size: 12px;
             color: #555;
@@ -1450,6 +1476,11 @@
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
                     </div>
                 </div>
+                <div class="form-group screen-only">
+                    <label for="obj_imaging_files">Додати фото / скани (УЗД, рентген, КТ, МРТ тощо)</label>
+                    <input type="file" id="obj_imaging_files" accept="image/*,application/pdf" multiple>
+                    <div class="file-list" id="obj_imaging_files_list"></div>
+                </div>
 
                 <div class="form-group">
                     <label for="obj_surgery_desc">Оперативні втручання</label>
@@ -1466,6 +1497,11 @@
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
                     </div>
+                </div>
+                <div class="form-group screen-only">
+                    <label for="obj_surgery_files">Додати фото / скани виписок про оперативні втручання</label>
+                    <input type="file" id="obj_surgery_files" accept="image/*,application/pdf" multiple>
+                    <div class="file-list" id="obj_surgery_files_list"></div>
                 </div>
 
                 <div class="form-group">
@@ -1484,6 +1520,11 @@
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
                     </div>
                 </div>
+                <div class="form-group screen-only">
+                    <label for="obj_regional_files">Додати фото / скани документів про регіонарне знеболення</label>
+                    <input type="file" id="obj_regional_files" accept="image/*,application/pdf" multiple>
+                    <div class="file-list" id="obj_regional_files_list"></div>
+                </div>
 
                 <div class="form-group">
                     <label for="obj_systemic_desc">Системне знеболення / фармакотерапія</label>
@@ -1501,6 +1542,12 @@
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
                     </div>
                 </div>
+                <div class="form-group screen-only">
+                    <label for="obj_systemic_files">Додати фото / скани призначень системного знеболення / фармакотерапії</label>
+                    <input type="file" id="obj_systemic_files" accept="image/*,application/pdf" multiple>
+                    <div class="file-list" id="obj_systemic_files_list"></div>
+                </div>
+                <div class="section-hint screen-only">Фото додаються при натисканні кнопки збереження і не зберігаються при оновленні сторінки — додавайте їх безпосередньо перед збереженням анкети.</div>
             </div>
 
             <div class="form-step-nav screen-only">
@@ -1672,6 +1719,23 @@ Email: yehor.iordek@gmail.com
         // Підключення до Airtable (див. data-structure.md)
         const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
         const AIRTABLE_TABLE_ID = 'tblMV2RrZGmcGAdqz';
+
+        // Поля-вкладення для фото/сканів в розділі "Об'єктивні дослідження"
+        const OBJECTIVE_ATTACHMENT_INPUTS = {
+            imaging: 'obj_imaging_files',
+            surgery: 'obj_surgery_files',
+            regional: 'obj_regional_files',
+            systemic: 'obj_systemic_files'
+        };
+
+        const OBJECTIVE_ATTACHMENT_FIELD_IDS = {
+            imaging: 'fldySXhMmHSiZHtpV',
+            surgery: 'fldZUQjQpbK2AT0I8',
+            regional: 'fldDfS4hZCfoZidEg',
+            systemic: 'fldqNvqdPO9KLF6AU'
+        };
+
+        const objectiveAttachmentFiles = { imaging: [], surgery: [], regional: [], systemic: [] };
 
         // Зашифрований API-ключ Airtable (PBKDF2 + AES-256-GCM, пароль вводиться користувачем).
         // Порожні рядки = шифрування ще не налаштоване.
@@ -3079,6 +3143,89 @@ Email: yehor.iordek@gmail.com
             };
         }
 
+        // Об'єктивні дослідження — список вибраних файлів для конкретного блоку
+        function renderObjectiveFileList(key) {
+            const list = document.getElementById(OBJECTIVE_ATTACHMENT_INPUTS[key] + '_list');
+            list.innerHTML = '';
+            objectiveAttachmentFiles[key].forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-list-item';
+
+                const name = document.createElement('span');
+                name.textContent = file.name;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.textContent = '✕';
+                removeBtn.setAttribute('aria-label', 'Видалити файл');
+                removeBtn.addEventListener('click', () => {
+                    objectiveAttachmentFiles[key].splice(index, 1);
+                    renderObjectiveFileList(key);
+                });
+
+                item.appendChild(name);
+                item.appendChild(removeBtn);
+                list.appendChild(item);
+            });
+        }
+
+        Object.keys(OBJECTIVE_ATTACHMENT_INPUTS).forEach(key => {
+            const input = document.getElementById(OBJECTIVE_ATTACHMENT_INPUTS[key]);
+            input.addEventListener('change', () => {
+                Array.from(input.files).forEach(file => objectiveAttachmentFiles[key].push(file));
+                input.value = '';
+                renderObjectiveFileList(key);
+            });
+        });
+
+        // Перетворює File у base64-рядок для завантаження в Airtable
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Завантажує вибрані фото/скани у відповідні поля-вкладення Airtable
+        async function uploadObjectiveAttachments(apiKey, recordId) {
+            for (const key of Object.keys(objectiveAttachmentFiles)) {
+                for (const file of objectiveAttachmentFiles[key]) {
+                    const base64 = await fileToBase64(file);
+                    const response = await fetch(
+                        `https://content.airtable.com/v0/${AIRTABLE_BASE_ID}/${recordId}/${OBJECTIVE_ATTACHMENT_FIELD_IDS[key]}/uploadAttachment`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${apiKey}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                contentType: file.type || 'application/octet-stream',
+                                filename: file.name,
+                                file: base64
+                            })
+                        }
+                    );
+
+                    if (!response.ok) {
+                        const errorBody = await response.json().catch(() => null);
+                        const message = errorBody?.error?.message || response.statusText;
+                        throw new Error(`Airtable (фото): ${message}`);
+                    }
+                }
+            }
+        }
+
+        // Очищає вибрані файли після успішного збереження
+        function clearObjectiveAttachments() {
+            Object.keys(objectiveAttachmentFiles).forEach(key => {
+                objectiveAttachmentFiles[key] = [];
+                renderObjectiveFileList(key);
+            });
+        }
+
         // Сексуальна функція — показ/приховування залежних полів на екрані
         function updateSexFunctionVisibility() {
             const consent = document.getElementById('sf_consent').value;
@@ -3712,6 +3859,11 @@ Email: yehor.iordek@gmail.com
                 const message = errorBody?.error?.message || response.statusText;
                 throw new Error(`Airtable: ${message}`);
             }
+
+            const savedRecord = await response.json();
+            const recordId = existingId || savedRecord.id;
+            await uploadObjectiveAttachments(apiKey, recordId);
+            clearObjectiveAttachments();
 
             return existingId !== null;
         }
