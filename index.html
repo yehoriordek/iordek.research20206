@@ -1890,11 +1890,18 @@ Email: yehor.iordek@gmail.com
             });
         }
 
+        // Канонічний довідник дескрипторів болю (Periph_Descriptors, 16 позицій).
+        // Спільний для трьох блоків: Генез (оцінка дослідника), ДОГ-периферичний і ДОГ-предиктор (самозвіт пацієнта).
+        const PERIPH_DESCRIPTORS = ['ріжучий', 'тупий', 'гострий', 'пронизуючий', 'спазмуючий', 'прострілюючий', 'пекучий', 'колючий', 'тягнучий', 'ниючий', 'болісні судоми', 'розпираючий', 'пульсуючий', 'тиснучий', 'розряди струмом', 'всвердлювання'];
+        // Підмножина для предиктора "біль у куксі" — без розрядів струмом і всвердлювання
+        const PERIPH_DESCRIPTORS_PREDICTOR = PERIPH_DESCRIPTORS.slice(0, 14);
+
         // Клінічні дескриптори генезу (мультивибір + поле "інше" для кожного типу)
         const GENESIS_DESCRIPTORS = [
             {
                 key: 'genPeripheral', otherKey: 'genPeripheralOther', label: 'Генез — периферичні ознаки', airtableLabel: 'периферичний',
-                items: ['Біль при дотику', 'Механ. чинники', 'Запалення', 'Температура', 'Закреп.', 'Ріжучий', 'Тупий', 'Гострий', 'Пронизуючий', 'Спазмуючий', 'Прострілюючий', 'Пекучий', 'Колючий', 'Тягнучий', 'Ниючий', 'Болісні судоми ф.к.', 'Розпирання ф.к.', 'Пульсуючий', 'Тиснучий', 'Розряди струмом', 'Всверлювання', 'Контрактура ф.к.']
+                items: ['Біль при дотику', 'Механ. чинники', 'Запалення', 'Температура', 'Закреп.', 'Контрактура ф.к.'],
+                descKey: 'genPeriphDescClin', descLabel: 'Дескриптори болю (оцінка дослідника)', descItems: PERIPH_DESCRIPTORS
             },
             {
                 key: 'genCerebral', otherKey: 'genCerebralOther', label: 'Генез — церебральні ознаки', airtableLabel: 'церебральний',
@@ -1951,6 +1958,22 @@ Email: yehor.iordek@gmail.com
                 `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
             ).join('');
             const subtitleHtml = g.subtitle ? `<div class="section-hint">${g.subtitle}</div>` : '';
+            let descHtml = '';
+            if (g.descKey) {
+                const descChips = g.descItems.map(opt =>
+                    `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+                ).join('');
+                const descPrint = g.descItems.map(opt =>
+                    `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+                ).join('');
+                descHtml = `
+                <div class="form-group">
+                    <label>${g.descLabel}</label>
+                    <div class="chips-group screen-only" id="${g.descKey}Chips">${descChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${g.descLabel} для друку">${descPrint}</div>
+                </div>
+                `;
+            }
             return `
                 <div class="form-group">
                     <label>${g.label}</label>
@@ -1958,6 +1981,7 @@ Email: yehor.iordek@gmail.com
                     <div class="chips-group screen-only" id="${g.key}Chips">${chips}</div>
                     <div class="print-checkbox-group print-only" aria-label="${g.label} для друку">${print}</div>
                 </div>
+                ${descHtml}
                 <div class="form-group">
                     <label for="${g.otherKey}">${g.label} — інше</label>
                     <input type="text" id="${g.otherKey}" placeholder="Інші ознаки">
@@ -1997,6 +2021,9 @@ Email: yehor.iordek@gmail.com
         function renderGenesisSection() {
             document.getElementById('genesisDescriptorsContainer').innerHTML = GENESIS_DESCRIPTORS.map(renderGenesisDescriptor).join('');
             document.getElementById('genesisTestsContainer').innerHTML = GENESIS_TESTS.map(renderGenesisTest).join('');
+            document.querySelectorAll('#genPeriphDescClinChips input[type="checkbox"]').forEach(el => {
+                el.addEventListener('change', () => { if (typeof updateDogTotals === 'function') updateDogTotals(); });
+            });
         }
 
         // ДОГ ФБіФВ (Варіант А, скорочена версія): 4 генези по 8 питань + предиктор (біль у куксі) + модулятори.
@@ -2015,7 +2042,7 @@ Email: yehor.iordek@gmail.com
                     { text: 'Чи заважає спати фантомний біль', options: ['Не заважає', 'Відносно, залежить від пози', 'Не дає заснути', 'Будить серед ночі', 'Не дає заснути, будить якщо засну'] },
                     { text: 'Опишіть час, коли фантомний біль найбільш активний', options: ['Вранці', 'В середині дня', 'Під вечір', 'Вночі', 'Постійно'] }
                 ],
-                descriptors: ['ріжучий', 'тупий', 'гострий', 'пронизуючий', 'спазмуючий', 'прострілюючий', 'пекучий', 'колючий', 'тягнучий', 'ниючий', 'болісні судоми', 'розпираючий', 'пульсуючий', 'тиснучий', 'розряди струмом', 'всвердлювання']
+                descriptors: PERIPH_DESCRIPTORS, descLabel: 'Дескриптори болю (самозвіт пацієнта)'
             },
             {
                 key: 'dogSpinal', label: 'ДОГ — спінальний генез', airtableLabel: 'спінальний',
@@ -2075,7 +2102,7 @@ Email: yehor.iordek@gmail.com
                     { text: 'Чи заважає спати біль у куксі', options: ['Не заважає', 'Відносно, залежить від пози', 'Не дає заснути', 'Будить серед ночі', 'Не дає заснути, будить якщо засну'] },
                     { text: 'Опишіть час, коли біль у куксі найбільш активний', options: ['Вранці', 'В середині дня', 'Під вечір', 'Вночі', 'Постійно'] }
                 ],
-                descriptors: ['ріжучий', 'тупий', 'гострий', 'пронизуючий', 'спазмуючий', 'прострілюючий', 'пекучий', 'колючий', 'тягнучий', 'ниючий', 'болісні судоми', 'розпираючий', 'пульсуючий', 'тиснучий']
+                descriptors: PERIPH_DESCRIPTORS_PREDICTOR, descLabel: 'Дескриптори болю (самозвіт пацієнта)'
             },
             {
                 key: 'dogModulators', label: 'ДОГ — модулятори', airtableLabel: 'модулятори',
@@ -2132,12 +2159,13 @@ Email: yehor.iordek@gmail.com
             const descPrint = block.descriptors.map(opt =>
                 `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
             ).join('');
+            const descLabel = block.descLabel ? `${block.descLabel} (не впливають на підрахунок балів)` : `${block.label} — дескриптори (не впливають на підрахунок балів)`;
             return `
                 <h3 class="section-title">${block.label}</h3>
                 <div class="section-hint">${block.subtitle}</div>
                 ${questionsHtml}
                 <div class="form-group">
-                    <label>${block.label} — дескриптори (не впливають на підрахунок балів)</label>
+                    <label>${descLabel}</label>
                     <div class="chips-group screen-only" id="${block.key}DescChips">${descChips}</div>
                     <div class="print-checkbox-group print-only" aria-label="${block.label} — дескриптори для друку">${descPrint}</div>
                 </div>
@@ -2156,7 +2184,10 @@ Email: yehor.iordek@gmail.com
         function renderDogSummary() {
             return `
                 <h3 class="section-title">Підсумок ДОГ ФБіФВ</h3>
-                <div class="form-group screen-only" id="dogDominantGenesis">Домінантний генез: —</div>
+                <div class="form-group screen-only" id="dogDominantGenesis">Генез за балами: —</div>
+                <div class="form-group screen-only" id="dogDominantByDesc">Генез за дескрипторами (не валідизовано): —</div>
+                <div class="form-group screen-only" id="dogDescAgreement">Узгодженість: —</div>
+                <div class="form-group screen-only" id="dogPeriphConcordance">Узгодженість дескрипторів периферичного генезу (дослідник/пацієнт): —</div>
                 <div class="form-group print-only">
                     <label>Домінантний генез</label>
                     <input type="text" class="print-only">
@@ -2182,9 +2213,29 @@ Email: yehor.iordek@gmail.com
             return top.label;
         }
 
-        // Перераховує суми балів по блоках ДОГ та домінантний генез
+        // Конкордантність дескрипторів периферичного генезу між оцінкою дослідника (Генез) і самозвітом пацієнта (ДОГ)
+        function concordancePeriph(clinSet, ptSet) {
+            const union = new Set([...clinSet, ...ptSet]);
+            const overlap = clinSet.filter(c => ptSet.includes(c));
+            return {
+                n_clin: clinSet.length,
+                n_pt: ptSet.length,
+                n_overlap: overlap.length,
+                jaccard: union.size ? overlap.length / union.size : null
+            };
+        }
+
+        // Визначає домінантний генез за часткою позначених дескрипторів (експериментально, не валідизовано)
+        function computeDominantByDesc(descCounts) {
+            const entries = DOG_DOMINANT_KEYS.map(k => ({ key: k, label: DOG_DOMINANT_LABELS[k], ratio: descCounts[k] }))
+                .sort((a, b) => b.ratio - a.ratio);
+            return entries[0].label;
+        }
+
+        // Перераховує суми балів по блоках ДОГ, домінантний генез за балами/дескрипторами та узгодженість дослідник/пацієнт
         function updateDogTotals() {
             const sums = {};
+            const descCounts = {};
             DOG_BLOCKS.forEach(block => {
                 let sum = 0;
                 for (let i = 0; i < 8; i++) {
@@ -2192,14 +2243,32 @@ Email: yehor.iordek@gmail.com
                 }
                 sums[block.key] = sum;
                 document.getElementById(`${block.key}Subtotal`).textContent = `Сума балів: ${sum} / 32`;
+                descCounts[block.key] = getCheckedValues(`${block.key}DescChips`).length / block.descriptors.length;
             });
-            document.getElementById('dogDominantGenesis').textContent = `Домінантний генез: ${computeDominantGenesis(sums)}`;
+
+            const dominantByScore = computeDominantGenesis(sums);
+            const dominantByDesc = computeDominantByDesc(descCounts);
+            document.getElementById('dogDominantGenesis').textContent = `Генез за балами: ${dominantByScore}`;
+            document.getElementById('dogDominantByDesc').textContent = `Генез за дескрипторами (не валідизовано): ${dominantByDesc}`;
+            document.getElementById('dogDescAgreement').textContent = `Узгодженість: ${dominantByScore === dominantByDesc ? 'збігається' : 'розбіжність'}`;
+
+            const clinSet = getCheckedValues('genPeriphDescClinChips');
+            const ptSet = getCheckedValues('dogPeripheralDescChips');
+            const concordance = concordancePeriph(clinSet, ptSet);
+            const jaccardText = concordance.jaccard === null ? '—' : `${Math.round(concordance.jaccard * 100)}%`;
+            document.getElementById('dogPeriphConcordance').textContent =
+                `Узгодженість дескрипторів периферичного генезу (дослідник/пацієнт): ${jaccardText} (збігається ${concordance.n_overlap} з ${concordance.n_clin} / ${concordance.n_pt})`;
         }
 
         function renderDogSection() {
             document.getElementById('dogBlocksContainer').innerHTML = DOG_BLOCKS.map(renderDogBlock).join('') + renderDogSummary();
             document.querySelectorAll('.dog-question').forEach(sel => {
                 sel.addEventListener('change', updateDogTotals);
+            });
+            DOG_BLOCKS.forEach(block => {
+                document.querySelectorAll(`#${block.key}DescChips input[type="checkbox"]`).forEach(el => {
+                    el.addEventListener('change', updateDogTotals);
+                });
             });
             updateDogTotals();
         }
@@ -3468,6 +3537,7 @@ Email: yehor.iordek@gmail.com
             GENESIS_DESCRIPTORS.forEach(g => {
                 data[g.key] = getCheckedValues(`${g.key}Chips`);
                 data[g.otherKey] = document.getElementById(g.otherKey).value;
+                if (g.descKey) data[g.descKey] = getCheckedValues(`${g.descKey}Chips`);
             });
             GENESIS_TESTS.forEach(t => {
                 data[t.key] = getCheckedValues(`${t.key}Chips`);
@@ -3663,6 +3733,7 @@ Email: yehor.iordek@gmail.com
             GENESIS_DESCRIPTORS.forEach(g => {
                 fields[`Генез — ${g.airtableLabel} (дескриптори)`] = formData[g.key];
                 if (formData[g.otherKey]) fields[`Генез — ${g.airtableLabel} (інше)`] = formData[g.otherKey];
+                if (g.descKey) fields['Генез — дескриптори болю (оцінка дослідника)'] = formData[g.descKey];
             });
 
             GENESIS_TESTS.forEach(t => {
@@ -3678,7 +3749,17 @@ Email: yehor.iordek@gmail.com
 
             const dominantSums = {};
             DOG_DOMINANT_KEYS.forEach(k => { dominantSums[k] = formData[`${k}_sum`]; });
-            fields['ДОГ — домінантний генез'] = computeDominantGenesis(dominantSums);
+            const dominantByScore = computeDominantGenesis(dominantSums);
+            fields['ДОГ — домінантний генез'] = dominantByScore;
+
+            const descCounts = {};
+            DOG_BLOCKS.forEach(block => { descCounts[block.key] = (formData[`${block.key}_descriptors`] || []).length / block.descriptors.length; });
+            const dominantByDesc = computeDominantByDesc(descCounts);
+            fields['ДОГ — домінантний генез за дескрипторами (експериментально)'] = dominantByDesc;
+            fields['ДОГ — узгодженість генезу: бали vs дескриптори'] = dominantByScore === dominantByDesc ? 'Збігається' : 'Розбіжність';
+
+            const periphConcordance = concordancePeriph(formData.genPeriphDescClin || [], formData.dogPeripheral_descriptors || []);
+            if (periphConcordance.jaccard !== null) fields['ДОГ — узгодженість дескрипторів периф. генезу (jaccard)'] = periphConcordance.jaccard;
 
             const sleep = formData.sleep;
             SLEEP_QUESTIONS_A.forEach(q => {
@@ -3952,6 +4033,7 @@ Email: yehor.iordek@gmail.com
                 GENESIS_DESCRIPTORS.forEach(g => {
                     setCheckedValues(`${g.key}Chips`, data[g.key]);
                     document.getElementById(g.otherKey).value = data[g.otherKey] || '';
+                    if (g.descKey) setCheckedValues(`${g.descKey}Chips`, data[g.descKey]);
                 });
                 GENESIS_TESTS.forEach(t => {
                     setCheckedValues(`${t.key}Chips`, data[t.key]);
