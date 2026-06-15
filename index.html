@@ -63,6 +63,22 @@
             margin-bottom: 25px;
         }
 
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
         label {
             display: block;
             margin-bottom: 8px;
@@ -586,20 +602,6 @@
             </div>
 
             <div class="form-group">
-                <label for="patientNickname">
-                    Study ID
-                    <span class="required">*</span>
-                </label>
-                <input
-                    type="text"
-                    id="patientNickname"
-                    name="patient_nickname"
-                    placeholder="Напр., P-001 або C-001"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
                 <label for="patientGender">
                     Стать пацієнта
                     <span class="required">*</span>
@@ -621,33 +623,51 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="patientBirthdate">
-                    Дата народження пацієнта
-                </label>
-                <input
-                    type="date"
-                    id="patientBirthdate"
-                    name="patient_birthdate"
-                    class="screen-only"
-                >
-                <div class="age-display screen-only" id="patientAgeDisplay"></div>
-                <input
-                    type="text"
-                    class="print-only"
-                    placeholder="дд.мм.рррр"
-                    aria-label="Дата народження пацієнта (дд.мм.рррр)"
-                >
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patientUnit">Військова частина</label>
+                    <input type="text" id="patientUnit" name="patient_unit" placeholder="Напр., в/ч А1234">
+                </div>
+
+                <div class="form-group">
+                    <label for="patientBirthdate">
+                        Дата народження пацієнта
+                    </label>
+                    <input
+                        type="date"
+                        id="patientBirthdate"
+                        name="patient_birthdate"
+                        class="screen-only"
+                    >
+                    <div class="age-display screen-only" id="patientAgeDisplay"></div>
+                    <input
+                        type="text"
+                        class="print-only"
+                        placeholder="дд.мм.рррр"
+                        aria-label="Дата народження пацієнта (дд.мм.рррр)"
+                    >
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="patientUnit">Військова частина</label>
-                <input type="text" id="patientUnit" name="patient_unit" placeholder="Напр., в/ч А1234">
-            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patientNickname">
+                        Study ID
+                        <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="patientNickname"
+                        name="patient_nickname"
+                        placeholder="Напр., P-001 або C-001"
+                        required
+                    >
+                </div>
 
-            <div class="form-group">
-                <label for="patientWard">№ палати</label>
-                <input type="text" id="patientWard" name="patient_ward" placeholder="Напр., 12">
+                <div class="form-group">
+                    <label for="patientWard">№ палати</label>
+                    <input type="text" id="patientWard" name="patient_ward" placeholder="Напр., 12">
+                </div>
             </div>
 
             <div class="form-group">
