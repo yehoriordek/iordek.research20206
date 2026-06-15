@@ -870,15 +870,20 @@ Email: yehor.iordek@gmail.com
                 <div id="ampLimbsContainer"></div>
 
                 <div class="form-group">
-                    <label>RPNI</label>
+                    <label>RPNI / TMR</label>
                     <div class="chips-group screen-only">
                         <label class="chip toggle">
                             <input type="checkbox" id="rpni">
                             <span>RPNI виконано</span>
                         </label>
+                        <label class="chip toggle">
+                            <input type="checkbox" id="tmr">
+                            <span>TMR виконано</span>
+                        </label>
                     </div>
                     <div class="print-checkbox-group print-only">
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>RPNI виконано</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>TMR виконано</span></div>
                     </div>
                 </div>
 
@@ -3445,6 +3450,7 @@ Email: yehor.iordek@gmail.com
                 research_confidence: document.getElementById('researchConfidence').value,
                 ...getAmputationData(),
                 rpni: document.getElementById('rpni').checked,
+                tmr: document.getElementById('tmr').checked,
                 amp_type: document.getElementById('ampType').value,
                 inj_date: document.getElementById('injDate').value,
                 amp_date: document.getElementById('ampDate').value,
@@ -3548,6 +3554,7 @@ Email: yehor.iordek@gmail.com
             }
 
             fields['RPNI виконано'] = formData.rpni;
+            fields['TMR виконано'] = formData.tmr;
             fields['Тип ампутації'] = formData.amp_type;
 
             if (formData.inj_date) fields['Дата поранення'] = formData.inj_date;
@@ -3848,6 +3855,7 @@ Email: yehor.iordek@gmail.com
                     }
                 });
                 document.getElementById('rpni').checked = !!data.rpni;
+                document.getElementById('tmr').checked = !!data.tmr;
                 document.getElementById('ampType').value = data.amp_type || '';
                 document.getElementById('injDate').value = data.inj_date || '';
                 document.getElementById('ampDate').value = data.amp_date || '';
