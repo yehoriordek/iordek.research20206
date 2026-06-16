@@ -98,8 +98,10 @@
             <div class="header-fields">
                 <div class="form-group">
                     <label for="assessmentNickname">Study ID або прізвище учасника <span class="required">*</span></label>
-                    <input type="text" id="assessmentNickname" required autocomplete="off" list="nicknameSuggestions">
-                    <datalist id="nicknameSuggestions"></datalist>
+                    <div style="position:relative">
+                      <input type="text" id="assessmentNickname" required autocomplete="off" style="width:100%;box-sizing:border-box">
+                      <ul id="nicknameSuggestions" style="display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #ccc;border-radius:4px;margin:0;padding:0;list-style:none;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15);max-height:200px;overflow-y:auto"></ul>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="assessmentDate">Дата опитування</label>
@@ -1420,18 +1422,33 @@ document.getElementById('assessmentNickname').addEventListener('blur', () => {
 });
 
 let _suggestTimer = null;
-document.getElementById('assessmentNickname').addEventListener('input', async function() {
+const _nickInput = document.getElementById('assessmentNickname');
+const _nickList  = document.getElementById('nicknameSuggestions');
+
+function hideSuggestions() { _nickList.style.display = 'none'; _nickList.innerHTML = ''; }
+function showSuggestions(items) {
+  if (!items.length) { hideSuggestions(); return; }
+  _nickList.innerHTML = items.map(s =>
+    `<li style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee">${s.replace(/&/g,'&amp;')}</li>`
+  ).join('');
+  _nickList.querySelectorAll('li').forEach(li => {
+    li.addEventListener('mousedown', e => { e.preventDefault(); _nickInput.value = li.textContent; hideSuggestions(); updateStageOptions(li.textContent); });
+    li.addEventListener('touchstart', e => { e.preventDefault(); _nickInput.value = li.textContent; hideSuggestions(); updateStageOptions(li.textContent); });
+  });
+  _nickList.style.display = 'block';
+}
+
+_nickInput.addEventListener('input', function() {
   const val = this.value.trim();
-  const dl = document.getElementById('nicknameSuggestions');
-  dl.innerHTML = '';
-  if (val.length < 2) return;
-  if (!cachedApiKey) return;
+  hideSuggestions();
+  if (val.length < 2 || !cachedApiKey) return;
   clearTimeout(_suggestTimer);
   _suggestTimer = setTimeout(async () => {
     const suggestions = await fetchNicknameSuggestions(cachedApiKey, val);
-    dl.innerHTML = suggestions.map(s => `<option value="${s.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">`).join('');
+    showSuggestions(suggestions);
   }, 300);
 });
+_nickInput.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
 
 // ── Form submit ───────────────────────────────────────────────────────────────
 document.getElementById('assessmentForm').addEventListener('submit', e => {
