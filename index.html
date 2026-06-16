@@ -626,7 +626,6 @@
                 <button type="button" class="step-tab" data-step-tab="2">Ампутація</button>
                 <button type="button" class="step-tab" data-step-tab="3">Біль/Генез</button>
                 <button type="button" class="step-tab" data-step-tab="4">Об'єктивні дослідження</button>
-                <button type="button" class="step-tab" data-step-tab="5">Психотерапія</button>
             </div>
 
             <div class="form-step" data-step="1">
@@ -1213,47 +1212,6 @@ Email: yehor.iordek@gmail.com
             </div>
             </div>
 
-            <div class="form-step" data-step="5">
-            <div id="psychotherapySection">
-                <h2 class="section-title">Психотерапія</h2>
-
-                <div class="form-group">
-                    <label>Тип запиту <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                    <div class="chips-group screen-only" id="therapyRequestCatsChips">
-                        <label class="chip"><input type="checkbox" value="БАР"><span>БАР</span></label>
-                        <label class="chip"><input type="checkbox" value="Депресивні"><span>Депресивні</span></label>
-                        <label class="chip"><input type="checkbox" value="Тривожні"><span>Тривожні</span></label>
-                        <label class="chip"><input type="checkbox" value="Стрес/Травма"><span>Стрес/Травма</span></label>
-                        <label class="chip"><input type="checkbox" value="РХП"><span>РХП</span></label>
-                        <label class="chip"><input type="checkbox" value="Органічні"><span>Органічні</span></label>
-                        <label class="chip"><input type="checkbox" value="Інтерперсон. складн."><span>Інтерперсон. складн.</span></label>
-                        <label class="chip"><input type="checkbox" value="Сімейні стосунки"><span>Сімейні стосунки</span></label>
-                        <label class="chip"><input type="checkbox" value="Кризова"><span>Кризова</span></label>
-                        <label class="chip"><input type="checkbox" value="Суїцидальна"><span>Суїцидальна</span></label>
-                        <label class="chip"><input type="checkbox" value="Когнітивна"><span>Когнітивна</span></label>
-                        <label class="chip"><input type="checkbox" value="Конверсійний синдром"><span>Конверсійний синдром</span></label>
-                        <label class="chip"><input type="checkbox" value="Позит. психіатр. симпт."><span>Позит. психіатр. симпт.</span></label>
-                        <label class="chip"><input type="checkbox" value="Розлади мотивації"><span>Розлади мотивації</span></label>
-                    </div>
-                    <div class="print-checkbox-group print-only" aria-label="Тип запиту для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>БАР</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Депресивні</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тривожні</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Стрес/Травма</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>РХП</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Органічні</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Інтерперсон. складн.</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Сімейні стосунки</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Кризова</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Суїцидальна</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Когнітивна</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Конверсійний синдром</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Позит. психіатр. симпт.</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Розлади мотивації</span></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="form-step-nav screen-only">
                 <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
             </div>
@@ -1616,13 +1574,6 @@ Email: yehor.iordek@gmail.com
             document.querySelectorAll('#genPeriphDescClinChips input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', () => { if (typeof updateDogTotals === 'function') updateDogTotals(); });
             });
-        }
-
-        // Психотерапія — зчитує всі відповіді блоку
-        function getPsychotherapyData() {
-            return {
-                requestCats: getCheckedValues('therapyRequestCatsChips')
-            };
         }
 
         // Інформована згода — зчитує всі відповіді блоку
@@ -2030,8 +1981,7 @@ Email: yehor.iordek@gmail.com
                 som_react: getCheckedValues('somReactChips'),
                 ...getGenesisData(),
                 objective: getObjectiveData(),
-                consent: getConsentData(),
-                psychotherapy: getPsychotherapyData()
+                consent: getConsentData()
             };
         }
 
@@ -2120,11 +2070,6 @@ Email: yehor.iordek@gmail.com
                 given: fields['Згода — надана'] || '',
                 date: fields['Згода — дата'] || '',
                 researchItems: fields['Згода — дослідницькі дозволи'] || []
-            };
-
-            // Психотерапія
-            data.psychotherapy = {
-                requestCats: fields['Психотерапія — тип запиту'] || []
             };
 
             return data;
@@ -2291,9 +2236,6 @@ Email: yehor.iordek@gmail.com
             if (consent.given) fields['Згода — надана'] = consent.given;
             if (consent.date) fields['Згода — дата'] = consent.date;
             if (consent.researchItems.length) fields['Згода — дослідницькі дозволи'] = consent.researchItems;
-
-            const psychotherapy = formData.psychotherapy;
-            if (psychotherapy.requestCats.length) fields['Психотерапія — тип запиту'] = psychotherapy.requestCats;
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
@@ -2486,9 +2428,6 @@ Email: yehor.iordek@gmail.com
                 document.getElementById('consent_given').value = consent.given || '';
                 document.getElementById('consent_date').value = consent.date || '';
                 setCheckedValues('consentResearchItemsChips', consent.researchItems);
-            }
-            if (data.psychotherapy) {
-                setCheckedValues('therapyRequestCatsChips', data.psychotherapy.requestCats);
             }
             updatePainSectionVisibility();
             updateAgeDisplay();
