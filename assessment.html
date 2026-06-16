@@ -28,6 +28,8 @@
         .btn-submit:hover { background-color: #229954; }
         .btn-reset { background-color: #95a5a6; color: white; }
         .btn-reset:hover { background-color: #7f8c8d; }
+        .btn-next { background-color: #3498db; color: white; }
+        .btn-next:hover { background-color: #2980b9; }
         .success-message { display: none; padding: 15px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; }
         .error-message { display: none; padding: 15px; margin-bottom: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; }
         .print-only { display: none; }
@@ -357,8 +359,9 @@
                 </div>
             </div>
 
-            <div class="button-group">
-                <button type="submit" class="btn-submit">Зберегти</button>
+            <div class="button-group screen-only">
+                <button type="button" id="btnNext" class="btn-next">Продовжити →</button>
+                <button type="submit" class="btn-submit" id="btnSubmit" style="display:none;">Зберегти</button>
                 <button type="reset" class="btn-reset">Очистити</button>
             </div>
         </form>
@@ -1385,6 +1388,34 @@ document.getElementById('assessmentForm').addEventListener('submit', e => {
 });
 
 // ── Section tabs ──────────────────────────────────────────────────────────────
+const SECTION_ORDER = ['dog', 'sleep', 'psi', 'sf'];
+
+function updateFormButtons(section) {
+  const isLast = section === 'sf';
+  document.getElementById('btnNext').style.display = isLast ? 'none' : '';
+  document.getElementById('btnSubmit').style.display = isLast ? '' : 'none';
+}
+
+function activateSection(sec) {
+  document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  const tab = document.querySelector(`.section-tab[data-section="${sec}"]`);
+  if (tab) tab.classList.add('active');
+  const panel = document.getElementById('panel-' + sec);
+  if (panel) panel.classList.add('active');
+  updateFormButtons(sec);
+}
+
+document.getElementById('btnNext').addEventListener('click', () => {
+  const activeTab = document.querySelector('.section-tab.active');
+  const current = activeTab?.dataset.section;
+  const idx = SECTION_ORDER.indexOf(current);
+  if (idx >= 0 && idx < SECTION_ORDER.length - 1) {
+    activateSection(SECTION_ORDER[idx + 1]);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+});
+
 document.querySelectorAll('.section-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     const sec = btn.dataset.section;
@@ -1392,6 +1423,7 @@ document.querySelectorAll('.section-tab').forEach(btn => {
     document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-' + sec).classList.add('active');
+    updateFormButtons(sec);
   });
 });
 
@@ -1619,8 +1651,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSexFunctionVisibility();
 
   // activate first tab
-  const firstTab = document.querySelector('.section-tab');
-  if (firstTab) firstTab.click();
+  activateSection('dog');
 
   // load saved data
   loadFromLocalStorage();
