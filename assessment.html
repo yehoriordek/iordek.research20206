@@ -1357,8 +1357,10 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
     cachedApiKey = apiKey;
     await saveAssessment(apiKey, getFormData());
     closePasswordDialog();
+    document.getElementById('passwordConfirm').disabled = false;
+    document.getElementById('passwordConfirm').textContent = 'Зберегти';
     showSuccess('Запис збережено успішно.');
-    saveToLocalStorage();
+    localStorage.removeItem('assessmentFormData');
   } catch (e) {
     document.getElementById('passwordError').textContent = e.message || 'Помилка збереження';
     document.getElementById('passwordConfirm').disabled = false;
