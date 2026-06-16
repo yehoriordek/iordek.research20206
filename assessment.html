@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контрольне опитування</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f5f5f5; padding: 20px; color: #333; }
+        .print-mode-toggle { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; padding: 10px; background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .print-mode-toggle label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+        .print-mode-toggle input[type="checkbox"] { cursor: pointer; width: 18px; height: 18px; }
+        .container { max-width: 760px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { margin-bottom: 30px; font-size: 24px; color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #2c3e50; }
+        .required { color: #e74c3c; }
+        input[type="text"], input[type="date"], input[type="number"], select, textarea {
+            width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 14px; font-family: inherit; transition: border-color 0.3s;
+        }
+        textarea { min-height: 70px; resize: vertical; }
+        input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+        }
+        .button-group { display: flex; gap: 10px; margin-top: 30px; }
+        button { flex: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; transition: all 0.3s; }
+        .btn-submit { background-color: #27ae60; color: white; }
+        .btn-submit:hover { background-color: #229954; }
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-reset:hover { background-color: #7f8c8d; }
+        .success-message { display: none; padding: 15px; margin-bottom: 20px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; }
+        .error-message { display: none; padding: 15px; margin-bottom: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; }
+        .print-only { display: none; }
+        .screen-hidden { display: none; }
+        .print-checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+        .print-checkbox-group.print-only { display: none; }
+        .print-checkbox-option { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #2c3e50; }
+        .print-checkbox-box { width: 18px; height: 18px; border: 1px solid #000; flex-shrink: 0; }
+        .chips-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid #bdc3c7; border-radius: 16px; font-size: 13px; cursor: pointer; color: #2c3e50; transition: all 0.2s; }
+        .chip input { position: absolute; width: 0; height: 0; opacity: 0; }
+        .chip:has(input:checked) { background-color: #3498db; color: #fff; border-color: #3498db; }
+        .section-title { font-size: 18px; color: #2c3e50; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #ecf0f1; }
+        h3.section-title { font-size: 15px; margin-top: 20px; }
+        .section-hint { font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5; padding: 8px; background: #f8f9fa; border-radius: 4px; }
+        .header-fields { background: #f8f9fa; padding: 16px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #e0e0e0; }
+        .header-fields .form-group { margin-bottom: 12px; }
+        .header-fields .form-group:last-child { margin-bottom: 0; }
+        .section-tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+        .section-tab { padding: 10px 18px; border: 1px solid #bdc3c7; border-radius: 4px; background: white; cursor: pointer; font-size: 14px; font-weight: 500; color: #555; transition: all 0.2s; }
+        .section-tab.active { background-color: #3498db; color: white; border-color: #3498db; }
+        .section-panel { display: none; }
+        .section-panel.active { display: block; }
+        .password-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; }
+        .password-overlay.visible { display: flex; }
+        .password-dialog { background: white; padding: 25px; border-radius: 8px; max-width: 360px; width: 90%; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .password-dialog h2 { font-size: 18px; margin-bottom: 10px; color: #2c3e50; }
+        .password-dialog p { font-size: 14px; margin-bottom: 15px; color: #555; }
+        .password-error { display: none; color: #e74c3c; font-size: 13px; margin-bottom: 10px; }
+
+        @media print {
+            body { background-color: white; padding: 0; }
+            .print-mode-toggle, .button-group, .success-message, .error-message, .section-tabs { display: none !important; }
+            .container { box-shadow: none; padding: 20px 0; }
+            .screen-only { display: none !important; }
+            .print-only { display: block !important; }
+            .print-checkbox-group.print-only { display: flex !important; }
+            .section-panel { display: block !important; }
+            input[type="text"], select, textarea { border: none; border-bottom: 1px solid #000; padding: 8px 0; margin-bottom: 20px; }
+            input[type="text"]::placeholder, textarea::placeholder { color: transparent; }
+            label { font-size: 12px; }
+        }
+        body.print-layout .container { background-color: #fff; box-shadow: none; padding: 20px; }
+        body.print-layout .screen-only { display: none; }
+        body.print-layout .print-only { display: block; }
+        body.print-layout .print-checkbox-group.print-only { display: flex; }
+        body.print-layout .section-tabs { display: none; }
+        body.print-layout .section-panel { display: block; }
+        body.print-layout input[type="text"], body.print-layout select { border: none; border-bottom: 2px solid #000; padding: 8px 0; background-color: transparent; margin-bottom: 15px; }
+        body.print-layout input[type="text"]::placeholder { color: transparent; }
+        body.print-layout .button-group { display: none; }
+        body.print-layout .print-mode-toggle { display: flex; }
+    </style>
+</head>
+<body>
+    <div class="print-mode-toggle">
+        <label><input type="checkbox" id="printModeToggle"> Режим друку</label>
+    </div>
+
+    <div class="container">
+        <h1>Контрольне опитування</h1>
+        <div class="success-message" id="successMessage">Опитування збережено в Airtable!</div>
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="assessmentForm">
+            <div class="header-fields">
+                <div class="form-group">
+                    <label for="assessmentNickname">Study ID учасника <span class="required">*</span></label>
+                    <input type="text" id="assessmentNickname" required>
+                </div>
+                <div class="form-group">
+                    <label for="assessmentDate">Дата опитування</label>
+                    <input type="date" id="assessmentDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр">
+                </div>
+                <div class="form-group">
+                    <label for="assessmentStage">Етап спостереження</label>
+                    <select id="assessmentStage" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Первинне">Первинне</option>
+                        <option value="Всередині циклу">Всередині циклу</option>
+                        <option value="Вихідне">Вихідне</option>
+                    </select>
+                    <div class="print-checkbox-group print-only">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Первинне</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Всередині циклу</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Вихідне</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-tabs screen-only">
+                <button type="button" class="section-tab active" data-section="dog">ДОГ ФБіФВ</button>
+                <button type="button" class="section-tab" data-section="sleep">Скринінг сну</button>
+                <button type="button" class="section-tab" data-section="psi">ПСІ-батарея</button>
+                <button type="button" class="section-tab" data-section="sf">Сексуальна функція</button>
+            </div>
+
+            <!-- ДОГ section -->
+            <div class="section-panel active" id="panel-dog">
+                <h2 class="section-title">ДОГ ФБіФВ — мультифакторний діагностичний опитувальник</h2>
+                <div class="section-hint">Варіант А — скорочена версія (4 генези × 8 питань + предиктор + модулятори). Підрахунок балів: відповіді зліва направо від 0 до 4 балів.</div>
+                <div id="dogBlocksContainer"></div>
+            </div>
+
+            <!-- Sleep section -->
+            <div class="section-panel" id="panel-sleep">
+                <h2 class="section-title">Скринінг сну</h2>
+                <div class="section-hint">Заповнюється для всіх учасників. Розділ А — поточний стан сну. Розділ Б — таймлайн. Розділ В — стресори. Розділ Г — зв'язок болю і сну.</div>
+                <h3 class="section-title">А. Поточний стан сну</h3>
+                <div id="sleepSectionA"></div>
+                <h3 class="section-title">Б. Таймлайн порушень сну</h3>
+                <div id="sleepSectionB"></div>
+                <h3 class="section-title">В. Стресори, що впливали на сон</h3>
+                <div id="sleepSectionC"></div>
+                <h3 class="section-title">Г. Біль і сон</h3>
+                <div id="sleepSectionD"></div>
+                <h3 class="section-title">Підсумок скринінгу сну</h3>
+                <div class="form-group screen-only" id="sleepSummary"></div>
+                <div class="form-group print-only">
+                    <label>Домінуючий ґенез порушень сну</label><input type="text" class="print-only">
+                    <label>Фаза</label><input type="text" class="print-only">
+                    <label>Бідирекційність біль↔сон</label><input type="text" class="print-only">
+                </div>
+            </div>
+
+            <!-- PSI section -->
+            <div class="section-panel" id="panel-psi">
+                <h2 class="section-title">ПСІ-батарея — LEC-5 (перелік травматичних подій)</h2>
+                <div class="section-hint">Для кожної події позначте, як вона стосується вас (можна декілька варіантів).</div>
+                <div id="psiLec5Container"></div>
+                <h3 class="section-title">Підсумок LEC-5</h3>
+                <div class="form-group screen-only" id="psiLec5Summary"></div>
+                <div class="form-group print-only">
+                    <label>Прямих травматичних подій (зі мною)</label><input type="text" class="print-only">
+                    <label>Подій як свідок</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">PCL-5 — опитувальник симптомів ПТСР</h3>
+                <div class="section-hint">Протягом останнього місяця, наскільки вас турбували наступні симптоми?</div>
+                <div id="psiPcl5Container"></div>
+                <h3 class="section-title">Підсумок PCL-5</h3>
+                <div class="form-group screen-only" id="psiPcl5Summary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-80)</label><input type="text" class="print-only">
+                    <label>Інтерпретація</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">HADS — шкала тривоги та депресії</h3>
+                <div class="section-hint">Позначте варіант, що найкраще відповідає вашому стану протягом останнього тижня.</div>
+                <div id="psiHadsContainer"></div>
+                <h3 class="section-title">Підсумок HADS</h3>
+                <div class="form-group screen-only" id="psiHadsSummary"></div>
+                <div class="form-group print-only">
+                    <label>Сума Т — тривога (0-21)</label><input type="text" class="print-only">
+                    <label>Інтерпретація Т</label><input type="text" class="print-only">
+                    <label>Сума Д — депресія (0-21)</label><input type="text" class="print-only">
+                    <label>Інтерпретація Д</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">AIS — Афінська шкала інсомнії</h3>
+                <div class="section-hint">Якщо протягом останнього місяця ви мали проблеми хоча б тричі на тиждень, позначте варіант.</div>
+                <div id="psiAisContainer"></div>
+                <h3 class="section-title">Підсумок AIS</h3>
+                <div class="form-group screen-only" id="psiAisSummary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-24)</label><input type="text" class="print-only">
+                    <label>Інтерпретація</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">DN-4 — опитувальник нейропатичного болю</h3>
+                <div class="section-hint">Для кожної ознаки позначте, чи присутня вона у ділянці болю.</div>
+                <div id="psiDn4Container"></div>
+                <h3 class="section-title">Підсумок DN-4</h3>
+                <div class="form-group screen-only" id="psiDn4Summary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-10)</label><input type="text" class="print-only">
+                    <label>Інтерпретація</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">C-SSRS — оцінка суїцидального ризику</h3>
+                <div class="section-hint">Дайте відповідь "Так" або "Ні" на кожне питання.</div>
+                <div id="psiCssrsContainer"></div>
+                <h3 class="section-title">Підсумок C-SSRS</h3>
+                <div class="form-group screen-only" id="psiCssrsSummary"></div>
+                <div class="form-group print-only">
+                    <label>Рівень ризику</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">DES-T — шкала дисоціативних переживань</h3>
+                <div class="section-hint">Оцініть, який відсоток часу (0-100%, з кроком 10%) відбувається кожне переживання.</div>
+                <div id="psiDestContainer"></div>
+                <h3 class="section-title">Підсумок DES-T</h3>
+                <div class="form-group screen-only" id="psiDestSummary"></div>
+                <div class="form-group print-only">
+                    <label>Середній відсоток (M)</label><input type="text" class="print-only">
+                    <label>Інтерпретація</label><input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">MoCA — Монреальська шкала оцінки когнітивних функцій</h3>
+                <div class="section-hint">Введіть загальний бал після проведення тесту (0-30, норма ≥ 26).</div>
+                <div class="form-group">
+                    <label for="psi_moca">Загальний бал MoCA (0-30)</label>
+                    <input type="number" id="psi_moca" class="screen-only" min="0" max="30" step="1">
+                    <input type="text" class="print-only">
+                </div>
+                <div class="form-group screen-only" id="psiMocaSummary"></div>
+                <div class="form-group print-only">
+                    <label>Інтерпретація (Норма / Когнітивний дефіцит, &lt; 26)</label><input type="text" class="print-only">
+                </div>
+            </div>
+
+            <!-- Сексуальна функція section -->
+            <div class="section-panel" id="panel-sf">
+                <h2 class="section-title">Сексуальна функція</h2>
+                <div id="sfDetails">
+                <h3 class="section-title">Загальна сексуальна активність</h3>
+                <div class="form-group">
+                    <label for="sf_activity">Чи є у вас зараз сексуальна активність?</label>
+                    <select id="sf_activity" class="screen-only"><option value="">—</option><option>Так</option><option>Ні</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Ні</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label for="sf_activity_change">Чи змінилась сексуальна активність після ампутації?</label>
+                    <select id="sf_activity_change" class="screen-only"><option value="">—</option><option>Не змінилась</option><option>Зросла</option><option>Знизилась</option><option>Припинилась</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не змінилась</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Зросла</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Знизилась</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Припинилась</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label for="sf_erection">Мимовільні ерекції (вранці, уві сні)</label>
+                    <select id="sf_erection" class="screen-only"><option value="">—</option><option>Так, регулярно</option><option>Так, рідко</option><option>Ні</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так, регулярно</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так, рідко</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Ні</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label for="sf_erection_diff">Труднощі з ерекцією під час статевої активності</label>
+                    <select id="sf_erection_diff" class="screen-only"><option value="">—</option><option>Ніколи</option><option>Іноді</option><option>Часто</option><option>Завжди</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Ніколи</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Іноді</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Часто</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Завжди</span></div></div>
+                </div>
+                <h3 class="section-title">Оргазм</h3>
+                <div class="form-group">
+                    <label for="sf_orgasm">Чи досягаєте ви оргазму?</label>
+                    <select id="sf_orgasm" class="screen-only"><option value="">—</option><option>Так, завжди</option><option>Так, іноді</option><option>Рідко</option><option>Ніколи</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так, завжди</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так, іноді</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Рідко</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Ніколи</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label for="sf_orgasm_change">Чи змінився характер оргазму після ампутації?</label>
+                    <select id="sf_orgasm_change" class="screen-only"><option value="">—</option><option>Не змінився</option><option>Став інтенсивнішим</option><option>Став слабшим</option><option>Змінився якісно</option><option>Не було й до ампутації</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не змінився</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Став інтенсивнішим</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Став слабшим</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Змінився якісно</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не було й до ампутації</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label>Де ви відчуваєте оргазм? <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                    <div class="chips-group screen-only" id="sfOrgasmLocChips">
+                        <label class="chip"><input type="checkbox" value="тільки статевий орган — як завжди"><span>Тільки статевий орган — як завжди</span></label>
+                        <label class="chip"><input type="checkbox" value="статевий орган, але слабше або інакше"><span>Статевий орган, але слабше або інакше</span></label>
+                        <label class="chip"><input type="checkbox" value="статевий орган + десь іще"><span>Статевий орган + десь іще</span></label>
+                        <label class="chip"><input type="checkbox" value="не в статевому органі — деінде"><span>Не в статевому органі — деінде</span></label>
+                        <label class="chip"><input type="checkbox" value="важко сказати"><span>Важко сказати</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Тільки статевий орган — як завжди</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Статевий орган, але слабше або інакше</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Статевий орган + десь іще</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не в статевому органі — деінде</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Важко сказати</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label for="sf_body_zones_desc">Якщо відчуття є не лише в статевому органі — опишіть, де саме</label>
+                    <input type="text" id="sf_body_zones_desc" class="screen-only" placeholder="Опис локалізації...">
+                    <input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">Фантомний компонент</h3>
+                <div class="form-group">
+                    <label for="sf_phantom_sex">Чи є відчуття у фантомній кінцівці під час збудження або оргазму?</label>
+                    <select id="sf_phantom_sex" class="screen-only"><option value="">—</option><option>Так</option><option>Ні</option><option>Не впевнений</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Ні</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не впевнений</span></div></div>
+                </div>
+                <div class="form-group screen-hidden" id="sfPhantomOrgasmLocGroup">
+                    <label>Локалізація фантомного оргазму <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                    <div class="chips-group screen-only" id="sfPhantomOrgasmLocChips">
+                        <label class="chip"><input type="checkbox" value="П. стопа"><span>П. стопа</span></label>
+                        <label class="chip"><input type="checkbox" value="П. гомілка"><span>П. гомілка</span></label>
+                        <label class="chip"><input type="checkbox" value="П. коліно"><span>П. коліно</span></label>
+                        <label class="chip"><input type="checkbox" value="П. стегно"><span>П. стегно</span></label>
+                        <label class="chip"><input type="checkbox" value="Л. стопа"><span>Л. стопа</span></label>
+                        <label class="chip"><input type="checkbox" value="Л. гомілка"><span>Л. гомілка</span></label>
+                        <label class="chip"><input type="checkbox" value="Л. коліно"><span>Л. коліно</span></label>
+                        <label class="chip"><input type="checkbox" value="Л. стегно"><span>Л. стегно</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>П. стопа</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>П. гомілка</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>П. коліно</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>П. стегно</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Л. стопа</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Л. гомілка</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Л. коліно</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Л. стегно</span></div></div>
+                </div>
+                <div class="form-group screen-hidden" id="sfPhantomDescGroup">
+                    <label>Характер фантомного оргазму <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                    <div class="chips-group screen-only" id="sfPhantomDescChips">
+                        <label class="chip"><input type="checkbox" value="Повне повторення відчуттів статевого органа"><span>Повне повторення відчуттів статевого органу</span></label>
+                        <label class="chip"><input type="checkbox" value="Фрикції"><span>Фрикції</span></label>
+                        <label class="chip"><input type="checkbox" value="Скорочення"><span>Скорочення</span></label>
+                        <label class="chip"><input type="checkbox" value="Удари струмом"><span>Удари струмом</span></label>
+                        <label class="chip"><input type="checkbox" value="Приятні удари струмом"><span>Приємні удари струмом</span></label>
+                        <label class="chip"><input type="checkbox" value="Хвилеподібні відчуття"><span>Хвилеподібні відчуття</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Повне повторення відчуттів статевого органу</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Фрикції</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Скорочення</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Удари струмом</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Приємні удари струмом</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Хвилеподібні відчуття</span></div></div>
+                </div>
+                <div class="form-group screen-hidden" id="sfPhantomDescOtherGroup">
+                    <label for="sf_phantom_desc_other">Інший варіант характеру фантомного оргазму</label>
+                    <input type="text" id="sf_phantom_desc_other" class="screen-only" placeholder="Свій варіант...">
+                    <input type="text" class="print-only">
+                </div>
+                <div class="form-group">
+                    <label for="sf_pain_during_sex">Чи змінюється фантомний біль під час або після сексу?</label>
+                    <select id="sf_pain_during_sex" class="screen-only"><option value="">—</option><option>Не змінюється</option><option>Посилюється</option><option>Зменшується</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не змінюється</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Посилюється</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Зменшується</span></div></div>
+                </div>
+                <div class="form-group screen-hidden" id="sfPainIncreaseGroup">
+                    <label for="sf_pain_increase">Наскільки сильніше? (0-10)</label>
+                    <input type="number" id="sf_pain_increase" class="screen-only" min="0" max="10" step="1">
+                    <input type="text" class="print-only">
+                </div>
+                <div class="form-group screen-hidden" id="sfPainDecreaseGroup">
+                    <label for="sf_pain_decrease">Наскільки слабше? (0-10)</label>
+                    <input type="number" id="sf_pain_decrease" class="screen-only" min="0" max="10" step="1">
+                    <input type="text" class="print-only">
+                </div>
+                <h3 class="section-title">Тіло та психологія</h3>
+                <div class="form-group">
+                    <label for="sf_satisfaction">Задоволеність сексуальним життям зараз (0-10)</label>
+                    <input type="number" id="sf_satisfaction" class="screen-only" min="0" max="10" step="1">
+                    <input type="text" class="print-only">
+                </div>
+                <div class="form-group">
+                    <label for="sf_body_image">Вплив образу тіла після ампутації на сексуальне життя</label>
+                    <select id="sf_body_image" class="screen-only"><option value="">—</option><option>Не впливає</option><option>Трохи впливає</option><option>Суттєво впливає</option><option value="є основною перешкодою">Є основною перешкодою</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Не впливає</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Трохи впливає</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Суттєво впливає</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Є основною перешкодою</span></div></div>
+                </div>
+                <div class="form-group">
+                    <label for="sf_discussed">Чи обговорювали це питання з лікарем або психологом?</label>
+                    <select id="sf_discussed" class="screen-only"><option value="">—</option><option>Так</option><option>Ні</option><option value="Хотів, але не знав, до кого">Хотів, але не знав до кого</option></select>
+                    <div class="print-checkbox-group print-only"><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Так</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Ні</span></div><div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Хотів, але не знав до кого</span></div></div>
+                </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Зберегти</button>
+                <button type="reset" class="btn-reset">Очистити</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-dialog">
+            <h2>Збереження в Airtable</h2>
+            <p>Введіть пароль для розблокування доступу до Airtable.</p>
+            <div class="form-group">
+                <input type="password" id="airtablePassword" placeholder="Пароль">
+            </div>
+            <div class="password-error" id="passwordError">Неправильний пароль або помилка збереження.</div>
+            <div class="button-group">
+                <button type="button" class="btn-submit" id="passwordConfirm">Зберегти</button>
+                <button type="button" class="btn-reset" id="passwordCancel">Скасувати</button>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
+        const PARTICIPANTS_TABLE_ID = 'tblMV2RrZGmcGAdqz';
+        const ASSESSMENTS_TABLE_ID = 'tbl8rTohI4Gabljzj';
+        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
+        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
+        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
+
+        const F = {
+            participant:'fldOvnRMjumfqtukm', date:'fldaNRYQ40WdOUzND', stage:'fldMwwF3uRP0yFc3K',
+            dogPeriphSum:'fldoXBae198RL2TZl', dogPeriphDesc:'fldkKn4fBwOaP9GzH', dogPeriphOther:'fldfwQtttpU3Eh0cn',
+            dogSpinalSum:'fldlXy6j1WNcHH77u', dogSpinalDesc:'fldQwwWEywEth3cqR', dogSpinalOther:'fldWc1nHbmAKE3qQ7',
+            dogCerebralSum:'flddhhhflpDhTwkBy', dogCerebralDesc:'fldRLSqOebxiaNMDU', dogCerebralOther:'fldANCV6SnUgwD5G2',
+            dogPsychogenicSum:'fld1ydy53Fg1Rwaxa', dogPsychogenicDesc:'fldC1mOd77KwPuB2u', dogPsychogenicOther:'fldAC4Ka3py1eGOW3',
+            dogPredictorSum:'fldNsjI7dE65Gi8xN', dogPredictorDesc:'fldMbKZdDrVvKQnPn', dogPredictorOther:'fldqKbAPPhdbgpC6O',
+            dogModulatorsSum:'flddjnMemNFCVYYDz', dogModulatorsDesc:'fldW4PIMeYrQTSYPd', dogModulatorsOther:'fldlWko7EthgLaYKa',
+            dogDominant:'fldAwJWK9aMeHLIY1', dogJaccard:'fldBT7JLCImxFruX5',
+            dogDominantByDesc:'fldi5FmLB8zQyiYY3', dogDescAgreement:'fldZ6etDcPNMs7gIL',
+            sleepHours:'fld3dAdPN9hp3IMzr', sleepProblem:'fldFgY6Prv6xX3rCQ',
+            sleepPreSleepThoughts:'fldXFFPBnyObvKwY1', sleepDreamContent:'fldU5QKJngKfBzti5',
+            sleepWaking:'fldZwXjR6N2owEETk', sleepLyingWorsen:'fldeBUEDssTl0DLQu',
+            sleepMotorSleep:'fldi19elIPywDBcXH', sleepFearSleep:'fldaBVxftYmhM8Z5I',
+            sleepSomaticPreSleep:'fldCtumWhwOcpq4MA', sleepVigilance:'fldTBNodfg6YKuuuz',
+            sleepNightWake:'fldXV1DiNrgbt3W1R', sleepSleepiness:'fldwZ7CrAeyKkP6hv',
+            sleepDiurnal:'fldqUjweYDB0GkYqC', sleepMisperception:'fldLbBIiCLrpzyhkR',
+            sleepResidual:'fld0dcgSEETbkwL9T',
+            sleepTL0:'fldAiLUgd8EIgTvXl', sleepTL1:'fldftBWCKxvyT5bWq',
+            sleepTL2:'fldKvNmzFjYlW4SfG', sleepTL3:'fldLA1emgME3xsKFb',
+            sleepTL4:'fld65orhTMA8Kk6Hq', sleepTL5:'fldstdZw6JXeZhRDj',
+            sleepTL6:'fldC6OfkmMJr70kGX', sleepTL7:'fldWliR4K9dsTuHgL',
+            sleepFirst:'fld6MmTVZnyVFpdLo',
+            sleepS0:'fld1vqnRzyWXcVP9S', sleepS1:'fldyxEv9plb9wxll5',
+            sleepS2:'flddZ3oqKMLiCstG8', sleepS3:'fldifZEmgRenY7Hhx',
+            sleepS4:'fldl1MM1P3KlO7BXS', sleepS5:'fldzAQz2TESRfC1IG',
+            sleepS6:'fldPmdEchDV4fOp31', sleepS7:'fldoqjKoBcOxBz0rf', sleepS8:'fldYcszIdM3kfxn9i',
+            sleepPainWakes:'fld4lza7ddzX88zM5', sleepPainTypes:'fldg0SUVhMiEeBGFP',
+            sleepBadNight:'fldizynpLcw5UsZ2P', sleepGoodNight:'fldCIcdUCHn163mJo',
+            sleepBodyPosition:'fldSG6LqVRN4vLosG',
+            sleepDominant:'fld3lHyPfSZ0kMh7A', sleepPhase:'fldadjkCHH4TXUqUQ', sleepBidir:'fldvO8dHj1b5doNTR',
+            lec5_0:'fldCtuNXveNfyJUri', lec5_1:'fldbGzpiazXckzfFx', lec5_2:'fldV8JzHYm4dLWE2f',
+            lec5_3:'fldg4h6Z1BxKRUnWc', lec5_4:'fldxVgUdXZISV70Y0', lec5_5:'fldKt5qNKdGKjwidH',
+            lec5_6:'fldJmI0fnlHWgekZc', lec5_7:'fldU2LuJhmPoqfC6d', lec5_8:'flde0BHCz0XZuziRa',
+            lec5_9:'fldYgvIUzZ0Rnprir', lec5_10:'fldiZPOALFLYRQsPo', lec5_11:'fldnLY1lqr8kVtApG',
+            lec5_12:'fldN1xnBC2UeM7Oy3', lec5_13:'fldM4m8WR5ak7iSQ5', lec5_14:'fldLOfsNvQCnaRmrH',
+            lec5_15:'fldpK3sYcR70EHKJL', lec5_16:'fldlzszv6eFPnYiV0',
+            lec5Direct:'fldwK8QCV5iIjDamJ', lec5Witness:'fldxZJ8o6wZUeZoEy',
+            pcl5_0:'fldD99JXHPzqMi503', pcl5_1:'fldaWebBb7RLWJnsF', pcl5_2:'fld0lUt0LTCD8gwd4',
+            pcl5_3:'fldcYFVH2H0R0KoUh', pcl5_4:'fldF9j4oftFfjza3u', pcl5_5:'fldeD3ii04lnFnGIW',
+            pcl5_6:'fldqRqKdjYpgtamWT', pcl5_7:'fldxaPuuLsNJDB9cW', pcl5_8:'fldjQa1YYIm7B9vel',
+            pcl5_9:'fldlKhRuJZYxejIqS', pcl5_10:'fld9RRGkBukC5I5lA', pcl5_11:'fldYVJo5zqcd4tH3n',
+            pcl5_12:'flde2lg7FfDtoSsI8', pcl5_13:'fldKDDEG66AFuHy6F', pcl5_14:'fldSBW5KrNe63EBBA',
+            pcl5_15:'fldE1SgWg2I17w0Zl', pcl5_16:'fldSn76VL8ygZxjaj', pcl5_17:'fldjF0w1CC7MWMEO5',
+            pcl5_18:'fldRtb4y8BVYlW6ba', pcl5_19:'fldOScdvp52mBZoXn',
+            pcl5Sum:'fldRJYmYD24ZLAO4e', pcl5Interp:'fldZ3yP95DDLz8aFc',
+            hads_0:'fldy9JmUuU0fM1ZdY', hads_1:'fld9EXLLDKsxyntxA', hads_2:'fldghi2ViPTonjgWA',
+            hads_3:'fldAz9JDRtzKwtGha', hads_4:'fld4RtS0qDyrkVTv8', hads_5:'fldCBoc738Gk45mZT',
+            hads_6:'fldBYJvxr0JO6AtWF', hads_7:'fldfUjxwsvsnhPasT', hads_8:'fldd8MOwhZhRs8CPf',
+            hads_9:'flddfT1Jvdo0aUo7I', hads_10:'fld1KbgmgMn5g0IvE', hads_11:'fldmRKfbb8r85zv2t',
+            hads_12:'fldKBZBPgqchDSki3', hads_13:'fldWrU75Ur2Gq69eH',
+            hadsSumT:'fld6djfVGUijkPMj7', hadsSumD:'fldEOMnovt7172jsb',
+            hadsInterpT:'fldZfxArFFVPx8mV6', hadsInterpD:'fldhazjv6ccoc9fzu',
+            ais_0:'fldi22xMbOTglYSqY', ais_1:'fldTdfkOo6a7bxesP', ais_2:'fldDZG12MoiyK1ZuQ',
+            ais_3:'fldvSYnW0FWnQdxGQ', ais_4:'fld6ji2WxIteOSGnR', ais_5:'fldbn4qg4Q42OriCh',
+            ais_6:'fldY0ZfGxfXpKlzAR', ais_7:'fldkl4NQCjVIQXJiv',
+            aisSum:'fldLioK3UnHfOMMRe', aisInterp:'fldXRTeYqkpLefyAW',
+            dn4_0:'fld2iGOkhHr61tq4b', dn4_1:'fldFdwgAVBkoosz1u', dn4_2:'fldBUkRAN3U5A5gqq',
+            dn4_3:'fld0WFTb6WdRYMniu', dn4_4:'fld7vFHJae9VjKhoL', dn4_5:'fldzAnCUswH7FqT10',
+            dn4_6:'fldqxOqHfdlBi8YR2', dn4_7:'fldu0qb3imj7bt6Nj', dn4_8:'fldpcjLGxeybYefqG',
+            dn4_9:'fldegLl6GDmJAZGkB', dn4Sum:'fldFHlOeMIiJuucIP', dn4Interp:'fldGkt35iwnrY1Pny',
+            cssrs_q1:'fldju0VDG3jSbbk9T', cssrs_q2:'fldpqhPn1iwFUGbZo', cssrs_q3:'fldOA2eiFTM0zFwgr',
+            cssrs_q4:'flddB8oFtsdQvrRZu', cssrs_q5:'fldaFjSzCnQggX6cM',
+            cssrs_q6life:'fldwtXWtNy3MvIpQu', cssrs_q6recent:'fldnPuI4psPOWHE80',
+            cssrs_q3method:'fldrp2yUkSNrdukqk', cssrsRisk:'fldgqTmwdvGwdmgXX',
+            dest_0:'fldUHCJXP8HT9Nk1i', dest_1:'fldpkijILeI7ugbXz', dest_2:'flddO60ONBACQZ0bN',
+            dest_3:'fldDj7sqzvKByLuvQ', dest_4:'fldhFmM3QseP7RgLh', dest_5:'fldQkgRxWTW5io6cH',
+            dest_6:'fldYPdYQILmUiHwUD', dest_7:'fldYxDkLo9DOCGv4d',
+            destMean:'fldIpCGFFH4bZD7AY', destInterp:'fldRhe2fR4tqpKT6i',
+            mocaScore:'fldFuvVjzQuRO5LeH', mocaInterp:'fldSNBICDxl8XkO1r',
+            sfActivity:'fld9OhXl67CC9pkjx', sfActivityChange:'fld0Gtbg7A246EtvT',
+            sfErection:'fldMvFyUtynBltLyg', sfErectionDiff:'fldYgNk0Xqy6cYvHy',
+            sfOrgasm:'fld41NwXwPMEHLg09', sfOrgasmChange:'fldhH2Tn10PQAbpXE',
+            sfOrgasmLoc:'fldqJr8g23oes76P4', sfBodyZonesDesc:'fldjqZJPuWjTlSt3K',
+            sfPhantomSex:'fldqWUasynHU13qok', sfPhantomOrgasmLoc:'fldzDs7EuBgO8n7Px',
+            sfPhantomDesc:'fldEWZElHTYvinHux', sfPhantomDescOther:'fldWSL1XzeL8wOIcZ',
+            sfPainDuringSex:'fldoW7th06RZDZnJ8', sfPainIncrease:'fld83P9K8XzJBZCcS',
+            sfPainDecrease:'flddBGiia1GkYEu3J', sfSatisfaction:'fldkTbVxAvgouMLWa',
+            sfBodyImage:'fldDWAgWXsLJYgU5t', sfDiscussed:'fld23i39P3nQMYevY'
+        };
+
+        const SLEEP_A_FIELD_IDS = [
+            F.sleepHours, F.sleepProblem, F.sleepPreSleepThoughts, F.sleepDreamContent,
+            F.sleepWaking, F.sleepLyingWorsen, F.sleepMotorSleep, F.sleepFearSleep,
+            F.sleepSomaticPreSleep, F.sleepVigilance, F.sleepNightWake, F.sleepSleepiness,
+            F.sleepDiurnal, F.sleepMisperception, F.sleepResidual
+        ];
+        const SLEEP_TL_FIELD_IDS = [F.sleepTL0,F.sleepTL1,F.sleepTL2,F.sleepTL3,F.sleepTL4,F.sleepTL5,F.sleepTL6,F.sleepTL7];
+        const SLEEP_S_FIELD_IDS = [F.sleepS0,F.sleepS1,F.sleepS2,F.sleepS3,F.sleepS4,F.sleepS5,F.sleepS6,F.sleepS7,F.sleepS8];
+        const LEC5_FIELD_IDS = [F.lec5_0,F.lec5_1,F.lec5_2,F.lec5_3,F.lec5_4,F.lec5_5,F.lec5_6,F.lec5_7,F.lec5_8,F.lec5_9,F.lec5_10,F.lec5_11,F.lec5_12,F.lec5_13,F.lec5_14,F.lec5_15,F.lec5_16];
+        const PCL5_FIELD_IDS = [F.pcl5_0,F.pcl5_1,F.pcl5_2,F.pcl5_3,F.pcl5_4,F.pcl5_5,F.pcl5_6,F.pcl5_7,F.pcl5_8,F.pcl5_9,F.pcl5_10,F.pcl5_11,F.pcl5_12,F.pcl5_13,F.pcl5_14,F.pcl5_15,F.pcl5_16,F.pcl5_17,F.pcl5_18,F.pcl5_19];
+        const HADS_FIELD_IDS = [F.hads_0,F.hads_1,F.hads_2,F.hads_3,F.hads_4,F.hads_5,F.hads_6,F.hads_7,F.hads_8,F.hads_9,F.hads_10,F.hads_11,F.hads_12,F.hads_13];
+        const AIS_FIELD_IDS = [F.ais_0,F.ais_1,F.ais_2,F.ais_3,F.ais_4,F.ais_5,F.ais_6,F.ais_7];
+        const DN4_FIELD_IDS = [F.dn4_0,F.dn4_1,F.dn4_2,F.dn4_3,F.dn4_4,F.dn4_5,F.dn4_6,F.dn4_7,F.dn4_8,F.dn4_9];
+        const DEST_FIELD_IDS = [F.dest_0,F.dest_1,F.dest_2,F.dest_3,F.dest_4,F.dest_5,F.dest_6,F.dest_7];
+
+        const DOG_BLOCK_FIELDS = {
+            dogPeripheral:  {sum:F.dogPeriphSum,      desc:F.dogPeriphDesc,      other:F.dogPeriphOther},
+            dogSpinal:      {sum:F.dogSpinalSum,      desc:F.dogSpinalDesc,      other:F.dogSpinalOther},
+            dogCerebral:    {sum:F.dogCerebralSum,    desc:F.dogCerebralDesc,    other:F.dogCerebralOther},
+            dogPsychogenic: {sum:F.dogPsychogenicSum, desc:F.dogPsychogenicDesc, other:F.dogPsychogenicOther},
+            dogPredictor:   {sum:F.dogPredictorSum,   desc:F.dogPredictorDesc,   other:F.dogPredictorOther},
+            dogModulators:  {sum:F.dogModulatorsSum,  desc:F.dogModulatorsDesc,  other:F.dogModulatorsOther}
+        };
+
+
+        function getCheckedValues(containerId) {
+            return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
+        }
+        function setCheckedValues(containerId, values) {
+            const selected = new Set(values || []);
+            document.querySelectorAll(`#${containerId} input[type="checkbox"]`).forEach(el => { el.checked = selected.has(el.value); });
+        }
+
+        const PERIPH_DESCRIPTORS = ['ріжучий','тупий','гострий','пронизуючий','спазмуючий','прострілюючий','пекучий','колючий','тягнучий','ниючий','болісні судоми','розпираючий','пульсуючий','тиснучий','розряди струмом','всвердлювання'];
+        const PERIPH_DESCRIPTORS_PREDICTOR = PERIPH_DESCRIPTORS.slice(0, 14);
+
+        const DOG_BLOCKS = [
+            {key:'dogPeripheral',label:'ДОГ — периферичний генез',airtableLabel:'периферичний',subtitle:'Петля 1: неврома, рубець, патологія кукси. Зосередьтесь на фантомному болі.',questions:[{text:'Характер протікання фантомного болю',options:['Не можу визначити','Переважно терпимий без приступів','Терпимий з приступами і загостренням','Нестерпний фоновий з моментами полегшення','Нестерпний без полегшення навіть попри знеболення']},{text:'Простріли, удари струмом у фантом незалежно від зовнішнього впливу',options:['Відсутні','Оніміння + інколи розряди струмом','Болісні розряди, відчуття удару','Болісні розряди + судоми','Болісні розряди + судоми + відчуття голок у фантомі']},{text:'Фантомний біль при натягуванні шкіри біля рубця / при дотику до рубця',options:['Відсутній','Виникає фантомне відчуття без болю','Короткотривалий фантомний біль','Сильний фантомний біль і стихає','Сильний фантомний біль, довго не стихає']},{text:'Больове відчуття печіння у фантомній кінцівці',options:['Відсутнє','Терпимо','У конкретних ділянках фантома','У конкретних ділянках, важко терпіти','Нестерпне, інколи по всій кінцівці']},{text:'Посилення фантомного болю при дотику до кукси чи натисканні в певних точках кукси',options:['Відсутнє','Терпимо','У конкретних точках','У конкретних точках, важко терпіти','Нестерпне від натискання в тригерних точках']},{text:"Біль у конкретній точці/точках фантома (яскраво виражена частина — палець, м'яз)",options:['Відсутній','У одній точці, терпимий','У кількох точках, терпимий','Постійний, важко терпіти','Нестерпний']},{text:'Чи заважає спати фантомний біль',options:['Не заважає','Відносно, залежить від пози','Не дає заснути','Будить серед ночі','Не дає заснути, будить якщо засну']},{text:'Опишіть час, коли фантомний біль найбільш активний',options:['Вранці','В середині дня','Під вечір','Вночі','Постійно']}],descriptors:PERIPH_DESCRIPTORS,descLabel:'Дескриптори болю (самозвіт пацієнта)'},
+            {key:'dogSpinal',label:'ДОГ — спінальний генез',airtableLabel:'спінальний',subtitle:"Петля 2-спінальна: центральна сенситизація / гейт-контроль. Зосередьтесь на фантомному болі.",questions:[{text:"Біль або дискомфорт від легкого дотику до ділянок тіла, не пов'язаних із кукою",options:['Ні','Зрідка, ледь помітно','Помірно','Сильно','Дуже сильно, від найменшого дотику']},{text:'Якщо торкатись кукси кілька разів підряд — біль посилюється з кожним наступним дотиком',options:['Ні','Легке наростання','Помірне наростання','Сильне наростання','Нестерпне наростання після кількох дотиків']},{text:'Прикладання холоду тимчасово зменшує саме ФАНТОМНИЙ БІЛЬ',options:['Не пробував / не змінює','Ледь помітно зменшує','Помірно зменшує','Суттєво зменшує','Виразно і надійно зменшує саме біль']},{text:'Фантомний біль зберігається або посилюється на фоні стандартних знеболювальних',options:['Знеболення допомагає','Легкий залишковий біль попри знеболення','Помірний біль, стійкий до знеболення','Сильний біль, стійкий до знеболення','Нестерпний біль, стійкий до будь-якого знеболення']},{text:'Різкі поодинокі больові простріли з фантома в поясницю/шию',options:['Ні','Легкі','Помірні','Сильні','Нестерпні']},{text:'Фантомний біль/відчуття під час дефекації або сечовипускання',options:['Ні','Відносно','Помірно','Сильно','Дуже сильно']},{text:'«Розлитий» больовий дискомфорт у тілі, підвищена втомлюваність, порушення сну',options:['Немає','Легкі прояви','Помірні','Виражені','Постійні, виснажливі']},{text:'Чи впливає фантомний біль на сон',options:['Не заважає','Відносно, залежить від пози','Не дає заснути','Будить серед ночі','Не дає заснути, будить якщо засну']}],descriptors:['різкі простріли від фантома в поясницю/шию','гіперчутливість кукси та суміжних ділянок тулуба','наростаючий біль','спазмуючий','різкий пекучий','різкий тупий','біль при дефекації/сечовипусканні']},
+            {key:'dogCerebral',label:'ДОГ — церебральний генез',airtableLabel:'церебральний',subtitle:'Петля 2: конфлікт вхід/вихід, залежність фантома від уваги і наміру. Зосередьтесь на фантомній кінцівці та фантомних відчуттях.',questions:[{text:'Можливість керувати рухами фантомної кінцівки думкою/уявою',options:['Ні','Доводиться сильно сконцентруватись','Доводиться помірно сконцентруватись','Здебільшого легко, крім окремих випадків','Весь час, незалежно від обставин, це легко']},{text:'Поява/зникнення фантомної кінцівки залежить від згадки про неї',options:['Не залежить','Інколи залежить, інколи ні','Лише певною мірою залежить','Здебільшого залежить від уваги і згадки','Повністю залежить від уваги і згадки']},{text:'Виникає фантомне відчуття та/або біль при спробі скористатись втраченою кінцівкою',options:['Відсутнє','Відносно рідко','Помірно часто; яскраві відчуття та/або біль','Часто; яскраві відчуття та/або біль','Постійно; відчуття інколи переходять у фантомний біль']},{text:'Можливість рухати фантомною кінцівкою',options:['Відсутнє','Тільки окремі рухи у виняткові моменти','Більшість варіацій рухів у виняткові моменти','Більшість варіантів рухів більшість часу','Усі/більшість варіантів рухів у будь-який момент']},{text:'Чи є можливість рухати одночасно, синхронно фантомною та здоровою кінцівкою?',options:['Ні','Можливо мінімально','Помірно, не завжди синхронно','Здебільшого можливі синхронні рухи','Весь час; рухи синхронні']},{text:'Фантомна кінцівка в неприродних положеннях або взагалі окремо',options:['Ні','Інколи в нормальному, інколи в неприродному положенні','Відчуття, що нею можу щось зачепити/вдаритись','Доводиться постійно відволікатись','Легко переключаю увагу і відчуття зникають, але завжди повертаються']},{text:'Відчуття фантомної кінцівки «як жива»',options:['Відсутнє','Тільки фрагмент (суглоб, стопа/кисть)','Декілька фрагментів','Більшість фантомної кінцівки','Вся кінцівка в деталях, як жива']},{text:"Миготіння фантомної кінцівки (то з'являється, то зникає)",options:['Ні','Інколи','Помірно','Значно','Весь час']}],descriptors:['керованість думкою','синхронність зі здоровою кінцівкою','миготіння','деталізованість «як жива»','неприродні положення','конфлікт при спробі скористатись']},
+            {key:'dogPsychogenic',label:'ДОГ — психокогнітивний генез',airtableLabel:'психокогнітивний',subtitle:'Мнестична петля: спогади про подію → біль/відчуття.',questions:[{text:'Оцініть біль за десятибальною шкалою в момент поранення',options:["Не можу визначити/не пам'ятаю",'2-4','4-6','6-8','8-10']},{text:'Чи підсилюється біль при згадуванні про обставини поранення',options:['Ні','Намагаюсь забути, не думати','Спогади є, але вони не впливають на біль','Так, постійно щось згадується','Так, і вони мене бентежать. Спогади впливають на біль']},{text:'Чи маєте проблеми зі сприйняттям вигляду ампутації',options:['Не можу визначитись','Сприймаю спокійно','Вигляд поранення мене тривожить','Вигляд поранення викликає страх','Вигляд поранення викликає відразу і страх']},{text:'На чому зараз більше сфокусована Ваша увага',options:['Довкола відновлення і протезування','Довкола болю','Довкола втрати кінцівки','Довкола факту болю і втрати кінцівки','Довкола втрати функції і як бути в подальшому']},{text:'Які емоції найбільше проживаєте під час болю',options:['Не можу визначити, наче спокійно','Тривожність','Страх, неможливість контролю болю','Дратівливість, агресія','Відчуття безпорадності, відчаю']},{text:'Думки і емоції про біль, ампутацію впливають на сон',options:['Ні, не заважають','Заважають заснути','Більш-менш засинаю, але рано прокидаюсь','Час від часу прокидаюсь і думаю/згадую','Сплю по дві-три години і постійно думаю/згадую']},{text:'Чи фантомний біль/відчуття посилюються саме при згадці про подію поранення',options:['Не посилюються від жодних згадок','Посилюються від будь-якого стресу однаково','Важко розрізнити','Радше від згадки про подію, ніж від інших стресів','Чітко: саме згадка про подію поранення підсилює']},{text:'Коли найчастіше захоплюють емоції/спогади протягом доби',options:['Вранці','В середині дня','Під вечір','Вночі','Постійно']}],descriptors:['спогади про розрив міни / удар FPV / влучання кулі','спогади про біль від кулі/уламка/хірургічного втручання','спогади про відчуття годинника на руці','спогади про запахи','спогади про евакуацію, стабпункт, ПХГ, перебування в шпиталі','кошмари про наявність ампутованої кінцівки']},
+            {key:'dogPredictor',label:'ДОГ — біль у куксі (предиктор)',airtableLabel:'біль у куксі (предиктор)',subtitle:'Не генез. Предиктор фантомного болю. Зосередьтесь на болі в куксі.',questions:[{text:'Який біль відчуваєте переважно на даний момент',options:['Не можу визначити','Біль у куксі','Просто відчуття присутності втраченої кінцівки','Відчуття втраченої кінцівки з дискомфортом','Біль на місці втраченої кінцівки з відчуттям, що кінцівка є']},{text:'Характер протікання болю в куксі',options:['Не можу визначити','Переважно терпимий без приступів','Терпимий з приступами і загостренням','Нестерпний з моментами полегшення','Нестерпний без полегшення навіть попри знеболення']},{text:'Зміна температури кукси',options:['Така сама, як інші частини тіла','Легка зміна температури','Очевидна зміна температури',"Зміна температури і об'єму","Зміна температури і об'єму + пульсація/біль"]},{text:'Загострений біль від подразників, які не мають його провокувати',options:['Відсутнє','При рухах кукси / зміні положення','Від тиску чи контакту з грубою тканиною','Від легкого дотику, проведення по волосяному покрову','Від найменших подразників, навіть від подиху']},{text:'Чутливі больові точки на куксі',options:['Відсутні','Лише при сильному тиску','При середньому тиску','При малому тиску','Навіть без тиску, при рухах куксою']},{text:'Почервоніння, зміна кольору кукси',options:['Відсутнє','Легке почервоніння','Легке почервоніння + незначний біль','Значне почервоніння + біль','Почервоніння + біль + розпирання/пульсація']},{text:'Чи заважає спати біль у куксі',options:['Не заважає','Відносно, залежить від пози','Не дає заснути','Будить серед ночі','Не дає заснути, будить якщо засну']},{text:'Опишіть час, коли біль у куксі найбільш активний',options:['Вранці','В середині дня','Під вечір','Вночі','Постійно']}],descriptors:PERIPH_DESCRIPTORS_PREDICTOR,descLabel:'Дескриптори болю (самозвіт пацієнта)'},
+            {key:'dogModulators',label:'ДОГ — модулятори',airtableLabel:'модулятори',subtitle:'Екзогенні + спонтанність/втома + тривога/ПТСР/дисоціація. Накладаються на будь-який генез.',questions:[{text:'Фантомний біль/відчуття посилюється без явної причини, спонтанно',options:['Ні','Інколи','Помірно','Часто посилюється','Постійно, спонтанно']},{text:'Втома (фізична/від болю) посилює фантомний біль/відчуття',options:['Ні','Лише деякою мірою','Це так','Значно посилює','Сильно посилює']},{text:'Фантомний біль/відчуття під час або після стресу',options:['Ні','Відносно','Помірно','Сильно','Дуже сильно']},{text:'Тривога/страх загалом підсилюють біль, а біль підсилює тривогу (замкнене коло)',options:['Ні','Зрідка','Помірно','Часто','Постійно, виражене коло «біль↔тривога»']},{text:'Відчуття спостереження за собою «зі сторони» (дисоціація)',options:['Ні','Буває при згадці або посиленні болю','Помірно, 50/50','Часто: то сон, то «не зі мною», то повертаюсь','Майже весь час усе наче відбувається не зі мною']},{text:'Зміни погоди підсилюють фантомний біль/відчуття',options:['Ні','Відносно','Помірно','Сильно','Дуже сильно']},{text:'Зовнішні маніпуляції з кукою підсилюють фантом',options:['Ні','Відносно','Помірно','Сильно','Дуже сильно']},{text:'Чи заважає спати фантомний біль/відчуття',options:['Не заважає','Відносно, залежить від пози','Не дає заснути','Будить серед ночі','Не дає заснути, будить якщо засну']}],descriptors:['спонтанне раптове наростання і спад','втома посилює','стрес/тривога посилюють','дисоціація','метеочутливість','реакція на бинтування/протез/душ/відсмоктувач']}
+        ];
+
+        const DOG_DOMINANT_KEYS = ['dogPeripheral','dogSpinal','dogCerebral','dogPsychogenic'];
+        const DOG_DOMINANT_LABELS = {dogPeripheral:'Периферичний',dogSpinal:'Спінальний',dogCerebral:'Церебральний',dogPsychogenic:'Психокогнітивний'};
+
+        function renderDogQuestion(blockKey, qIndex, question) {
+            const selectId = `${blockKey}_q${qIndex}`;
+            const screenOptions = question.options.map((opt, i) => `<option value="${i}">${i} — ${opt}</option>`).join('');
+            const printOptions = question.options.map((opt, i) =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${i} — ${opt}</span></div>`).join('');
+            return `<div class="form-group"><label for="${selectId}">${qIndex+1}. ${question.text}</label>
+                <select id="${selectId}" class="screen-only dog-question">${screenOptions}</select>
+                <div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+
+        function renderDogBlock(block) {
+            const questionsHtml = block.questions.map((q,i) => renderDogQuestion(block.key,i,q)).join('');
+            const descChips = block.descriptors.map(opt => `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`).join('');
+            const descPrint = block.descriptors.map(opt => `<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${opt}</span></div>`).join('');
+            const descLabel = block.descLabel ? `${block.descLabel} (не впливають на підрахунок балів)` : `${block.label} — дескриптори (не впливають на підрахунок балів)`;
+            return `<h3 class="section-title">${block.label}</h3><div class="section-hint">${block.subtitle}</div>
+                ${questionsHtml}
+                <div class="form-group"><label>${descLabel}</label>
+                <div class="chips-group screen-only" id="${block.key}DescChips">${descChips}</div>
+                <div class="print-checkbox-group print-only">${descPrint}</div></div>
+                <div class="form-group"><label for="${block.key}Other">${block.label} — інше</label>
+                <input type="text" id="${block.key}Other" placeholder="Інші дескриптори"></div>
+                <div class="form-group"><div class="screen-only" id="${block.key}Subtotal">Сума балів: 0 / 32</div>
+                <div class="print-only">Підрахунок балів: ______ / 32 (0-8 низький · 9-16 середній · 17-24 високий · 25-32 домінантний)</div></div>`;
+        }
+
+        function renderDogSummary() {
+            return `<h3 class="section-title">Підсумок ДОГ ФБіФВ</h3>
+                <div class="form-group screen-only" id="dogDominantGenesis">Генез за балами: —</div>
+                <div class="form-group screen-only" id="dogDominantByDesc">Генез за дескрипторами (не валідизовано): —</div>
+                <div class="form-group screen-only" id="dogDescAgreement">Узгодженість: —</div>
+                <div class="form-group screen-only" id="dogPeriphConcordance">Узгодженість дескрипторів периферичного генезу (дослідник/пацієнт): буде розрахована при збереженні</div>
+                <div class="form-group print-only">
+                    <label>Домінантний генез</label><input type="text" class="print-only">
+                    <label>Вторинний генез</label><input type="text" class="print-only">
+                    <label>Нотатки</label><input type="text" class="print-only">
+                </div>`;
+        }
+
+        function computeDominantGenesis(sums) {
+            const entries = DOG_DOMINANT_KEYS.map(k => ({key:k,label:DOG_DOMINANT_LABELS[k],sum:sums[k]||0})).sort((a,b)=>b.sum-a.sum);
+            const top = entries[0], second = entries[1];
+            return (top.sum - second.sum <= 2) ? `Змішаний (${top.label} / ${second.label})` : top.label;
+        }
+
+        function concordancePeriph(clinSet, ptSet) {
+            const union = new Set([...clinSet,...ptSet]);
+            const overlap = clinSet.filter(c => ptSet.includes(c));
+            return {n_clin:clinSet.length, n_pt:ptSet.length, n_overlap:overlap.length, jaccard:union.size?overlap.length/union.size:null};
+        }
+
+        function computeDominantByDesc(descCounts) {
+            return DOG_DOMINANT_KEYS.map(k=>({label:DOG_DOMINANT_LABELS[k],ratio:descCounts[k]})).sort((a,b)=>b.ratio-a.ratio)[0].label;
+        }
+
+        function updateDogTotals() {
+            const sums = {}, descCounts = {};
+            DOG_BLOCKS.forEach(block => {
+                let sum = 0;
+                for (let i = 0; i < 8; i++) sum += Number(document.getElementById(`${block.key}_q${i}`).value);
+                sums[block.key] = sum;
+                document.getElementById(`${block.key}Subtotal`).textContent = `Сума балів: ${sum} / 32`;
+                descCounts[block.key] = getCheckedValues(`${block.key}DescChips`).length / block.descriptors.length;
+            });
+            const dominantByScore = computeDominantGenesis(sums);
+            const dominantByDesc = computeDominantByDesc(descCounts);
+            document.getElementById('dogDominantGenesis').textContent = `Генез за балами: ${dominantByScore}`;
+            document.getElementById('dogDominantByDesc').textContent = `Генез за дескрипторами (не валідизовано): ${dominantByDesc}`;
+            document.getElementById('dogDescAgreement').textContent = `Узгодженість: ${dominantByScore===dominantByDesc?'збігається':'розбіжність'}`;
+        }
+
+        function renderDogSection() {
+            document.getElementById('dogBlocksContainer').innerHTML = DOG_BLOCKS.map(renderDogBlock).join('') + renderDogSummary();
+            document.querySelectorAll('.dog-question').forEach(sel => sel.addEventListener('change', updateDogTotals));
+            DOG_BLOCKS.forEach(block => {
+                document.querySelectorAll(`#${block.key}DescChips input[type="checkbox"]`).forEach(el => el.addEventListener('change', updateDogTotals));
+            });
+            updateDogTotals();
+        }
+
+        function getDogData() {
+            const data = {};
+            DOG_BLOCKS.forEach(block => {
+                let sum = 0;
+                for (let i = 0; i < 8; i++) { const v = Number(document.getElementById(`${block.key}_q${i}`).value); data[`${block.key}_q${i}`] = v; sum += v; }
+                data[`${block.key}_sum`] = sum;
+                data[`${block.key}_descriptors`] = getCheckedValues(`${block.key}DescChips`);
+                data[`${block.key}_other`] = document.getElementById(`${block.key}Other`).value;
+            });
+            return data;
+        }
+
+
+        const SLEEP_PROBLEM_AIRTABLE_MAP = {'Жахіття будять':'Ахиття будять'};
+        const SLEEP_QUESTIONS_A = [
+            {key:'sleepHours',airtable:'Сон — тривалість сну',label:'Скільки годин зазвичай спите за ніч?',options:['<4','4–5','5–6','6–7','7–8','8–9','>9'].map(o=>({label:o,scores:{}}))},
+            {key:'sleepProblem',airtable:'Сон — основна проблема',label:'Основна проблема зі сном (можна кілька)',multi:true,airtableMap:SLEEP_PROBLEM_AIRTABLE_MAP,options:[{label:'Довго не можу заснути',scores:{anx:2}},{label:'Часті прокидання серед ночі',scores:{anx:1,ptsd:1}},{label:'Прокидаюсь занадто рано',scores:{dep:2}},{label:'Сон не відновлює',scores:{dep:1,pain:1}},{label:'Жахіття будять',scores:{ptsd:2}},{label:'Біль будить',scores:{pain:2}}]},
+            {key:'preSleepThoughts',airtable:'Сон — думки перед сном',label:'Про що думки перед сном, коли не можете заснути?',options:[{label:'Про минуле — аналіз подій, помилок, втрат',scores:{dep:2}},{label:'Про майбутнє — що може піти не так',scores:{anx:2}},{label:'Образи травматичної події',scores:{ptsd:2}},{label:'Біль не дає зосередитись',scores:{pain:2}},{label:'Нічого конкретного / порожнеча',scores:{}}]},
+            {key:'dreamContent',airtable:'Сон — характер сновидінь',label:'Характер сновидінь',options:[{label:'Тьмяні, вербальні (слова, «думання» уві сні)',scores:{dep:2}},{label:'Яскраві, образні (сцени, обличчя, кольори)',scores:{anx:2}},{label:'Травматичні, повторювані',scores:{ptsd:2}},{label:"Не пам'ятаю снів",scores:{dep:1}}]},
+            {key:'waking',airtable:'Сон — пробудження вранці',label:'Як прокидаєтесь вранці?',options:[{label:'Важко, «одурманення», не можу ввімкнутись',scores:{dep:2}},{label:'Різко — одразу повна свідомість',scores:{anx:1}},{label:'Різко — з дезорієнтацією або відчуттям загрози',scores:{ptsd:2}},{label:'Нормально',scores:{}}]},
+            {key:'lyingWorsen',airtable:'Сон — лежання після пробудження',label:'Якщо лежите після прокидання ще 1–2 години — стан стає...',options:[{label:'Гірше (важче, темніше)',scores:{dep:2}},{label:'Легше',scores:{}},{label:'Не помічав різниці',scores:{}}]},
+            {key:'motorSleep',airtable:'Сон — моторика під час сну',label:'Моторика під час сну (за словами оточуючих)',options:[{label:'Спокійний, практично не рухаюсь',scores:{dep:1}},{label:'Кручусь, часто міняю пози',scores:{anx:2}},{label:'Крики, удари, падіння з ліжка',scores:{ptsd:3}},{label:'Не знаю',scores:{}}]},
+            {key:'fearSleep',airtable:'Сон — страх засинання',label:'Чи є страх засинання?',options:[{label:'Ні',scores:{}},{label:'Боюсь жахіть / того що буде уві сні',scores:{ptsd:3}},{label:'Тривога що не засну і завтра не зможу',scores:{anx:1}},{label:'Відкладаю засинання (телефон, алкоголь)',scores:{ptsd:2}}]},
+            {key:'somaticPreSleep',airtable:'Сон — тілесні відчуття перед сном',label:'Тілесні відчуття перед сном',options:[{label:"Серцебиття, напруга м'язів, потіння",scores:{anx:2,ptsd:1}},{label:'Тіло розслаблене, але голова не дає',scores:{dep:1,anx:1}},{label:'Біль заважає знайти позу',scores:{pain:2}},{label:'Нічого особливого',scores:{}}]},
+            {key:'vigilance',airtable:'Сон — відчуття безпеки при засинанні',label:'Відчуття безпеки при засинанні',options:[{label:'Потрібно бути напоготові, перевіряю двері',scores:{ptsd:2}},{label:'Обираю позу щоб бачити двері/вікно',scores:{ptsd:1}},{label:'Відчуваю себе безпечно',scores:{}}]},
+            {key:'nightWake',airtable:'Сон — що будить вночі',label:'При нічних прокиданнях — що будить?',options:[{label:'Жахіття',scores:{ptsd:2}},{label:'Звуки (будь-який шум)',scores:{anx:1,ptsd:1}},{label:'Біль',scores:{pain:2}},{label:'Просто прокидаюсь — невідомо чому',scores:{anx:1}},{label:'Не прокидаюсь серед ночі',scores:{}}]},
+            {key:'sleepiness',airtable:'Сон — денна сонливість',label:'Денна сонливість — яка?',options:[{label:'Як одурманення (ніби снодійне/алкоголь)',scores:{dep:2}},{label:'Звичайна втома — хочеться прилягти',scores:{pain:1}},{label:'Немає денної сонливості',scores:{}}]},
+            {key:'diurnal',airtable:'Сон — найважчий час доби',label:'В який час доби найважче?',options:[{label:'Вранці — до вечора легше',scores:{dep:2}},{label:'Ввечері — перед сном найгірше',scores:{anx:2}},{label:'Постійно однаково',scores:{}},{label:'Після фізичного навантаження',scores:{pain:1}}]},
+            {key:'sleepMisperception',airtable:'Сон — розбіжність сприйняття сну',label:'Оточуючі кажуть що ви спали, а ви відчуваєте що ні?',options:[{label:'Так, є розбіжність',scores:{ptsd:2}},{label:'Ні, моє відчуття збігається',scores:{}},{label:'Не знаю / нікого поруч',scores:{}}]},
+            {key:'residual',airtable:'Сон — сон після лікування',label:'Якщо проходили лікування — чи покращився сон?',options:[{label:'Так, сон покращився разом з іншим',scores:{}},{label:'Інше покращилось, але сон — ні',scores:{}},{label:'Не проходив лікування',scores:{}}]}
+        ];
+
+        const SLEEP_TIMELINE_PERIODS = ['До служби / до мобілізації','БЗВП / злагодження','Ротація в тил / ППД','Відпустка','Бойові дії (передова / «нуль»)','Після поранення / травми (гострий період)','Реабілітація / госпіталь','Повернення / очікування переводу'];
+        const SLEEP_TL_OPTS = [{label:'Не було',value:-1},{label:'Сон ОК',value:0},{label:'Помічав порушення',value:2},{label:'Виражені порушення',value:3}];
+        const SLEEP_STRESSORS = ['нерегулярний графік (наряди, бойове чергування, добові)','хронічний біль (будь-якого походження)','контузія / наслідки ЧМТ','втрата побратимів','важкі бойові події (обстріли, штурми, оточення)','непередбачуваність загрози (тиша після обстрілу, ДРГ, штурм)','сімейні проблеми під час служби','поранення / травма та її наслідки','госпіталізація / тривала реабілітація'];
+        const SLEEP_STRESS_OPTS = [{label:'Не було такого',value:-1},{label:'Не впливає',value:0},{label:'Трохи',value:1},{label:'Помірно',value:2},{label:'Сильно',value:3}];
+        const SLEEP_STRESSOR_MAP = [{anx:1},{pain:1},{ptsd:1},{ptsd:1},{ptsd:1},{ptsd:1,anx:1},{dep:1},{pain:1},{dep:1}];
+        const SLEEP_PAIN_TYPES = ['Фантомний','Стумповий','У місці перелому','Контрактурний','Головний (після контузії)','Інший хронічний','Немає'];
+        const SLEEP_CHANGE_OPTS = ['Сильніший','Такий самий','Слабший'];
+        const SLEEP_DOMINANT_LABELS = {dep:'Депресивний',anx:'Тривожний',ptsd:'ПТСР',pain:'Больовий'};
+
+        function renderSleepQuestionA(q, index) {
+            const id = `sleep_a_${q.key}`;
+            if (q.multi) {
+                const chips = q.options.map(o=>`<label class="chip"><input type="checkbox" value="${o.label}"><span>${o.label}</span></label>`).join('');
+                const print = q.options.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o.label}</span></div>`).join('');
+                return `<div class="form-group"><label>${index+1}. ${q.label}</label><div class="chips-group screen-only" id="${id}Chips">${chips}</div><div class="print-checkbox-group print-only">${print}</div></div>`;
+            }
+            const screenOptions = q.options.map(o=>`<option value="${o.label}">${o.label}</option>`).join('');
+            const printOptions = q.options.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o.label}</span></div>`).join('');
+            return `<div class="form-group"><label for="${id}">${index+1}. ${q.label}</label><select id="${id}" class="screen-only"><option value="">—</option>${screenOptions}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+
+        function renderSleepTimeline() {
+            const rows = SLEEP_TIMELINE_PERIODS.map((period,i) => {
+                const id=`sleep_b_${i}`;
+                const screenOptions=SLEEP_TL_OPTS.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+                const printOptions=SLEEP_TL_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o.label}</span></div>`).join('');
+                return `<div class="form-group"><label for="${id}">${period}</label><select id="${id}" class="screen-only">${screenOptions}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+            }).join('');
+            const firstOptions=SLEEP_TIMELINE_PERIODS.map(p=>`<option value="${p}">${p}</option>`).join('');
+            const firstPrint=SLEEP_TIMELINE_PERIODS.map(p=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${p}</span></div>`).join('');
+            return rows+`<div class="form-group"><label for="sleep_b_first">Період, коли вперше з'явилося стійке порушення сну</label><select id="sleep_b_first" class="screen-only"><option value="">Не визначено</option>${firstOptions}</select><div class="print-checkbox-group print-only">${firstPrint}</div></div>`;
+        }
+
+        function renderSleepStressors() {
+            return SLEEP_STRESSORS.map((stressor,i) => {
+                const id=`sleep_c_${i}`;
+                const screenOptions=SLEEP_STRESS_OPTS.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+                const printOptions=SLEEP_STRESS_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o.label}</span></div>`).join('');
+                return `<div class="form-group"><label for="${id}">${stressor}</label><select id="${id}" class="screen-only">${screenOptions}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+            }).join('');
+        }
+
+        function renderSleepSectionD() {
+            const painWakesOptions=['Так','Іноді','Ні'].map(o=>`<option value="${o}">${o}</option>`).join('');
+            const painWakesPrint=['Так','Іноді','Ні'].map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            const painTypesChips=SLEEP_PAIN_TYPES.map(o=>`<label class="chip"><input type="checkbox" value="${o}"><span>${o}</span></label>`).join('');
+            const painTypesPrint=SLEEP_PAIN_TYPES.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            const changeOptions=SLEEP_CHANGE_OPTS.map(o=>`<option value="${o}">${o}</option>`).join('');
+            const changePrint=SLEEP_CHANGE_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            const yesNoOptions=['Так','Ні'].map(o=>`<option value="${o}">${o}</option>`).join('');
+            const yesNoPrint=['Так','Ні'].map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            return `<div class="form-group"><label for="sleep_d_painWakes">Біль будить вас серед ночі?</label><select id="sleep_d_painWakes" class="screen-only"><option value="">—</option>${painWakesOptions}</select><div class="print-checkbox-group print-only">${painWakesPrint}</div></div>
+                <div class="form-group"><label>Який біль найбільше заважає сну? (можна кілька)</label><div class="chips-group screen-only" id="sleep_d_painTypesChips">${painTypesChips}</div><div class="print-checkbox-group print-only">${painTypesPrint}</div></div>
+                <div class="form-group"><label for="sleep_d_badNight">Після ПОГАНОЇ ночі біль наступного дня...</label><select id="sleep_d_badNight" class="screen-only"><option value="">—</option>${changeOptions}</select><div class="print-checkbox-group print-only">${changePrint}</div></div>
+                <div class="form-group"><label for="sleep_d_goodNight">Після ГАРНОЇ ночі біль наступного дня...</label><select id="sleep_d_goodNight" class="screen-only"><option value="">—</option>${changeOptions}</select><div class="print-checkbox-group print-only">${changePrint}</div></div>
+                <div class="form-group"><label for="sleep_d_bodyPosition">Чи впливає положення тіла на сон?</label><select id="sleep_d_bodyPosition" class="screen-only"><option value="">—</option>${yesNoOptions}</select><div class="print-checkbox-group print-only">${yesNoPrint}</div></div>`;
+        }
+
+        function computeSleepScores(data) {
+            const scores={dep:0,anx:0,ptsd:0,pain:0};
+            SLEEP_QUESTIONS_A.forEach(q => {
+                const val=data.a[q.key];
+                const apply=opt=>{if(!opt||!opt.scores)return;Object.entries(opt.scores).forEach(([k,v])=>{scores[k]+=v;});};
+                if(q.multi)(val||[]).forEach(label=>apply(q.options.find(o=>o.label===label)));
+                else apply(q.options.find(o=>o.label===val));
+            });
+            (data.c||[]).forEach((val,i)=>{if(val>=2){const add=val>=3?2:1;Object.entries(SLEEP_STRESSOR_MAP[i]).forEach(([k,v])=>{if(v)scores[k]+=add;});}});
+            if(data.d.painWakes==='Так')scores.pain+=2;else if(data.d.painWakes==='Іноді')scores.pain+=1;
+            if(data.d.badNight==='Сильніший')scores.pain+=2;
+            if(data.d.goodNight==='Слабший')scores.pain+=1;
+            return scores;
+        }
+
+        function getSleepDominant(scores) {
+            const entries=Object.entries(scores).map(([k,v])=>({label:SLEEP_DOMINANT_LABELS[k],sum:v})).sort((a,b)=>b.sum-a.sum);
+            if(entries[0].sum===0)return null;
+            if(entries[1].sum>0&&(entries[0].sum-entries[1].sum)<=2)return `${entries[0].label} + ${entries[1].label}`;
+            return entries[0].label;
+        }
+
+        function getSleepPhase(data) {
+            const tl=data.b||[];
+            let anchor=-1;
+            if(data.bFirst)anchor=SLEEP_TIMELINE_PERIODS.indexOf(data.bFirst);
+            else anchor=tl.findIndex(v=>v>=2);
+            const preSleep=data.a.residual;
+            const bidir=data.d.badNight==='Сильніший'||data.d.goodNight==='Слабший';
+            if(anchor===0)return 'Преморбідна інсомнія';
+            if(anchor>=1&&anchor<=4)return `Коморбідна реактивна інсомнія (${SLEEP_TIMELINE_PERIODS[anchor]})`;
+            if(preSleep==='Інше покращилось, але сон — ні')return 'Персистуюча (резидуальна) інсомнія';
+            if(anchor>=5&&bidir)return 'Хронічна бідирекційна інсомнія';
+            if(anchor>=5)return 'Коморбідна інсомнія (ризик хронізації)';
+            return 'Недостатньо даних';
+        }
+
+        function getSleepBidirectional(data) {
+            const bad=data.d.badNight==='Сильніший', good=data.d.goodNight==='Слабший';
+            if(bad&&good)return 'Повне порочне коло: сон↔біль';
+            if(bad)return 'Сон→біль (поганий сон посилює біль)';
+            if(good)return 'Сон→біль (гарний сон зменшує біль)';
+            return 'Бідирекційність не виявлена';
+        }
+
+        function updateSleepSummary() {
+            const data=getSleepRawData();
+            const scores=computeSleepScores(data);
+            const dominant=getSleepDominant(scores);
+            const phase=getSleepPhase(data);
+            const bidir=getSleepBidirectional(data);
+            document.getElementById('sleepSummary').innerHTML=`Домінуючий ґенез порушень сну: ${dominant||'—'}<br>Фаза: ${phase}<br>Бідирекційність біль↔сон: ${bidir}`;
+        }
+
+        function getSleepRawData() {
+            const a={};
+            SLEEP_QUESTIONS_A.forEach(q=>{a[q.key]=q.multi?getCheckedValues(`sleep_a_${q.key}Chips`):document.getElementById(`sleep_a_${q.key}`).value;});
+            const b=[];
+            for(let i=0;i<8;i++)b.push(Number(document.getElementById(`sleep_b_${i}`).value));
+            const bFirst=document.getElementById('sleep_b_first').value||null;
+            const c=[];
+            for(let i=0;i<9;i++)c.push(Number(document.getElementById(`sleep_c_${i}`).value));
+            const d={
+                painWakes:document.getElementById('sleep_d_painWakes').value,
+                painTypes:getCheckedValues('sleep_d_painTypesChips'),
+                badNight:document.getElementById('sleep_d_badNight').value,
+                goodNight:document.getElementById('sleep_d_goodNight').value,
+                bodyPosition:document.getElementById('sleep_d_bodyPosition').value
+            };
+            return {a,b,bFirst,c,d};
+        }
+
+        function renderSleepSection() {
+            document.getElementById('sleepSectionA').innerHTML=SLEEP_QUESTIONS_A.map((q,i)=>renderSleepQuestionA(q,i)).join('');
+            document.getElementById('sleepSectionB').innerHTML=renderSleepTimeline();
+            document.getElementById('sleepSectionC').innerHTML=renderSleepStressors();
+            document.getElementById('sleepSectionD').innerHTML=renderSleepSectionD();
+            document.querySelectorAll('#panel-sleep select, #panel-sleep input[type="checkbox"]').forEach(el=>el.addEventListener('change',updateSleepSummary));
+            updateSleepSummary();
+        }
+
+
+        const PSI_LEC5_EVENTS = [
+            {label:'Стихійне лихо (повінь, ураган, землетрус)'},{label:'Пожежа або вибух'},{label:'Транспортна аварія'},{label:'Серйозний нещасний випадок (робота/дім/відпочинок)'},{label:'Вплив токсичних речовин (хімічні, радіаційні)'},{label:'Фізичний напад (удар, побиття)'},{label:'Напад зі зброєю (ніж, вогнепальна зброя)'},{label:'Сексуальне насильство'},{label:'Інший небажаний сексуальний досвід'},{label:'Участь у бойових діях / перебування в зоні БД'},{label:'Полон (заручник, військовополонений, викрадення)'},{label:'Загрозливе для життя захворювання або травма'},{label:'Тяжкі страждання інших людей'},{label:'Раптова насильницька смерть (вбивство, самогубство)'},{label:'Раптова випадкова смерть'},{label:'Серйозна шкода або смерть, яку ви спричинили іншій особі'},{label:'Інша дуже стресова подія'}
+        ];
+        const PSI_LEC5_OPTS = ['Зі мною','Свідок','Дізнався','Робота','Не впевнений','Ні'];
+
+        function renderPsiLec5Event(ev, index) {
+            const chips=PSI_LEC5_OPTS.map(o=>`<label class="chip"><input type="checkbox" value="${o}"><span>${o}</span></label>`).join('');
+            const printOptions=PSI_LEC5_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            return `<div class="form-group"><label>${index+1}. ${ev.label}</label><div class="chips-group screen-only" id="psi_lec5_${index}Chips">${chips}</div><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+        function getPsiLec5Data() { return PSI_LEC5_EVENTS.map((ev,index)=>getCheckedValues(`psi_lec5_${index}Chips`)); }
+        function computePsiLec5Summary(lec5) {
+            return {direct:lec5.filter(v=>v.includes('Зі мною')).length, witness:lec5.filter(v=>v.includes('Свідок')).length};
+        }
+        function updatePsiSummary() {
+            const {direct,witness}=computePsiLec5Summary(getPsiLec5Data());
+            document.getElementById('psiLec5Summary').innerHTML=`Прямих травматичних подій (зі мною): ${direct}<br>Подій як свідок: ${witness}`;
+        }
+
+        const PSI_PCL5_QUESTIONS = ['Повторювані, хвилюючі та небажані спогади стресового досвіду?','Повторювані, хвилюючі сновидіння про стресовий досвід?','Раптове почуття, ніби стресовий досвід знову трапляється?','Почуття засмученості при нагадуванні про стресовий досвід?','Сильні фізичні реакції при нагадуванні про стресовий досвід?',"Уникання спогадів, думок або почуттів, пов'язаних зі стресовим досвідом?",'Уникання зовнішніх стимулів, що нагадують про стресовий досвід?','Проблеми згадування важливих моментів стресового досвіду?','Сильні негативні переконання про себе, інших або світ?','Самозвинувачення або звинувачення інших щодо стресового досвіду?','Сильні негативні емоції: страх, жах, злість, провина, сором?','Втрата інтересу до діяльності, що раніше приносила задоволення?','Відчуття віддаленості або відокремленості від інших?','Проблеми у переживанні позитивних емоцій?','Роздратування, спалахи гніву, агресивна поведінка?','Ризикована поведінка або дії, що можуть зашкодити?','Бути «на взводі» або «на сторожі»?','Відчуття постійної напруги?','Труднощі із зосередженістю?','Проблеми із засинанням або нічні прокидання?'];
+        const PSI_PCL5_OPTS = ['Зовсім ні','Трохи','Помірно','Відчутно','Дуже'];
+
+        function renderPsiPcl5Question(q, index) {
+            const options=PSI_PCL5_OPTS.map((o,oi)=>`<option value="${oi}">${o}</option>`).join('');
+            const printOptions=PSI_PCL5_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            return `<div class="form-group"><label for="psi_pcl5_${index}">${index+1}. ${q}</label><select id="psi_pcl5_${index}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+        function getPsiPcl5Data() { return PSI_PCL5_QUESTIONS.map((q,index)=>document.getElementById(`psi_pcl5_${index}`).value); }
+        function computePsiPcl5Summary(answers) {
+            if(answers.some(a=>a===''))return{sum:null,interpretation:''};
+            const sum=answers.reduce((s,v)=>s+Number(v),0);
+            return{sum,interpretation:sum<=20?'Норма':sum<=33?'Реакція адаптації (РА)':'ПТСР'};
+        }
+        function updatePsiPcl5Summary() {
+            const {sum,interpretation}=computePsiPcl5Summary(getPsiPcl5Data());
+            document.getElementById('psiPcl5Summary').innerHTML=sum===null?'Заповніть усі 20 питань для розрахунку суми':`Сума балів: ${sum}/80<br>Інтерпретація: ${interpretation}`;
+        }
+
+        const PSI_HADS_ITEMS = [
+            {s:'Т',q:'Я відчуваю напруженість, мені не по собі',o:['Весь час','Часто','Час від часу, іноді','Зовсім не відчуваю'],sc:[3,2,1,0]},
+            {s:'Д',q:'Те, що раніше приносило задоволення, і зараз викликає таке ж почуття',o:['Це так','Напевно, це так','В дуже малій мірі','Це зовсім не так'],sc:[0,1,2,3]},
+            {s:'Т',q:'Я відчуваю страх, здається, ніби щось жахливе може статися',o:['Безумовно, страх сильний','Так, але страх не сильний','Іноді, але не турбує','Зовсім не відчуваю'],sc:[3,2,1,0]},
+            {s:'Д',q:'Я здатний розсміятися і побачити смішне',o:['Безумовно так','Напевно, так','Лише в малому ступені','Зовсім не здатен'],sc:[0,1,2,3]},
+            {s:'Т',q:'Неспокійні думки крутяться в голові',o:['Постійно','Велику частину часу','Час від часу','Тільки іноді'],sc:[3,2,1,0]},
+            {s:'Д',q:'Я відчуваю бадьорість',o:['Зовсім ні','Дуже рідко','Іноді','Практично весь час'],sc:[3,2,1,0]},
+            {s:'Т',q:'Я легко можу сісти і розслабитися',o:['Безумовно так','Напевно, так','Лише зрідка','Зовсім не можу'],sc:[0,1,2,3]},
+            {s:'Д',q:'Мені здається, що я все роблю повільно',o:['Практично весь час','Часто','Іноді','Зовсім ні'],sc:[3,2,1,0]},
+            {s:'Т',q:'Я відчуваю внутрішнє напруження або тремтіння',o:['Зовсім ні','Іноді','Часто','Дуже часто'],sc:[0,1,2,3]},
+            {s:'Д',q:'Я не стежу за своєю зовнішністю',o:['Безумовно так','Не приділяю достатньо часу','Може менше уваги','Стежу як раніше'],sc:[3,2,1,0]},
+            {s:'Т',q:'Відчуваю непосидючість, потрібно рухатися',o:['Безумовно так','Напевно, так','Лише в деякій мірі','Зовсім ні'],sc:[3,2,1,0]},
+            {s:'Д',q:'Мої справи можуть принести задоволення',o:['Як і зазвичай','Не в тій мірі','Значно менше','Зовсім ні'],sc:[0,1,2,3]},
+            {s:'Т',q:'У мене буває раптове відчуття паніки',o:['Дуже часто','Досить часто','Не так часто','Зовсім ні'],sc:[3,2,1,0]},
+            {s:'Д',q:'Можу отримати задоволення від книги, радіо, ТБ',o:['Часто','Іноді','Рідко','Дуже рідко'],sc:[0,1,2,3]}
+        ];
+
+        function renderPsiHadsItem(item, index) {
+            const options=item.o.map((o,oi)=>`<option value="${oi}">${o}</option>`).join('');
+            const printOptions=item.o.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            return `<div class="form-group"><label for="psi_hads_${index}">${index+1} (${item.s}). ${item.q}</label><select id="psi_hads_${index}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+        function getPsiHadsData() { return PSI_HADS_ITEMS.map((item,index)=>document.getElementById(`psi_hads_${index}`).value); }
+        function computePsiHadsSummary(answers) {
+            if(answers.some(a=>a===''))return{sumT:null,sumD:null,interpretationT:'',interpretationD:''};
+            let sumT=0,sumD=0;
+            PSI_HADS_ITEMS.forEach((item,i)=>{const score=item.sc[Number(answers[i])];if(item.s==='Т')sumT+=score;else sumD+=score;});
+            const interpret=s=>s<=7?'Норма':s<=10?'Субклінічна':'Клінічна';
+            return{sumT,sumD,interpretationT:interpret(sumT)==='Норма'?'Норма':`${interpret(sumT)} тривога`,interpretationD:interpret(sumD)==='Норма'?'Норма':`${interpret(sumD)} депресія`};
+        }
+        function updatePsiHadsSummary() {
+            const {sumT,sumD,interpretationT,interpretationD}=computePsiHadsSummary(getPsiHadsData());
+            document.getElementById('psiHadsSummary').innerHTML=sumT===null?'Заповніть усі 14 питань для розрахунку суми':`Сума Т (тривога): ${sumT}/21, інтерпретація: ${interpretationT}<br>Сума Д (депресія): ${sumD}/21, інтерпретація: ${interpretationD}`;
+        }
+
+        const PSI_AIS_ITEMS = [
+            {q:'Час засинання',o:['Дуже швидко','З невеликою затримкою','З помітною затримкою','Тривала затримка / не сплю']},
+            {q:'Пробудження вночі',o:['Ні','Рідко','Доволі часто','Часто / не сплю']},
+            {q:'Остаточне пробудження раніше, ніж бажано',o:['Ні','Дещо раніше','Істотно раніше','Набагато раніше / не сплю']},
+            {q:'Загальна тривалість сну',o:['Достатньо','Недостатньо','Помітно недостатньо','Дуже недостатньо']},
+            {q:'Якість сну (незалежно від тривалості)',o:['Задовільна','Трохи незадовільна','Погана','Дуже погана']},
+            {q:'Самопочуття протягом дня',o:['Нормальне','Трохи знижене','Помітно знижене','Дуже знижене']},
+            {q:'Працездатність протягом дня',o:['Нормальне','Трохи знижене','Помітно знижене','Дуже знижене']},
+            {q:'Денна сонливість',o:['Ні','Мало виражена','Суттєво виражена','Дуже сильно виражена']}
+        ];
+        const PSI_AIS_AIRTABLE_OPTS = [
+            ['Дуже швидко','з невеликою затримкою','з помітною затримкою','тривала затримка / не сплю'],
+            ['Ні','Рідко','Доволі часто','Часто / не сплю'],['Ні','Дещо раніше','Істотно раніше','Набагато раніше / не сплю'],
+            ['Достатньо','Недостатньо','Помітно недостатньо','Дуже недостатньо'],
+            ['Задовільна','трохи незадовільна','Погана','Дуже погана'],
+            ['Нормальне','трохи знижене','Помітно знижене','Дуже знижене'],
+            ['Нормальне','трохи знижене','Помітно знижене','Дуже знижене'],
+            ['Ні','Мало виражена','Суттєво виражена','Дуже сильно виражена']
+        ];
+
+        function renderPsiAisItem(item, index) {
+            const options=item.o.map((o,oi)=>`<option value="${oi}">${o}</option>`).join('');
+            const printOptions=item.o.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            return `<div class="form-group"><label for="psi_ais_${index}">${index+1}. ${item.q}</label><select id="psi_ais_${index}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+        function getPsiAisData() { return PSI_AIS_ITEMS.map((item,index)=>document.getElementById(`psi_ais_${index}`).value); }
+        function computePsiAisSummary(answers) {
+            if(answers.some(a=>a===''))return{sum:null,interpretation:''};
+            const sum=answers.reduce((s,v)=>s+Number(v),0);
+            return{sum,interpretation:sum<=6?'Норма':'Порушення сну'};
+        }
+        function updatePsiAisSummary() {
+            const {sum,interpretation}=computePsiAisSummary(getPsiAisData());
+            document.getElementById('psiAisSummary').innerHTML=sum===null?'Заповніть усі 8 питань для розрахунку суми':`Сума балів: ${sum}/24<br>Інтерпретація: ${interpretation}`;
+        }
+
+        const PSI_DN4_ITEMS = [
+            {cat:'Опитування',q:'Печіння'},{cat:'Опитування',q:'Відчуття холоду в болючій ділянці'},{cat:'Опитування',q:'Відчуття удару електричним струмом'},{cat:'Опитування',q:'Поколювання'},{cat:'Опитування',q:'Мурашки'},{cat:'Опитування',q:'Оніміння'},{cat:'Опитування',q:'Свербіж'},{cat:'Огляд',q:'Гіпоестезія при дотику'},{cat:'Огляд',q:'Гіпоестезія при уколі'},{cat:'Огляд',q:'Біль посилюється при проведенні пензлика'}
+        ];
+        const PSI_DN4_OPTS = ['Ні','Так'];
+
+        function renderPsiDn4Item(item, index) {
+            const options=PSI_DN4_OPTS.map((o,oi)=>`<option value="${oi}">${o}</option>`).join('');
+            const printOptions=PSI_DN4_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            const showCat=index===0||item.cat!==PSI_DN4_ITEMS[index-1].cat;
+            const catHeading=showCat?`<div class="section-hint">${item.cat}</div>`:'';
+            return `${catHeading}<div class="form-group"><label for="psi_dn4_${index}">${index+1}. ${item.q}</label><select id="psi_dn4_${index}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+        function getPsiDn4Data() { return PSI_DN4_ITEMS.map((item,index)=>document.getElementById(`psi_dn4_${index}`).value); }
+        function computePsiDn4Summary(answers) {
+            if(answers.some(a=>a===''))return{sum:null,interpretation:''};
+            const sum=answers.reduce((s,v)=>s+Number(v),0);
+            return{sum,interpretation:sum>=4?'Нейропатичний біль':'Не нейропатичний'};
+        }
+        function updatePsiDn4Summary() {
+            const {sum,interpretation}=computePsiDn4Summary(getPsiDn4Data());
+            document.getElementById('psiDn4Summary').innerHTML=sum===null?'Заповніть усі 10 питань для розрахунку суми':`Сума балів: ${sum}/10<br>Інтерпретація: ${interpretation}`;
+        }
+
+        const PSI_CSSRS_ITEMS = [
+            {id:'q1',q:'Чи бажали Ви бути мертвим/мертвою або заснути і не прокинутись?'},
+            {id:'q2',q:'Чи мали Ви реальні думки про те, щоб покінчити з собою?'},
+            {id:'q3',q:'Чи думали Ви про те, ЯК би Ви це зробили? (метод, засіб)'},
+            {id:'q4',q:'Чи мали Ви намір діяти за цими думками (не просто фантазія)?'},
+            {id:'q5',q:'Чи розробляли Ви деталі плану або готували щось?'},
+            {id:'q6life',q:'Чи робили Ви будь-коли щось, щоб покінчити з собою? (за все життя)'},
+            {id:'q6recent',q:'Чи робили Ви щось за останні 3 місяці?'}
+        ];
+        const PSI_CSSRS_OPTS = ['Так','Ні'];
+
+        function renderPsiCssrsItem(item, index) {
+            const options=PSI_CSSRS_OPTS.map(o=>`<option value="${o}">${o}</option>`).join('');
+            const printOptions=PSI_CSSRS_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
+            const methodField=item.id==='q3'?`<div class="form-group"><label for="psi_cssrs_q3method">Якщо так — який метод/засіб?</label><input type="text" id="psi_cssrs_q3method" placeholder="Опис методу..."></div>`:'';
+            return `<div class="form-group"><label for="psi_cssrs_${item.id}">${index+1}. ${item.q}</label><select id="psi_cssrs_${item.id}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>${methodField}`;
+        }
+        function getPsiCssrsData() {
+            const data={};
+            PSI_CSSRS_ITEMS.forEach(item=>{data[item.id]=document.getElementById(`psi_cssrs_${item.id}`).value;});
+            data.q3method=document.getElementById('psi_cssrs_q3method').value;
+            return data;
+        }
+        function computePsiCssrsLevel(data) {
+            if(data.q6recent==='Так')return 'Невідкладний ризик';
+            if(data.q6life==='Так')return 'Високий ризик (анамнез спроби)';
+            if(data.q5==='Так'||data.q4==='Так'||data.q3==='Так')return 'Високий ризик';
+            if(data.q2==='Так')return 'Помірний ризик';
+            if(data.q1==='Так')return 'Низький ризик';
+            if(PSI_CSSRS_ITEMS.some(item=>data[item.id]!==''))return 'Ризик не виявлено';
+            return 'Не оцінено';
+        }
+        function updatePsiCssrsSummary() {
+            document.getElementById('psiCssrsSummary').innerHTML=`Рівень ризику: ${computePsiCssrsLevel(getPsiCssrsData())}`;
+        }
+
+        const PSI_DEST_ITEMS = ["Виявляю серед своїх речей те, що не пам'ятаю як придбав/ла","Знаходжу докази того, що робив/ла щось, чого не пам'ятаю",'Відчуття що стою поруч із собою або спостерігаю за собою зі сторони','Не впізнаю друзів або рідних','Відчуття що інші люди або предмети навколо — нереальні','Відчуття що моє тіло мені не належить','Поводжусь настільки по-різному в різних ситуаціях, наче я дві різні людини','Чую голоси у своїй голові'];
+        const PSI_DEST_OPTS = [0,10,20,30,40,50,60,70,80,90,100];
+
+        function renderPsiDestItem(item, index) {
+            const options=PSI_DEST_OPTS.map(o=>`<option value="${o}">${o}%</option>`).join('');
+            const printOptions=PSI_DEST_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}%</span></div>`).join('');
+            return `<div class="form-group"><label for="psi_dest_${index}">${index+1}. ${item}</label><select id="psi_dest_${index}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>`;
+        }
+        function getPsiDestData() { return PSI_DEST_ITEMS.map((item,index)=>document.getElementById(`psi_dest_${index}`).value); }
+        function computePsiDestSummary(answers) {
+            const valid=answers.filter(a=>a!=='').map(Number);
+            if(!valid.length)return{mean:null,interpretation:''};
+            const mean=Math.round(valid.reduce((s,v)=>s+v,0)/valid.length);
+            let interpretation;
+            if(mean>=30)interpretation='Виражена патологічна дисоціація';
+            else if(mean>=20)interpretation='Ймовірна патологічна дисоціація';
+            else if(mean>=10)interpretation='Підвищена дисоціація';
+            else interpretation='Норма';
+            return{mean,interpretation};
+        }
+        function updatePsiDestSummary() {
+            const {mean,interpretation}=computePsiDestSummary(getPsiDestData());
+            document.getElementById('psiDestSummary').innerHTML=mean===null?'Заповніть хоча б одне питання для розрахунку середнього':`Середній відсоток (M): ${mean}%<br>Інтерпретація: ${interpretation}`;
+        }
+
+        function getPsiMocaData() { return document.getElementById('psi_moca').value; }
+        function computePsiMocaInterpretation(score) { if(score==='')return''; return Number(score)>=26?'Норма':'Когнітивний дефіцит'; }
+        function updatePsiMocaSummary() {
+            const score=getPsiMocaData();
+            const interpretation=computePsiMocaInterpretation(score);
+            document.getElementById('psiMocaSummary').innerHTML=interpretation===''?'Введіть загальний бал для розрахунку інтерпретації':`Інтерпретація: ${interpretation}`;
+        }
+
+        function renderPsiSection() {
+            document.getElementById('psiLec5Container').innerHTML=PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
+            document.getElementById('psiPcl5Container').innerHTML=PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
+            document.getElementById('psiHadsContainer').innerHTML=PSI_HADS_ITEMS.map(renderPsiHadsItem).join('');
+            document.getElementById('psiAisContainer').innerHTML=PSI_AIS_ITEMS.map(renderPsiAisItem).join('');
+            document.getElementById('psiDn4Container').innerHTML=PSI_DN4_ITEMS.map(renderPsiDn4Item).join('');
+            document.getElementById('psiCssrsContainer').innerHTML=PSI_CSSRS_ITEMS.map(renderPsiCssrsItem).join('');
+            document.getElementById('psiDestContainer').innerHTML=PSI_DEST_ITEMS.map(renderPsiDestItem).join('');
+            document.querySelectorAll('#psiLec5Container input[type="checkbox"]').forEach(el=>el.addEventListener('change',updatePsiSummary));
+            document.querySelectorAll('#psiPcl5Container select').forEach(el=>el.addEventListener('change',updatePsiPcl5Summary));
+            document.querySelectorAll('#psiHadsContainer select').forEach(el=>el.addEventListener('change',updatePsiHadsSummary));
+            document.querySelectorAll('#psiAisContainer select').forEach(el=>el.addEventListener('change',updatePsiAisSummary));
+            document.querySelectorAll('#psiDn4Container select').forEach(el=>el.addEventListener('change',updatePsiDn4Summary));
+            document.querySelectorAll('#psiCssrsContainer select').forEach(el=>el.addEventListener('change',updatePsiCssrsSummary));
+            document.querySelectorAll('#psiDestContainer select').forEach(el=>el.addEventListener('change',updatePsiDestSummary));
+            document.getElementById('psi_moca').addEventListener('input',updatePsiMocaSummary);
+            updatePsiSummary(); updatePsiPcl5Summary(); updatePsiHadsSummary(); updatePsiAisSummary();
+            updatePsiDn4Summary(); updatePsiCssrsSummary(); updatePsiDestSummary(); updatePsiMocaSummary();
+        }
+
+        function getSexFunctionData() {
+            return {
+                activity:document.getElementById('sf_activity').value,
+                activityChange:document.getElementById('sf_activity_change').value,
+                erection:document.getElementById('sf_erection').value,
+                erectionDiff:document.getElementById('sf_erection_diff').value,
+                orgasm:document.getElementById('sf_orgasm').value,
+                orgasmChange:document.getElementById('sf_orgasm_change').value,
+                orgasmLoc:getCheckedValues('sfOrgasmLocChips'),
+                bodyZonesDesc:document.getElementById('sf_body_zones_desc').value,
+                phantomSex:document.getElementById('sf_phantom_sex').value,
+                phantomOrgasmLoc:getCheckedValues('sfPhantomOrgasmLocChips'),
+                phantomDesc:getCheckedValues('sfPhantomDescChips'),
+                phantomDescOther:document.getElementById('sf_phantom_desc_other').value,
+                painDuringSex:document.getElementById('sf_pain_during_sex').value,
+                painIncrease:document.getElementById('sf_pain_increase').value,
+                painDecrease:document.getElementById('sf_pain_decrease').value,
+                satisfaction:document.getElementById('sf_satisfaction').value,
+                bodyImage:document.getElementById('sf_body_image').value,
+                discussed:document.getElementById('sf_discussed').value
+            };
+        }
+
+        function updateSexFunctionVisibility() {
+            const phantomSex=document.getElementById('sf_phantom_sex').value;
+            const showPhantom=phantomSex==='Так';
+            document.getElementById('sfPhantomOrgasmLocGroup').classList.toggle('screen-hidden',!showPhantom);
+            document.getElementById('sfPhantomDescGroup').classList.toggle('screen-hidden',!showPhantom);
+            document.getElementById('sfPhantomDescOtherGroup').classList.toggle('screen-hidden',!showPhantom);
+            const painDuringSex=document.getElementById('sf_pain_during_sex').value;
+            document.getElementById('sfPainIncreaseGroup').classList.toggle('screen-hidden',painDuringSex!=='Посилюється');
+            document.getElementById('sfPainDecreaseGroup').classList.toggle('screen-hidden',painDuringSex!=='Зменшується');
+        }
+
+        function getFormData() {
+            const dog=getDogData();
+            const sleep=getSleepRawData();
+            const psi={lec5:getPsiLec5Data(),pcl5:getPsiPcl5Data(),hads:getPsiHadsData(),ais:getPsiAisData(),dn4:getPsiDn4Data(),cssrs:getPsiCssrsData(),dest:getPsiDestData(),moca:getPsiMocaData()};
+            return {
+                nickname:document.getElementById('assessmentNickname').value,
+                date:document.getElementById('assessmentDate').value,
+                stage:document.getElementById('assessmentStage').value,
+                dog, sleep, psi, sf:getSexFunctionData()
+            };
+        }
+
+
+        async function deriveAesKey(password, saltB64) {
+            const enc=new TextEncoder();
+            const salt=Uint8Array.from(atob(saltB64),c=>c.charCodeAt(0));
+            const baseKey=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
+            return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},baseKey,{name:'AES-GCM',length:256},false,['decrypt']);
+        }
+        async function decryptAirtableKey(password) {
+            const key=await deriveAesKey(password,AIRTABLE_KEY_SALT);
+            const iv=Uint8Array.from(atob(AIRTABLE_KEY_IV),c=>c.charCodeAt(0));
+            const ciphertext=Uint8Array.from(atob(AIRTABLE_KEY_CIPHERTEXT),c=>c.charCodeAt(0));
+            const plaintext=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ciphertext);
+            return new TextDecoder().decode(plaintext);
+        }
+
+        async function findRecordIdByNickname(apiKey, nickname) {
+            const formula=encodeURIComponent(`{Study ID}="${nickname}"`);
+            const response=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,{headers:{'Authorization':`Bearer ${apiKey}`}});
+            if(!response.ok){const eb=await response.json().catch(()=>null);throw new Error(`Airtable: ${eb?.error?.message||response.statusText}`);}
+            const data=await response.json();
+            return data.records.length>0?data.records[0].id:null;
+        }
+
+        async function fetchParticipantPeriphDesc(apiKey, participantId) {
+            const response=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}/${participantId}?fields[]=fldBkrdo6FHg0zmzS`,{headers:{'Authorization':`Bearer ${apiKey}`}});
+            if(!response.ok)return[];
+            const data=await response.json();
+            return data.fields['fldBkrdo6FHg0zmzS']||[];
+        }
+
+        function addIfValue(fields, fieldId, value) {
+            if(value!==null&&value!==undefined&&value!=='') fields[fieldId]=value;
+        }
+        function addIfArray(fields, fieldId, arr) {
+            if(arr&&arr.length) fields[fieldId]=arr;
+        }
+        function addNumber(fields, fieldId, value) {
+            const n=Number(value);
+            if(!isNaN(n)&&value!=='') fields[fieldId]=n;
+        }
+
+        async function saveAssessment(apiKey, formData) {
+            const participantId=await findRecordIdByNickname(apiKey,formData.nickname);
+            if(!participantId) throw new Error(`Учасника зі Study ID "${formData.nickname}" не знайдено.`);
+
+            const clinDesc=await fetchParticipantPeriphDesc(apiKey,participantId);
+            const ptDesc=formData.dog.dogPeripheral_descriptors||[];
+            const concordance=function(a,b){const u=new Set([...a,...b]);const o=a.filter(x=>b.includes(x));return u.size?o.length/u.size:null;}(clinDesc,ptDesc);
+
+            const dog=formData.dog;
+            const sleepData=formData.sleep;
+            const psi=formData.psi;
+            const sf=formData.sf;
+
+            const lec5=psi.lec5;
+            const {direct,witness}=function(l){return{direct:l.filter(v=>v.includes('Зі мною')).length,witness:l.filter(v=>v.includes('Свідок')).length};}(lec5);
+
+            const pcl5=psi.pcl5;
+            const pcl5sum=pcl5.every(a=>a!=='')?pcl5.reduce((s,v)=>s+Number(v),0):null;
+            const pcl5interp=pcl5sum!==null?(pcl5sum<=20?'Норма':pcl5sum<=33?'Реакція адаптації (РА)':'ПТСР'):'';
+
+            const hads=psi.hads;
+            let sumT=0,sumD=0;
+            if(hads.every(a=>a!=='')){
+                PSI_HADS_ITEMS.forEach((item,i)=>{const sc=item.sc[Number(hads[i])];if(item.s==='Т')sumT+=sc;else sumD+=sc;});
+            }
+            const interpret=s=>s<=7?'Норма':s<=10?'Субклінічна':'Клінічна';
+            const hadsIntT=hads.every(a=>a!=='')?`${interpret(sumT)==='Норма'?'Норма':interpret(sumT)+' тривога'}`:'';
+            const hadsIntD=hads.every(a=>a!=='')?`${interpret(sumD)==='Норма'?'Норма':interpret(sumD)+' депресія'}`:'';
+
+            const ais=psi.ais;
+            const aisSum=ais.every(a=>a!=='')?ais.reduce((s,v)=>s+Number(v),0):null;
+            const aisInterp=aisSum!==null?(aisSum<=6?'Норма':'Порушення сну'):'';
+
+            const dn4=psi.dn4;
+            const dn4Sum=dn4.every(a=>a!=='')?dn4.reduce((s,v)=>s+Number(v),0):null;
+            const dn4Interp=dn4Sum!==null?(dn4Sum>=4?'Нейропатичний біль':'Не нейропатичний'):'';
+
+            const cssrs=psi.cssrs;
+            const cssrsRisk=function(d){
+                if(d.q6recent==='Так')return'Невідкладний ризик';
+                if(d.q6life==='Так')return'Високий ризик (анамнез спроби)';
+                if(d.q5==='Так'||d.q4==='Так'||d.q3==='Так')return'Високий ризик';
+                if(d.q2==='Так')return'Помірний ризик';
+                if(d.q1==='Так')return'Низький ризик';
+                return'Ризик не виявлено';
+            }(cssrs);
+
+            const dest=psi.dest;
+            const destValid=dest.filter(a=>a!=='').map(Number);
+            const destMean=destValid.length?Math.round(destValid.reduce((s,v)=>s+v,0)/destValid.length):null;
+            const destInterp=destMean!==null?(destMean>=30?'Виражена патологічна дисоціація':destMean>=20?'Ймовірна патологічна дисоціація':destMean>=10?'Підвищена дисоціація':'Норма'):'';
+
+            const moca=psi.moca;
+            const mocaInterp=moca!==''?(Number(moca)>=26?'Норма':'Когнітивний дефіцит'):'';
+
+            const dogSums={dogPeripheral:dog.dogPeripheral_sum,dogSpinal:dog.dogSpinal_sum,dogCerebral:dog.dogCerebral_sum,dogPsychogenic:dog.dogPsychogenic_sum};
+            const dominantByScore=computeDominantGenesis(dogSums);
+            const descCounts={};
+            DOG_BLOCKS.forEach(block=>{descCounts[block.key]=(dog[`${block.key}_descriptors`]||[]).length/block.descriptors.length;});
+            const dominantByDesc=computeDominantByDesc(descCounts);
+
+            const sleepScores=computeSleepScores(sleepData);
+            const sleepDominant=getSleepDominant(sleepScores);
+            const sleepPhase=getSleepPhase(sleepData);
+            const sleepBidir=getSleepBidirectional(sleepData);
+
+            const fields={};
+            fields[F.participant]=[participantId];
+            addIfValue(fields,F.date,formData.date);
+            addIfValue(fields,F.stage,formData.stage);
+
+            // DOG
+            DOG_BLOCKS.forEach(block=>{
+                const bf=DOG_BLOCK_FIELDS[block.key];
+                fields[bf.sum]=dog[`${block.key}_sum`]||0;
+                addIfArray(fields,bf.desc,dog[`${block.key}_descriptors`]);
+                addIfValue(fields,bf.other,dog[`${block.key}_other`]);
+            });
+            addIfValue(fields,F.dogDominant,dominantByScore);
+            if(concordance!==null) fields[F.dogJaccard]=Math.round(concordance*100)/100;
+            addIfValue(fields,F.dogDominantByDesc,dominantByDesc);
+            fields[F.dogDescAgreement]=dominantByScore===dominantByDesc?'збігається':'розбіжність';
+
+            // Sleep A
+            SLEEP_QUESTIONS_A.forEach((q,i)=>{
+                const fieldId=SLEEP_A_FIELD_IDS[i];
+                if(q.multi){
+                    const vals=(sleepData.a[q.key]||[]).map(v=>(q.airtableMap&&q.airtableMap[v])||v);
+                    addIfArray(fields,fieldId,vals);
+                } else {
+                    addIfValue(fields,fieldId,sleepData.a[q.key]);
+                }
+            });
+            // Sleep B timeline
+            SLEEP_TL_FIELD_IDS.forEach((fieldId,i)=>{
+                const opt=SLEEP_TL_OPTS.find(o=>o.value===sleepData.b[i]);
+                if(opt) fields[fieldId]=opt.label;
+            });
+            addIfValue(fields,F.sleepFirst,sleepData.bFirst);
+            // Sleep C stressors
+            SLEEP_S_FIELD_IDS.forEach((fieldId,i)=>{
+                const opt=SLEEP_STRESS_OPTS.find(o=>o.value===sleepData.c[i]);
+                if(opt) fields[fieldId]=opt.label;
+            });
+            // Sleep D
+            addIfValue(fields,F.sleepPainWakes,sleepData.d.painWakes);
+            addIfArray(fields,F.sleepPainTypes,sleepData.d.painTypes);
+            addIfValue(fields,F.sleepBadNight,sleepData.d.badNight);
+            addIfValue(fields,F.sleepGoodNight,sleepData.d.goodNight);
+            addIfValue(fields,F.sleepBodyPosition,sleepData.d.bodyPosition);
+            // Sleep summary
+            addIfValue(fields,F.sleepDominant,sleepDominant);
+            addIfValue(fields,F.sleepPhase,sleepPhase);
+            addIfValue(fields,F.sleepBidir,sleepBidir);
+
+            // LEC-5
+            LEC5_FIELD_IDS.forEach((fieldId,i)=>{ addIfArray(fields,fieldId,lec5[i]); });
+            fields[F.lec5Direct]=direct;
+            fields[F.lec5Witness]=witness;
+
+            // PCL-5
+            PCL5_FIELD_IDS.forEach((fieldId,i)=>{
+                const val=pcl5[i];
+                if(val!=='') fields[fieldId]=PSI_PCL5_OPTS[Number(val)];
+            });
+            if(pcl5sum!==null) fields[F.pcl5Sum]=pcl5sum;
+            addIfValue(fields,F.pcl5Interp,pcl5interp);
+
+            // HADS
+            HADS_FIELD_IDS.forEach((fieldId,i)=>{
+                const val=hads[i];
+                if(val!=='') fields[fieldId]=PSI_HADS_ITEMS[i].o[Number(val)];
+            });
+            if(hads.every(a=>a!=='')){ fields[F.hadsSumT]=sumT; fields[F.hadsSumD]=sumD; }
+            addIfValue(fields,F.hadsInterpT,hadsIntT);
+            addIfValue(fields,F.hadsInterpD,hadsIntD);
+
+            // AIS
+            AIS_FIELD_IDS.forEach((fieldId,i)=>{
+                const val=ais[i];
+                if(val!=='') fields[fieldId]=PSI_AIS_AIRTABLE_OPTS[i][Number(val)];
+            });
+            if(aisSum!==null) fields[F.aisSum]=aisSum;
+            addIfValue(fields,F.aisInterp,aisInterp);
+
+            // DN-4
+            DN4_FIELD_IDS.forEach((fieldId,i)=>{
+                const val=dn4[i];
+                if(val!=='') fields[fieldId]=PSI_DN4_OPTS[Number(val)];
+            });
+            if(dn4Sum!==null) fields[F.dn4Sum]=dn4Sum;
+            addIfValue(fields,F.dn4Interp,dn4Interp);
+
+            // C-SSRS
+            addIfValue(fields,F.cssrs_q1,cssrs.q1);
+            addIfValue(fields,F.cssrs_q2,cssrs.q2);
+            addIfValue(fields,F.cssrs_q3,cssrs.q3);
+            addIfValue(fields,F.cssrs_q3method,cssrs.q3method);
+            addIfValue(fields,F.cssrs_q4,cssrs.q4);
+            addIfValue(fields,F.cssrs_q5,cssrs.q5);
+            addIfValue(fields,F.cssrs_q6life,cssrs.q6life);
+            addIfValue(fields,F.cssrs_q6recent,cssrs.q6recent);
+            addIfValue(fields,F.cssrsRisk,cssrsRisk);
+
+            // DES-T
+            DEST_FIELD_IDS.forEach((fieldId,i)=>{
+                const val=dest[i];
+                if(val!=='') fields[fieldId]=Number(val);
+            });
+            if(destMean!==null) fields[F.destMean]=destMean;
+            addIfValue(fields,F.destInterp,destInterp);
+
+            // MoCA
+            addNumber(fields,F.mocaScore,moca);
+            addIfValue(fields,F.mocaInterp,mocaInterp);
+
+            // SF
+            addIfValue(fields,F.sfActivity,sf.activity);
+            addIfValue(fields,F.sfActivityChange,sf.activityChange);
+            addIfValue(fields,F.sfErection,sf.erection);
+            addIfValue(fields,F.sfErectionDiff,sf.erectionDiff);
+            addIfValue(fields,F.sfOrgasm,sf.orgasm);
+            addIfValue(fields,F.sfOrgasmChange,sf.orgasmChange);
+            addIfArray(fields,F.sfOrgasmLoc,sf.orgasmLoc);
+            addIfValue(fields,F.sfBodyZonesDesc,sf.bodyZonesDesc);
+            addIfValue(fields,F.sfPhantomSex,sf.phantomSex);
+            addIfArray(fields,F.sfPhantomOrgasmLoc,sf.phantomOrgasmLoc);
+            addIfArray(fields,F.sfPhantomDesc,sf.phantomDesc);
+            addIfValue(fields,F.sfPhantomDescOther,sf.phantomDescOther);
+            addIfValue(fields,F.sfPainDuringSex,sf.painDuringSex);
+            addNumber(fields,F.sfPainIncrease,sf.painIncrease);
+            addNumber(fields,F.sfPainDecrease,sf.painDecrease);
+            addNumber(fields,F.sfSatisfaction,sf.satisfaction);
+            addIfValue(fields,F.sfBodyImage,sf.bodyImage);
+            addIfValue(fields,F.sfDiscussed,sf.discussed);
+
+            const response=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${ASSESSMENTS_TABLE_ID}`,{
+                method:'POST',
+                headers:{'Authorization':`Bearer ${apiKey}`,'Content-Type':'application/json'},
+                body:JSON.stringify({fields})
+            });
+            if(!response.ok){const eb=await response.json().catch(()=>null);throw new Error(`Airtable: ${eb?.error?.message||response.statusText}`);}
+        }
+
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function showSuccess(msg) {
+  const el = document.getElementById('successMessage');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('errorMessage').style.display = 'none';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function showError(msg) {
+  const el = document.getElementById('errorMessage');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('successMessage').style.display = 'none';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Password dialog ───────────────────────────────────────────────────────────
+function openPasswordDialog() {
+  document.getElementById('airtablePassword').value = '';
+  document.getElementById('passwordError').textContent = '';
+  document.getElementById('passwordOverlay').style.display = 'flex';
+  document.getElementById('airtablePassword').focus();
+}
+function closePasswordDialog() {
+  document.getElementById('passwordOverlay').style.display = 'none';
+}
+document.getElementById('passwordCancel').addEventListener('click', closePasswordDialog);
+document.getElementById('passwordConfirm').addEventListener('click', async () => {
+  const pw = document.getElementById('airtablePassword').value;
+  if (!pw) { document.getElementById('passwordError').textContent = 'Введіть пароль'; return; }
+  document.getElementById('passwordConfirm').disabled = true;
+  document.getElementById('passwordConfirm').textContent = 'Збереження…';
+  try {
+    const apiKey = await decryptAirtableKey(pw);
+    await saveAssessment(apiKey, getFormData());
+    closePasswordDialog();
+    showSuccess('Запис збережено успішно.');
+    saveToLocalStorage();
+  } catch (e) {
+    document.getElementById('passwordError').textContent = e.message || 'Помилка збереження';
+    document.getElementById('passwordConfirm').disabled = false;
+    document.getElementById('passwordConfirm').textContent = 'Зберегти';
+  }
+});
+document.getElementById('airtablePassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('passwordConfirm').click();
+});
+
+// ── Form submit ───────────────────────────────────────────────────────────────
+document.getElementById('assessmentForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const nick = document.getElementById('assessmentNickname').value.trim();
+  const date = document.getElementById('assessmentDate').value;
+  const stage = document.getElementById('assessmentStage').value;
+  if (!nick || !date || !stage) {
+    showError('Заповніть Study ID, дату та етап спостереження.');
+    return;
+  }
+  openPasswordDialog();
+});
+
+// ── Section tabs ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.section-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sec = btn.dataset.section;
+    document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + sec).classList.add('active');
+  });
+});
+
+// ── Print mode ────────────────────────────────────────────────────────────────
+document.getElementById('printModeToggle').addEventListener('change', function () {
+  document.body.classList.toggle('print-layout', this.checked);
+});
+
+// ── localStorage ─────────────────────────────────────────────────────────────
+const LS_KEY = 'assessmentFormData';
+function saveToLocalStorage() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(getFormData())); } catch (_) {}
+}
+function loadFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.assessmentNickname) document.getElementById('assessmentNickname').value = d.assessmentNickname;
+    if (d.assessmentDate) document.getElementById('assessmentDate').value = d.assessmentDate;
+    if (d.assessmentStage) document.getElementById('assessmentStage').value = d.assessmentStage;
+    // restore DOG block values
+    if (d.dog) {
+      DOG_BLOCKS.forEach(block => {
+        const bd = d.dog[block.id];
+        if (!bd) return;
+        const sumEl = document.getElementById('dog_' + block.id + '_sum');
+        if (sumEl) sumEl.value = bd.sum ?? '';
+        const otherEl = document.getElementById('dog_' + block.id + '_other');
+        if (otherEl) otherEl.value = bd.other ?? '';
+        if (Array.isArray(bd.descriptors)) {
+          bd.descriptors.forEach(desc => {
+            const chip = document.querySelector(`#dog_${block.id}_desc_chips [data-value="${CSS.escape(desc)}"]`);
+            if (chip) chip.classList.add('selected');
+          });
+        }
+      });
+      updateDogTotals();
+    }
+    // restore Sleep A checkboxes and other sleep inputs where IDs match
+    if (d.sleep) {
+      const restoreCheckbox = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && el.type === 'checkbox') el.checked = !!val;
+        else if (el) el.value = val ?? '';
+      };
+      // Sleep A
+      SLEEP_QUESTIONS_A.forEach((q, i) => {
+        const fid = SLEEP_A_FIELD_IDS[i];
+        if (Array.isArray(d.sleep.sleepA)) {
+          if (q.multi) {
+            const vals = d.sleep.sleepA[i] ?? [];
+            q.opts.forEach(opt => {
+              const id = `sleepA_${i}_${opt.replace(/\s+/g,'_')}`;
+              const el = document.getElementById(id);
+              if (el) el.checked = vals.includes(opt);
+            });
+          } else {
+            const val = d.sleep.sleepA[i] ?? '';
+            if (q.opts) {
+              q.opts.forEach(opt => {
+                const id = `sleepA_${i}_${opt.replace(/\s+/g,'_')}`;
+                const el = document.getElementById(id);
+                if (el) el.checked = (val === opt);
+              });
+            } else {
+              const el = document.getElementById(`sleepA_${i}`);
+              if (el) el.value = val;
+            }
+          }
+        }
+      });
+      // Sleep TL
+      if (Array.isArray(d.sleep.sleepTL)) {
+        SLEEP_TIMELINE_PERIODS.forEach((_, i) => {
+          SLEEP_TL_OPTS.forEach(opt => {
+            const id = `sleepTL_${i}_${opt.replace(/\s+/g,'_')}`;
+            const el = document.getElementById(id);
+            if (el) el.checked = (d.sleep.sleepTL[i] === opt);
+          });
+        });
+      }
+      if (d.sleep.sleepFirst !== undefined) {
+        const el = document.getElementById('sleepFirst');
+        if (el) el.value = d.sleep.sleepFirst;
+      }
+      // Sleep C stressors
+      if (Array.isArray(d.sleep.sleepStressors)) {
+        SLEEP_STRESSORS.forEach(s => {
+          SLEEP_STRESS_OPTS.forEach(opt => {
+            const id = `sleepS_${s.id}_${opt.replace(/\s+/g,'_')}`;
+            const el = document.getElementById(id);
+            if (el) el.checked = (d.sleep.sleepStressors.find(x=>x.id===s.id)?.val === opt);
+          });
+        });
+      }
+      // Sleep D
+      ['sleepPainWakes','sleepPainTypes','sleepBadNight','sleepGoodNight','sleepBodyPosition'].forEach(id => {
+        if (d.sleep[id] !== undefined) {
+          const el = document.getElementById(id);
+          if (el) el.value = d.sleep[id];
+        }
+      });
+      updateSleepSummary();
+    }
+    // PSI LEC-5
+    if (d.psi && Array.isArray(d.psi.lec5)) {
+      PSI_LEC5_EVENTS.forEach((ev, i) => {
+        const rowData = d.psi.lec5[i] ?? {};
+        PSI_LEC5_OPTS.forEach(opt => {
+          const id = `lec5_${i}_${opt.replace(/\W+/g,'_')}`;
+          const el = document.getElementById(id);
+          if (el) el.checked = !!(rowData[opt]);
+        });
+      });
+    }
+    // PSI PCL-5
+    if (d.psi && Array.isArray(d.psi.pcl5)) {
+      d.psi.pcl5.forEach((val, i) => {
+        PSI_PCL5_OPTS.forEach((opt, j) => {
+          const id = `pcl5_${i}_${j}`;
+          const el = document.getElementById(id);
+          if (el) el.checked = (val === j);
+        });
+      });
+      updatePsiPcl5Summary();
+    }
+    // PSI HADS
+    if (d.psi && Array.isArray(d.psi.hads)) {
+      d.psi.hads.forEach((val, i) => {
+        const item = PSI_HADS_ITEMS[i];
+        if (!item) return;
+        item.o.forEach((opt, j) => {
+          const id = `hads_${i}_${j}`;
+          const el = document.getElementById(id);
+          if (el) el.checked = (val === j);
+        });
+      });
+      updatePsiHadsSummary();
+    }
+    // PSI AIS
+    if (d.psi && Array.isArray(d.psi.ais)) {
+      d.psi.ais.forEach((val, i) => {
+        PSI_AIS_ITEMS[i]?.o.forEach((opt, j) => {
+          const id = `ais_${i}_${j}`;
+          const el = document.getElementById(id);
+          if (el) el.checked = (val === j);
+        });
+      });
+      updatePsiAisSummary();
+    }
+    // PSI DN-4
+    if (d.psi && Array.isArray(d.psi.dn4)) {
+      d.psi.dn4.forEach((val, i) => {
+        PSI_DN4_OPTS.forEach((opt, j) => {
+          const id = `dn4_${i}_${j}`;
+          const el = document.getElementById(id);
+          if (el) el.checked = (val === j);
+        });
+      });
+      updatePsiDn4Summary();
+    }
+    // PSI C-SSRS
+    if (d.psi && d.psi.cssrs) {
+      PSI_CSSRS_ITEMS.forEach(item => {
+        const val = d.psi.cssrs[item.id];
+        if (val !== undefined) {
+          item.opts.forEach((opt, j) => {
+            const id = `cssrs_${item.id}_${j}`;
+            const el = document.getElementById(id);
+            if (el) el.checked = (val === j);
+          });
+        }
+      });
+      updatePsiCssrsSummary();
+    }
+    // PSI DES-T
+    if (d.psi && Array.isArray(d.psi.dest)) {
+      d.psi.dest.forEach((val, i) => {
+        PSI_DEST_OPTS.forEach((opt, j) => {
+          const id = `dest_${i}_${j}`;
+          const el = document.getElementById(id);
+          if (el) el.checked = (val === j);
+        });
+      });
+      updatePsiDestSummary();
+    }
+    // PSI MoCA
+    if (d.psi && d.psi.moca !== undefined) {
+      const el = document.getElementById('mocaScore');
+      if (el) { el.value = d.psi.moca; updatePsiMocaSummary(); }
+    }
+    // SF
+    if (d.sf) {
+      Object.entries(d.sf).forEach(([k, v]) => {
+        const el = document.getElementById(k);
+        if (el && el.tagName === 'SELECT') el.value = v;
+        else if (el && el.tagName === 'TEXTAREA') el.value = v;
+        else if (el && el.tagName === 'INPUT') el.value = v;
+      });
+      updateSexFunctionVisibility();
+    }
+  } catch (_) {}
+}
+document.getElementById('assessmentForm').addEventListener('change', saveToLocalStorage);
+
+// ── DOMContentLoaded ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // set today's date
+  const today = new Date().toISOString().slice(0, 10);
+  const dateEl = document.getElementById('assessmentDate');
+  if (dateEl && !dateEl.value) dateEl.value = today;
+
+  // render dynamic sections
+  renderDogSection();
+  renderSleepSection();
+  renderPsiSection();
+
+  // SF visibility listeners
+  const sfPhantomSex = document.getElementById('sfPhantomSex');
+  if (sfPhantomSex) sfPhantomSex.addEventListener('change', updateSexFunctionVisibility);
+  const sfPainDuringSex = document.getElementById('sfPainDuringSex');
+  if (sfPainDuringSex) sfPainDuringSex.addEventListener('change', updateSexFunctionVisibility);
+
+  updateSexFunctionVisibility();
+
+  // activate first tab
+  const firstTab = document.querySelector('.section-tab');
+  if (firstTab) firstTab.click();
+
+  // load saved data
+  loadFromLocalStorage();
+});
+
+    </script>
+</body>
+</html>
