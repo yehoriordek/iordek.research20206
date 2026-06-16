@@ -1458,10 +1458,20 @@ _nickInput.addEventListener('input', function() {
   hideSuggestions();
   if (val.length < 2) return;
   clearTimeout(_suggestTimer);
-  if (!cachedApiKey) return;
+  _nickList.innerHTML = '<li style="padding:8px 12px;color:#888;font-size:13px">Пошук…</li>';
+  _nickList.style.display = 'block';
   _suggestTimer = setTimeout(async () => {
-    const suggestions = await fetchNicknameSuggestions(cachedApiKey, val);
-    showSuggestions(suggestions);
+    const key = cachedApiKey || '';
+    if (!key) {
+      showSuggestions([{ value:'', label:'⚠️ Ключ не знайдено', _error:true }]);
+      return;
+    }
+    const suggestions = await fetchNicknameSuggestions(key, val);
+    if (!suggestions.length) {
+      showSuggestions([{ value:'', label:'Нічого не знайдено', _error:true }]);
+    } else {
+      showSuggestions(suggestions);
+    }
   }, 300);
 });
 _nickInput.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
