@@ -1098,13 +1098,13 @@
             // Пошук за прізвищем (ПІБ)
             const safe=nickname.replace(/"/g,'');
             const formula2=encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
-            const r2=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula2}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&maxRecords=5`,{headers:{'Authorization':`Bearer ${apiKey}`}});
+            const r2=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula2}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldazid9CI3kk8Ouw&maxRecords=5`,{headers:{'Authorization':`Bearer ${apiKey}`}});
             if(!r2.ok) return null;
             const d2=await r2.json();
             if(d2.records.length===1) return d2.records[0].id;
             if(d2.records.length>1){
-                const names=d2.records.map(r=>`${r.fields['fldc7W3fLYZxuBnDQ']||'?'} (${r.fields['fldyUD3kFFZNJmbPF']||'?'})`).join(', ');
-                throw new Error(`Знайдено кількох учасників: ${names}. Уточніть прізвище або введіть точний Study ID.`);
+                const names=d2.records.map(r=>{const age=r.fields['fldazid9CI3kk8Ouw'];return `${r.fields['fldc7W3fLYZxuBnDQ']||'?'}${age!=null?', '+age+' р.':''} (${r.fields['fldyUD3kFFZNJmbPF']||'?'})`;}).join('\n• ');
+                throw new Error(`Знайдено кількох учасників:\n• ${names}\n\nУточніть прізвище або введіть точний Study ID.`);
             }
             return null;
         }
