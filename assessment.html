@@ -1056,19 +1056,24 @@
             return new TextDecoder().decode(plaintext);
         }
 
-        let cachedApiKey = atob('cGF0cnRadjVxbEppZmJNaUIuZjI5MDZjNGI1ZGExYzE5MGMxYzRkMjAxNmJhZjgzYjg4NWI4ZDJlZjVlYmExNGQzYjRiMTkzZmZhMTgwMTA5MA==');
+        let cachedApiKey = atob('cGF0Um80SFVPdnN4NTlGZ2IuNjM3YWE3NjNmNGMxZmVmZjg0ZGM5OTlhMGIwMjllNGViYjM0YThlYzQ1MzI3ZWZiNWJiMTAzNDIxNDRkMmI4YQ==');
         if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
         let _passwordCallback = null;
 
         async function fetchNicknameSuggestions(apiKey, query) {
             const safe = query.replace(/"/g, '');
             const formula = encodeURIComponent(`OR(SEARCH(LOWER("${safe}"),LOWER({ПІБ})),SEARCH(LOWER("${safe}"),LOWER({Study ID})))`);
-            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&maxRecords=10`;
+            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=10`;
             try {
                 const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
                 if (!r.ok) return [];
                 const data = await r.json();
-                return data.records.map(rec => rec.fields['fldyUD3kFFZNJmbPF'] || rec.fields['fldc7W3fLYZxuBnDQ'] || '').filter(Boolean);
+                return data.records.map(rec => {
+                    const name = rec.fields['fldyUD3kFFZNJmbPF'] || rec.fields['fldc7W3fLYZxuBnDQ'] || '';
+                    const dob = rec.fields['fldhSmAshVfZmuC63'] || '';
+                    const dobFormatted = dob ? new Date(dob).toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'}) : '';
+                    return name ? { value: name, label: dobFormatted ? `${name} (${dobFormatted})` : name } : null;
+                }).filter(Boolean);
             } catch { return []; }
         }
 
@@ -1431,11 +1436,12 @@ function hideSuggestions() { _nickList.style.display = 'none'; _nickList.innerHT
 function showSuggestions(items) {
   if (!items.length) { hideSuggestions(); return; }
   _nickList.innerHTML = items.map(s =>
-    `<li style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee">${s.replace(/&/g,'&amp;')}</li>`
+    `<li data-value="${(s.value||s).replace(/"/g,'&quot;')}" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee">${(s.label||s.value||s).replace(/&/g,'&amp;')}</li>`
   ).join('');
   _nickList.querySelectorAll('li').forEach(li => {
-    li.addEventListener('mousedown', e => { e.preventDefault(); _nickInput.value = li.textContent; hideSuggestions(); updateStageOptions(li.textContent); });
-    li.addEventListener('touchstart', e => { e.preventDefault(); _nickInput.value = li.textContent; hideSuggestions(); updateStageOptions(li.textContent); });
+    const val = li.dataset.value;
+    li.addEventListener('mousedown', e => { e.preventDefault(); _nickInput.value = val; hideSuggestions(); updateStageOptions(val); });
+    li.addEventListener('touchstart', e => { e.preventDefault(); _nickInput.value = val; hideSuggestions(); updateStageOptions(val); });
   });
   _nickList.style.display = 'block';
 }
