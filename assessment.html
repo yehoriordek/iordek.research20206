@@ -1351,7 +1351,9 @@ function showError(msg) {
 // ── Password dialog ───────────────────────────────────────────────────────────
 function openPasswordDialog() {
   document.getElementById('airtablePassword').value = '';
-  document.getElementById('passwordError').textContent = '';
+  const errEl = document.getElementById('passwordError');
+  errEl.textContent = '';
+  errEl.style.display = 'none';
   document.getElementById('passwordOverlay').style.display = 'flex';
   document.getElementById('airtablePassword').focus();
 }
@@ -1374,7 +1376,9 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
     showSuccess('Запис збережено успішно.');
     localStorage.removeItem('assessmentFormData');
   } catch (e) {
-    document.getElementById('passwordError').textContent = e.message || 'Помилка збереження';
+    const errEl = document.getElementById('passwordError');
+    errEl.textContent = e.message || 'Помилка збереження';
+    errEl.style.display = 'block';
     document.getElementById('passwordConfirm').disabled = false;
     document.getElementById('passwordConfirm').textContent = 'Зберегти';
   }
