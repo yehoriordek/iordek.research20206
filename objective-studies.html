@@ -420,7 +420,8 @@
         <form id="objectiveStudiesForm">
             <div class="form-group">
                 <label for="osNickname">Study ID або прізвище учасника <span class="required">*</span></label>
-                <input type="text" id="osNickname" required>
+                <input type="text" id="osNickname" required autocomplete="off" list="osNicknameSuggestions">
+                <datalist id="osNicknameSuggestions"></datalist>
             </div>
 
             <div class="form-group">
@@ -465,8 +466,8 @@
 
     <div class="password-overlay" id="passwordOverlay">
         <div class="password-dialog">
-            <h2>Збереження в Airtable</h2>
-            <p>Введіть пароль для розблокування доступу до Airtable.</p>
+            <h2 id="passwordDialogTitle">Збереження в Airtable</h2>
+            <p id="passwordDialogDesc">Введіть пароль для розблокування доступу до Airtable.</p>
             <div class="form-group">
                 <input type="password" id="airtablePassword" placeholder="Пароль">
             </div>
@@ -714,7 +715,26 @@
             }
         }
 
-        function openPasswordDialog() {
+        let cachedApiKey = null;
+        let _passwordCallback = null;
+
+        async function fetchNicknameSuggestions(apiKey, query) {
+            const safe = query.replace(/"/g, '');
+            const formula = encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
+            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&maxRecords=10`;
+            try {
+                const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+                if (!r.ok) return [];
+                const data = await r.json();
+                return data.records.map(rec => rec.fields['fldc7W3fLYZxuBnDQ'] || '').filter(Boolean);
+            } catch { return []; }
+        }
+
+        function openPasswordDialog(callback) {
+            _passwordCallback = callback || null;
+            document.getElementById('passwordDialogTitle').textContent = callback ? 'Доступ до Airtable' : 'Збереження в Airtable';
+            document.getElementById('passwordDialogDesc').textContent = callback ? 'Введіть пароль для пошуку учасників.' : 'Введіть пароль для розблокування доступу до Airtable.';
+            document.getElementById('passwordConfirm').textContent = callback ? 'Розблокувати' : 'Зберегти';
             passwordInput.value = '';
             passwordError.style.display = 'none';
             passwordOverlay.classList.add('visible');
@@ -734,11 +754,24 @@
 
             passwordError.style.display = 'none';
             passwordConfirm.disabled = true;
+            passwordConfirm.textContent = _passwordCallback ? 'Розблокування…' : 'Збереження…';
 
             try {
                 const apiKey = await decryptAirtableKey(password);
+                cachedApiKey = apiKey;
+                if (_passwordCallback) {
+                    closePasswordDialog();
+                    passwordConfirm.disabled = false;
+                    passwordConfirm.textContent = 'Зберегти';
+                    const cb = _passwordCallback;
+                    _passwordCallback = null;
+                    cb(apiKey);
+                    return;
+                }
                 await saveObjectiveStudyEntry(apiKey, getFormData());
                 closePasswordDialog();
+                passwordConfirm.disabled = false;
+                passwordConfirm.textContent = 'Зберегти';
                 showSuccess();
                 localStorage.removeItem('objectiveStudiesFormData');
                 // Скидаємо форму та список файлів
@@ -751,6 +784,7 @@
                     ? err.message
                     : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
                 passwordError.style.display = 'block';
+                passwordConfirm.textContent = 'Зберегти';
             } finally {
                 passwordConfirm.disabled = false;
             }
@@ -777,6 +811,26 @@
 
         // Зберегти в localStorage при змінах
         form.addEventListener('change', saveToLocalStorage);
+
+        let _suggestTimer = null;
+        document.getElementById('osNickname').addEventListener('input', async function() {
+            const val = this.value.trim();
+            const dl = document.getElementById('osNicknameSuggestions');
+            dl.innerHTML = '';
+            if (val.length < 2) return;
+            if (!cachedApiKey) {
+                openPasswordDialog(async (apiKey) => {
+                    const suggestions = await fetchNicknameSuggestions(apiKey, val);
+                    dl.innerHTML = suggestions.map(s => `<option value="${s.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">`).join('');
+                });
+                return;
+            }
+            clearTimeout(_suggestTimer);
+            _suggestTimer = setTimeout(async () => {
+                const suggestions = await fetchNicknameSuggestions(cachedApiKey, val);
+                dl.innerHTML = suggestions.map(s => `<option value="${s.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">`).join('');
+            }, 300);
+        });
 
         // Завантажити дані з localStorage при відкритті
         window.addEventListener('load', function() {
