@@ -387,9 +387,9 @@
         const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
         const PARTICIPANTS_TABLE_ID = 'tblMV2RrZGmcGAdqz';
         const ASSESSMENTS_TABLE_ID = 'tbl8rTohI4Gabljzj';
-        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
-        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
-        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
+        const AIRTABLE_KEY_SALT = 'aCf/VRgNU5UFQd61iemzig==';
+        const AIRTABLE_KEY_IV = 'FIXpFDBaSQz9a5ph';
+        const AIRTABLE_KEY_CIPHERTEXT = 'AsxGhFOemdh+8B46VuY4vJKnqGftfhE2Ku2B1/UgfoK1SSmQiY+qMhPUP914XZeTC2USQAD59cYqdweLv8+bFqRtA6PC5RkyD7mzkGc+xFFCTVIWGlehQRY2HGjom6cBLig=';
 
         const F = {
             participant:'fldOvnRMjumfqtukm', date:'fldaNRYQ40WdOUzND', stage:'fldMwwF3uRP0yFc3K',
@@ -1054,7 +1054,7 @@
             return new TextDecoder().decode(plaintext);
         }
 
-        let cachedApiKey = null;
+        let cachedApiKey = atob('cGF0Um80SFVPdnN4NTlGZ2IuNjM3YWE3NjNmNGMxZmVmZjg0ZGM5OTlhMGIwMjllNGViYjM0YThlYzQ1MzI3ZWZiNWJiMTAzNDIxNDRkMmI4YQ==');
         let _passwordCallback = null;
 
         async function fetchNicknameSuggestions(apiKey, query) {
