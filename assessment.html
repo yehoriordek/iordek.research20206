@@ -1213,7 +1213,7 @@
             addIfValue(fields,F.dogDominant,dominantByScore);
             if(concordance!==null) fields[F.dogJaccard]=Math.round(concordance*100)/100;
             addIfValue(fields,F.dogDominantByDesc,dominantByDesc);
-            fields[F.dogDescAgreement]=dominantByScore===dominantByDesc?'збігається':'розбіжність';
+            fields[F.dogDescAgreement]=dominantByScore===dominantByDesc?'Збігається':'Розбіжність';
 
             // Sleep A
             SLEEP_QUESTIONS_A.forEach((q,i)=>{
