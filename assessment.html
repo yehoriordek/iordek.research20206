@@ -1056,7 +1056,7 @@
             return new TextDecoder().decode(plaintext);
         }
 
-        let cachedApiKey = atob('cGF0cnRadjVxbEppZmJNaUIuZjI5MDZjNGI1ZGExYzE5MGMxYzRkMjAxNmJhZjgzYjg4NWI4ZDJlZjVlYmExNGQzYjRiMTkzZmZhMTgwMTA5MA==');
+        let cachedApiKey = null;
         let _passwordCallback = null;
 
         async function fetchNicknameSuggestions(apiKey, query) {
@@ -1441,8 +1441,15 @@ function showSuggestions(items) {
 _nickInput.addEventListener('input', function() {
   const val = this.value.trim();
   hideSuggestions();
-  if (val.length < 2 || !cachedApiKey) return;
+  if (val.length < 2) return;
   clearTimeout(_suggestTimer);
+  if (!cachedApiKey) {
+    openPasswordDialog(async (apiKey) => {
+      const suggestions = await fetchNicknameSuggestions(apiKey, _nickInput.value.trim());
+      showSuggestions(suggestions);
+    });
+    return;
+  }
   _suggestTimer = setTimeout(async () => {
     const suggestions = await fetchNicknameSuggestions(cachedApiKey, val);
     showSuggestions(suggestions);
