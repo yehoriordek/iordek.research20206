@@ -2051,6 +2051,7 @@ Email: yehor.iordek@gmail.com
 
             try {
                 const apiKey = await decryptAirtableKey(password);
+                sessionStorage.setItem('atKey', apiKey);
 
                 if (pendingAction === 'load') {
                     const nickname = document.getElementById('patientNickname').value;

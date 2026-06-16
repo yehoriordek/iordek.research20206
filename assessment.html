@@ -389,9 +389,9 @@
         const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
         const PARTICIPANTS_TABLE_ID = 'tblMV2RrZGmcGAdqz';
         const ASSESSMENTS_TABLE_ID = 'tbl8rTohI4Gabljzj';
-        const AIRTABLE_KEY_SALT = 'ATSO8dh7L51irJjjT4tLAQ==';
-        const AIRTABLE_KEY_IV = 'BZGWiJFfMODA6pRg';
-        const AIRTABLE_KEY_CIPHERTEXT = 'V3ZixROZ/vEPKuJtxGCPc78lfOuS+1vZ1T7Jl3g8QRKetjTslvNQab+pzOlkhuHzNe/8oU8e8YfnzSyrQFL3SWBg910eUm6tGhqxNgwIbP7DrN+FXRZVwq1Nrj+fbPRy1cA=';
+        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
+        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
+        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
 
         const F = {
             participant:'fldOvnRMjumfqtukm', date:'fldaNRYQ40WdOUzND', stage:'fldMwwF3uRP0yFc3K',
@@ -1057,6 +1057,7 @@
         }
 
         let cachedApiKey = null;
+        if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
         let _passwordCallback = null;
 
         async function fetchNicknameSuggestions(apiKey, query) {
@@ -1389,6 +1390,7 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
   try {
     const apiKey = await decryptAirtableKey(pw);
     cachedApiKey = apiKey;
+    sessionStorage.setItem('atKey', apiKey);
     if (_passwordCallback) {
       closePasswordDialog();
       document.getElementById('passwordConfirm').disabled = false;
@@ -1443,13 +1445,7 @@ _nickInput.addEventListener('input', function() {
   hideSuggestions();
   if (val.length < 2) return;
   clearTimeout(_suggestTimer);
-  if (!cachedApiKey) {
-    openPasswordDialog(async (apiKey) => {
-      const suggestions = await fetchNicknameSuggestions(apiKey, _nickInput.value.trim());
-      showSuggestions(suggestions);
-    });
-    return;
-  }
+  if (!cachedApiKey) return;
   _suggestTimer = setTimeout(async () => {
     const suggestions = await fetchNicknameSuggestions(cachedApiKey, val);
     showSuggestions(suggestions);
