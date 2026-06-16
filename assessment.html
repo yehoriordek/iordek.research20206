@@ -1425,13 +1425,7 @@ document.getElementById('assessmentNickname').addEventListener('input', async fu
   const dl = document.getElementById('nicknameSuggestions');
   dl.innerHTML = '';
   if (val.length < 2) return;
-  if (!cachedApiKey) {
-    openPasswordDialog(async (apiKey) => {
-      const suggestions = await fetchNicknameSuggestions(apiKey, val);
-      dl.innerHTML = suggestions.map(s => `<option value="${s.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">`).join('');
-    });
-    return;
-  }
+  if (!cachedApiKey) return;
   clearTimeout(_suggestTimer);
   _suggestTimer = setTimeout(async () => {
     const suggestions = await fetchNicknameSuggestions(cachedApiKey, val);
