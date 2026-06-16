@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета пацієнта</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .print-mode-toggle {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-mode-toggle input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .age-display {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: #229954;
+        }
+
+        .btn-reset {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-new {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-new:hover {
+            background-color: #2980b9;
+        }
+
+        .success-message {
+            display: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        .print-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .print-checkbox-group.print-only {
+            display: none;
+        }
+
+        .print-checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .print-checkbox-box {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #000;
+            flex-shrink: 0;
+        }
+
+        .chips-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #2c3e50;
+            transition: all 0.2s;
+        }
+
+        .chip input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+        .chip:has(input:checked) {
+            background-color: #3498db;
+            color: #fff;
+            border-color: #3498db;
+        }
+
+        .chip.toggle:has(input:checked) {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+
+        .section-hint {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .file-list {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .file-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 4px 8px;
+            background: #f4f6f7;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .file-list-item button {
+            background: none;
+            border: none;
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 0 4px;
+        }
+
+        .consent-text {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-line;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 15px;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .screen-hidden {
+            display: none;
+        }
+
+        .step-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 6px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .step-tab {
+            flex: 0 0 auto;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 16px;
+            white-space: nowrap;
+        }
+
+        .step-tab:hover {
+            background-color: #d5dbdb;
+        }
+
+        .step-tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .sub-step-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 6px;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .sub-step-tab {
+            flex: 0 0 auto;
+            background-color: #f4f6f7;
+            color: #2c3e50;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 14px;
+            white-space: nowrap;
+            border: 1px solid #ecf0f1;
+        }
+
+        .sub-step-tab:hover {
+            background-color: #ecf0f1;
+        }
+
+        .sub-step-tab.active {
+            background-color: #5dade2;
+            color: white;
+            border-color: #5dade2;
+        }
+
+        .sub-step {
+            display: none;
+        }
+
+        .sub-step.active {
+            display: block;
+        }
+
+        .form-step-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .form-step-nav button {
+            flex: 1;
+        }
+
+        .btn-step-prev,
+        .btn-step-next {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-step-prev:hover,
+        .btn-step-next:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-step-prev:disabled,
+        .btn-step-next:disabled {
+            background-color: #bdc3c7;
+            cursor: default;
+        }
+
+        /* Режим друку */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .print-mode-toggle,
+            .button-group,
+            .success-message {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px 0;
+            }
+
+            .screen-only {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .print-checkbox-group.print-only {
+                display: flex !important;
+            }
+
+            .screen-hidden {
+                display: block !important;
+            }
+
+            .form-step {
+                display: block !important;
+            }
+
+            .step-tabs,
+            .form-step-nav {
+                display: none !important;
+            }
+
+            input[type="text"],
+            select,
+            textarea {
+                border: none;
+                border-bottom: 1px solid #000;
+                padding: 8px 0;
+                margin-bottom: 20px;
+            }
+
+            input[type="text"]:focus,
+            select:focus,
+            textarea:focus {
+                box-shadow: none;
+                border-bottom: 1px dashed #000;
+            }
+
+            input[type="text"]::placeholder,
+            textarea::placeholder {
+                color: transparent;
+            }
+
+            label {
+                font-size: 12px;
+            }
+        }
+
+        /* Режим друку - визуальна імітація */
+        body.print-layout .container {
+            background-color: #fff;
+            box-shadow: none;
+            padding: 20px;
+        }
+
+        body.print-layout .screen-only {
+            display: none;
+        }
+
+        body.print-layout .print-only {
+            display: block;
+        }
+
+        body.print-layout .print-checkbox-group.print-only {
+            display: flex;
+        }
+
+        body.print-layout .screen-hidden {
+            display: block;
+        }
+
+        body.print-layout .form-step {
+            display: block !important;
+        }
+
+        body.print-layout .step-tabs,
+        body.print-layout .sub-step-tabs,
+        body.print-layout .form-step-nav {
+            display: none !important;
+        }
+
+        body.print-layout .sub-step {
+            display: block !important;
+        }
+
+        body.print-layout input[type="text"],
+        body.print-layout select {
+            border: none;
+            border-bottom: 2px solid #000;
+            padding: 8px 0;
+            background-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        body.print-layout input[type="text"]:focus,
+        body.print-layout select:focus {
+            box-shadow: none;
+            border-bottom-style: dashed;
+        }
+
+        body.print-layout input[type="text"]::placeholder {
+            color: transparent;
+        }
+
+        body.print-layout .button-group {
+            display: none;
+        }
+
+        body.print-layout .print-mode-toggle {
+            display: flex;
+        }
+
+        /* Модальне вікно для пароля */
+        .password-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .password-overlay.visible {
+            display: flex;
+        }
+
+        .password-dialog {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .password-dialog h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .password-dialog p {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .password-error {
+            display: none;
+            color: #e74c3c;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            display: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-mode-toggle">
+        <label>
+            <input type="checkbox" id="printModeToggle">
+            Режим друку
+        </label>
+    </div>
+
+    <div class="container">
+        <h1>Анкета пацієнта</h1>
+
+        <div class="success-message" id="successMessage">
+            ✓ Дані успішно збережені в Airtable!
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="patientForm">
+            <div class="step-tabs screen-only" id="stepTabs">
+                <button type="button" class="step-tab" data-step-tab="1">ID</button>
+                <button type="button" class="step-tab" data-step-tab="2">Ампутація</button>
+                <button type="button" class="step-tab" data-step-tab="3">Біль/Генез</button>
+            </div>
+
+            <div class="form-step" data-step="1">
+
+            <div class="form-group">
+                <label for="patientFullName">
+                    ПІБ пацієнта
+                </label>
+                <input
+                    type="text"
+                    id="patientFullName"
+                    name="patient_full_name"
+                    placeholder="Прізвище Ім'я По батькові"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="patientGender">
+                    Стать пацієнта
+                    <span class="required">*</span>
+                </label>
+                <select id="patientGender" name="patient_gender" class="screen-only" required>
+                    <option value="">-- Виберіть --</option>
+                    <option value="M">Чоловіча</option>
+                    <option value="F">Жіноча</option>
+                </select>
+                <div class="print-checkbox-group print-only" aria-label="Варіанти статі для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Чоловіча</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Жіноча</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="patientBirthdate">
+                    Дата народження пацієнта
+                </label>
+                <input
+                    type="date"
+                    id="patientBirthdate"
+                    name="patient_birthdate"
+                    class="screen-only"
+                >
+                <div class="age-display screen-only" id="patientAgeDisplay"></div>
+                <input
+                    type="text"
+                    class="print-only"
+                    placeholder="дд.мм.рррр"
+                    aria-label="Дата народження пацієнта (дд.мм.рррр)"
+                >
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patientNickname">
+                        Study ID
+                        <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="patientNickname"
+                        name="patient_nickname"
+                        placeholder="Напр., P-001 або C-001"
+                        required
+                    >
+                    <button type="button" class="btn-new screen-only" id="loadPatientBtn" style="margin-top: 8px;">Завантажити дані пацієнта</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientWard">№ палати</label>
+                    <input type="text" id="patientWard" name="patient_ward" placeholder="Напр., 12">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="personType">Тип учасника</label>
+                <select id="personType" name="person_type" class="screen-only">
+                    <option value="">-- Виберіть --</option>
+                    <option value="Пацієнт">Пацієнт</option>
+                    <option value="Контроль">Контроль</option>
+                    <option value="Обидва">Обидва</option>
+                </select>
+                <div class="print-checkbox-group print-only" aria-label="Тип учасника для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Пацієнт</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Контроль</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Обидва</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Наявність феноменів</label>
+                <div class="chips-group screen-only">
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasAmputation" name="has_amputation">
+                        <span>Ампутація</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasFB" name="has_fb">
+                        <span>Фантомний біль</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasFV" name="has_fv">
+                        <span>Фантомні відчуття</span>
+                    </label>
+                    <label class="chip toggle">
+                        <input type="checkbox" id="hasBK" name="has_bk">
+                        <span>Біль кукси</span>
+                    </label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Наявність феноменів для друку">
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Ампутація</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Фантомний біль</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Фантомні відчуття</span>
+                    </div>
+                    <div class="print-checkbox-option">
+                        <span class="print-checkbox-box" aria-hidden="true"></span>
+                        <span>Біль кукси</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="patientComplaints">Скарги</label>
+                <textarea id="patientComplaints" name="patient_complaints" rows="3" placeholder="Опишіть скарги пацієнта"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Дослідницька згода</label>
+                <div class="chips-group screen-only">
+                    <label class="chip toggle">
+                        <input type="checkbox" id="researchConsent" name="research_consent">
+                        <span>Згода надана</span>
+                    </label>
+                </div>
+                <div class="print-checkbox-group print-only">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Згода надана</span></div>
+                </div>
+                <div class="section-hint">Пункти, на які поширюється згода:</div>
+                <div class="chips-group screen-only" id="consentItemsChips">
+                    <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
+                    <label class="chip"><input type="checkbox" value="Аудіозапис"><span>Аудіозапис</span></label>
+                    <label class="chip"><input type="checkbox" value="Використання цитат"><span>Використання цитат</span></label>
+                    <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
+                    <label class="chip"><input type="checkbox" value="Анонімізовані дані"><span>Анонімізовані дані</span></label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Пункти згоди для друку">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання цитат</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Анонімізовані дані</span></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="researchConfidence">Впевненість дослідника</label>
+                <select id="researchConfidence" name="research_confidence" class="screen-only">
+                    <option value="">-- Виберіть --</option>
+                    <option value="Низька">Низька</option>
+                    <option value="Помірна">Помірна</option>
+                    <option value="Висока">Висока</option>
+                </select>
+                <div class="print-checkbox-group print-only" aria-label="Впевненість дослідника для друку">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Низька</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Помірна</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Висока</span></div>
+                </div>
+            </div>
+
+            <div id="consentSection">
+                <h2 class="section-title">Інформована згода</h2>
+
+                <div class="consent-text">
+ІНФОРМОВАНА ЗГОДА
+на участь у науковому дослідженні та обробку персональних даних
+
+Дослідник: Іордек Єгор Борисович, психолог
+Установа: Військова частина А4799
+Контакти: тел. 096-119-40-20, yehor.iordek@gmail.com
+
+1. НАЗВА ДОСЛІДЖЕННЯ
+«Клінічне дослідження постампутаційного синдрому та коморбідних розладів: генез, симптоматика, діагностика та терапія»
+
+Дослідження включає розробку та валідацію авторських діагностичних інструментів (опитувальник ДОГ ФБіФВ, тести диференціації генезу болю/відчуттів, скринінг порушень сну) у складі єдиної дослідницької програми.
+
+2. МЕТА ДОСЛІДЖЕННЯ
+Вивчення клінічних характеристик фантомного болю, фантомних відчуттів, болю кукси, психологічного стану та супутніх розладів (ПТСР, тривога, депресія, інсомнія, дисоціація, когнітивний дефіцит) у військовослужбовців з ампутацією кінцівок, а також валідація авторських діагностичних опитувальників та тестів для визначення генезу болю і відчуттів, з метою розробки ефективних методів діагностики та лікування.
+
+3. ЯКІ ДАНІ ЗБИРАЮТЬСЯ
+Демографічні дані (вік, стать, військова частина), медичні дані (рівень та характер ампутації, больовий профіль, генез болю, патології кукси), результати авторських тестів і опитувальників для визначення генезу болю та відчуттів (включно з ДОГ ФБіФВ), дані скринінгу сну, результати психологічних тестів (PCL-5, HADS, AIS, DN-4, MoCA, DES-T, C-SSRS, LEC-5), дані про сексуальну функцію, об'єктивні дослідження, заключення та рекомендації.
+
+4. ПОРЯДОК ЗБЕРІГАННЯ ТА ЗАХИСТУ ДАНИХ
+Усі дані зберігаються локально на захищеному пристрої дослідника. Дані знеособлюються перед будь-яким аналізом або публікацією — ваше ім'я та особисті ідентифікатори не з'являться в жодному звіті чи науковій публікації. Передача даних третім особам не здійснюється.
+
+5. ВИКОРИСТАННЯ ДАНИХ
+Зібрані дані можуть використовуватися виключно в наукових та освітніх цілях: для статистичного аналізу, підготовки наукових публікацій, дисертаційного дослідження, валідації діагностичних інструментів та розробки клінічних рекомендацій. Усі публікації відповідають вимогам Гельсінської декларації WMA щодо етичних принципів медичних досліджень за участю людини та Закону України «Про захист персональних даних» №2297-VI.
+
+6. ДОБРОВІЛЬНІСТЬ УЧАСТІ
+Ваша участь є повністю добровільною. Ви маєте право:
+— відмовитися від участі в дослідженні без будь-яких наслідків;
+— відкликати цю згоду в будь-який момент, звернувшись до дослідника;
+— відмовитися відповідати на будь-яке питання без пояснення причин;
+— відмовитися від участі в окремих розділах анкети (зокрема валідаційних тестах) без впливу на вашу участь в інших розділах.
+Відмова від участі жодним чином не вплине на якість надання вам медичної та психологічної допомоги.
+
+7. ФОТО-, ВІДЕО- ТА АУДІОМАТЕРІАЛИ
+У ході дослідження можуть здійснюватися фото- та відеозйомка виконання тестів, вправ та об'єктивних досліджень (зокрема ділянки кукси, суглобів, рухових тестів), а також аудіозапис інтерв'ю. Зйомка обличчя та інших ідентифікуючих ознак (татуювання, шрами поза зоною дослідження, документи, особисті речі з іменем тощо) не здійснюється; за потреби такі фрагменти видаляються або кадруються перед збереженням. Отримані матеріали зберігаються знеособлено та можуть використовуватися виключно в наукових та освітніх цілях (публікації, навчальні матеріали) без можливості ідентифікації вашої особи.
+
+8. КОНТАКТИ
+З будь-яких питань щодо дослідження звертайтесь:
+Іордек Єгор Борисович
+Тел.: 096-119-40-20
+Email: yehor.iordek@gmail.com
+                </div>
+
+                <div class="form-group">
+                    <label>Дослідницька згода (окремі дозволи) <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                    <div class="chips-group screen-only" id="consentResearchItemsChips">
+                        <label class="chip"><input type="checkbox" value="Участь у дослідженні"><span>Участь у дослідженні</span></label>
+                        <label class="chip"><input type="checkbox" value="Аудіозапис інтерв'ю"><span>Аудіозапис інтерв'ю</span></label>
+                        <label class="chip"><input type="checkbox" value="Використання знеособлених цитат"><span>Використання знеособлених цитат</span></label>
+                        <label class="chip"><input type="checkbox" value="Повторний контакт"><span>Повторний контакт</span></label>
+                        <label class="chip"><input type="checkbox" value="Знеособлене зберігання та аналіз даних"><span>Знеособлене зберігання та аналіз даних</span></label>
+                        <label class="chip"><input type="checkbox" value="Фото/відео без обличчя та ідентифікуючих ознак (для наукових/освітніх матеріалів)"><span>Фото/відео без обличчя та ідентифікуючих ознак (для наукових/освітніх матеріалів)</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Дослідницькі дозволи для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Участь у дослідженні</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Аудіозапис інтерв'ю</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Використання знеособлених цитат</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Повторний контакт</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Знеособлене зберігання та аналіз даних</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Фото/відео без обличчя та ідентифікуючих ознак (для наукових/освітніх матеріалів)</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="consent_given">Чи надана згода на участь у дослідженні?</label>
+                    <select id="consent_given" class="screen-only">
+                        <option value="">—</option>
+                        <option value="Так">Так</option>
+                        <option value="Ні">Ні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Згода надана для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="consent_date">Дата підписання</label>
+                    <input type="date" id="consent_date" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата підписання (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group print-only">
+                    <label>Підпис пацієнта</label>
+                    <div class="signature-line"></div>
+                </div>
+            </div>
+
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="2">
+            <div id="amputationSection" class="screen-hidden">
+                <h2 class="section-title">Ампутація — рівень та деталі</h2>
+
+                <div id="ampLimbsContainer"></div>
+
+                <div class="form-group">
+                    <label>RPNI / TMR</label>
+                    <div class="chips-group screen-only">
+                        <label class="chip toggle">
+                            <input type="checkbox" id="rpni">
+                            <span>RPNI виконано</span>
+                        </label>
+                        <label class="chip toggle">
+                            <input type="checkbox" id="tmr">
+                            <span>TMR виконано</span>
+                        </label>
+                    </div>
+                    <div class="print-checkbox-group print-only">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>RPNI виконано</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>TMR виконано</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ampType">Тип ампутації</label>
+                    <input type="text" id="ampType" placeholder="Напр., травматична, вторинна">
+                </div>
+
+                <div class="form-group">
+                    <label for="injDate">Дата поранення</label>
+                    <input type="date" id="injDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата поранення (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group">
+                    <label for="ampDate">Дата ампутації</label>
+                    <input type="date" id="ampDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата ампутації (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group">
+                    <label for="admDate">Дата госпіталізації</label>
+                    <input type="date" id="admDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата госпіталізації (дд.мм.рррр)">
+                </div>
+
+                <div class="form-group">
+                    <label for="reampDate">Дата реампутації (якщо була)</label>
+                    <input type="date" id="reampDate" class="screen-only">
+                    <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата реампутації (дд.мм.рррр)">
+                </div>
+            </div>
+
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+            <div class="form-step" data-step="3">
+            <div id="painGenesisContent" class="screen-hidden">
+
+            <div class="sub-step-tabs screen-only">
+                <button type="button" class="sub-step-tab active" data-substep-tab="pain">Біль</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="stump">Патології кукси</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="genesis">Генез</button>
+                <button type="button" class="sub-step-tab" data-substep-tab="tests">Тести</button>
+            </div>
+
+            <div id="painSection" class="sub-step active" data-substep="pain">
+                <h2 class="section-title">Біль — ФБ, ФВ, біль кукси</h2>
+
+                <div id="painPhenomenaContainer"></div>
+
+                <div class="form-group">
+                    <label>Характер протікання болю</label>
+                    <div class="chips-group screen-only" id="painFlowChips">
+                        <label class="chip"><input type="checkbox" value="Постійний"><span>Постійний</span></label>
+                        <label class="chip"><input type="checkbox" value="Епізодичний (приступоподібний)"><span>Епізодичний (приступоподібний)</span></label>
+                        <label class="chip"><input type="checkbox" value="Хвилеподібний"><span>Хвилеподібний</span></label>
+                        <label class="chip"><input type="checkbox" value="Прогресуючий (посилюється)"><span>Прогресуючий (посилюється)</span></label>
+                        <label class="chip"><input type="checkbox" value="Регресуючий (слабшає)"><span>Регресуючий (слабшає)</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Характер протікання болю для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Постійний</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Епізодичний (приступоподібний)</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Хвилеподібний</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Прогресуючий (посилюється)</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Регресуючий (слабшає)</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="traumMem">Травматичні спогади, пов'язані з болем</label>
+                    <select id="traumMem" class="screen-only">
+                        <option value="">-- Виберіть --</option>
+                        <option value="Присутні">Присутні</option>
+                        <option value="Відсутні">Відсутні</option>
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="Травматичні спогади для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Присутні</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Соматичні реакції на біль</label>
+                    <div class="chips-group screen-only" id="somReactChips">
+                        <label class="chip"><input type="checkbox" value="тахікардія"><span>Тахікардія</span></label>
+                        <label class="chip"><input type="checkbox" value="Підвищення артеріального тиску"><span>Підвищення артеріального тиску</span></label>
+                        <label class="chip"><input type="checkbox" value="Пітливість"><span>Пітливість</span></label>
+                        <label class="chip"><input type="checkbox" value="Тремор"><span>Тремор</span></label>
+                        <label class="chip"><input type="checkbox" value="Нудота"><span>Нудота</span></label>
+                        <label class="chip"><input type="checkbox" value="М'язова напруження"><span>М'язова напруга</span></label>
+                        <label class="chip"><input type="checkbox" value="Прискорене дихання"><span>Прискорене дихання</span></label>
+                        <label class="chip"><input type="checkbox" value="Відсутні"><span>Відсутні</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Соматичні реакції на біль для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тахікардія</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Підвищення артеріального тиску</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Пітливість</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тремор</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Нудота</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>М'язова напруга</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Прискорене дихання</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутні</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stumpPathSection" class="sub-step" data-substep="stump">
+                <h2 class="section-title">Патології кукси</h2>
+
+                <div class="form-group">
+                    <label>Патологія кукси</label>
+                    <div class="chips-group screen-only" id="stumpPathChips">
+                        <label class="chip"><input type="checkbox" value="Невринома"><span>Невринома</span></label>
+                        <label class="chip"><input type="checkbox" value="Гетеротопічна осифікація"><span>Гетеротопічна осифікація</span></label>
+                        <label class="chip"><input type="checkbox" value="Контрактура суглоба"><span>Контрактура суглоба</span></label>
+                        <label class="chip"><input type="checkbox" value="Трофічні зміни шкіри"><span>Трофічні зміни шкіри</span></label>
+                        <label class="chip"><input type="checkbox" value="Набряк"><span>Набряк</span></label>
+                        <label class="chip"><input type="checkbox" value="Виразка/рана"><span>Виразка/рана</span></label>
+                        <label class="chip"><input type="checkbox" value="Інфекція"><span>Інфекція</span></label>
+                        <label class="chip"><input type="checkbox" value="Відсутня"><span>Відсутня</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Патологія кукси для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Невринома</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Гетеротопічна осифікація</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрактура суглоба</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Трофічні зміни шкіри</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Набряк</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Виразка/рана</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Інфекція</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відсутня</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stumpPathNote">Патологія кукси — примітка</label>
+                    <textarea id="stumpPathNote" placeholder="Додаткові деталі щодо патології кукси"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Патологія кукси — джерело виявлення</label>
+                    <div class="chips-group screen-only" id="stumpPathSourceChips">
+                        <label class="chip"><input type="checkbox" value="Скаржа пацієнта"><span>Скарга пацієнта</span></label>
+                        <label class="chip"><input type="checkbox" value="Огляд лікаря"><span>Огляд лікаря</span></label>
+                        <label class="chip"><input type="checkbox" value="Спостереження"><span>Спостереження</span></label>
+                    </div>
+                    <div class="print-checkbox-group print-only" aria-label="Джерело виявлення патології кукси для друку">
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Скарга пацієнта</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Огляд лікаря</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Спостереження</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="genesisDescriptorsSection" class="sub-step" data-substep="genesis">
+                <h2 class="section-title">Генез болю — клінічні ознаки</h2>
+                <div id="genesisDescriptorsContainer"></div>
+            </div>
+
+            <div id="genesisTestsSection" class="sub-step" data-substep="tests">
+                <h2 class="section-title">Тести генезу</h2>
+                <div id="genesisTestsContainer"></div>
+            </div>
+
+
+            </div>
+
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
+            </div>
+            </div>
+
+
+
+            <div class="form-step-nav screen-only">
+                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Зберегти</button>
+                <button type="reset" class="btn-reset">Очистити</button>
+                <button type="button" class="btn-new" id="newPatientBtn">Новий пацієнт</button>
+            </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-dialog">
+            <h2>Доступ до Airtable</h2>
+            <p>Введіть пароль для розблокування доступу до Airtable.</p>
+            <div class="form-group">
+                <input type="password" id="airtablePassword" placeholder="Пароль">
+            </div>
+            <div class="password-error" id="passwordError">Неправильний пароль. Спробуйте ще раз.</div>
+            <div class="button-group">
+                <button type="button" class="btn-submit" id="passwordConfirm">Зберегти</button>
+                <button type="button" class="btn-reset" id="passwordCancel">Скасувати</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Підключення до Airtable (див. data-structure.md)
+        const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
+        const AIRTABLE_TABLE_ID = 'tblMV2RrZGmcGAdqz';
+
+        // Зашифрований API-ключ Airtable (PBKDF2 + AES-256-GCM, пароль вводиться користувачем).
+        // Порожні рядки = шифрування ще не налаштоване.
+        // Як заповнити: .claude/skills/airtable-key-encryption/SKILL.md
+        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
+        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
+        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
+
+        // Відповідність значень поля "Стать" у формі та в Airtable.
+        const GENDER_MAP = {
+            M: 'Чоловік',
+            F: 'Жінка'
+        };
+
+        // Рівні ампутації верхньої та нижньої кінцівки.
+        // sub: true — має третину (в/3, 1/2, н/3)
+        const AMP_LEVELS_UPPER = [
+            { label: 'Міжлопатково-грудна (forequarter)', sub: false },
+            { label: 'Вирахування плеча', sub: false },
+            { label: 'Транс-плечова (вище ліктя)', sub: true },
+            { label: 'Вирахування ліктя', sub: false },
+            { label: 'Транс-радіальна (нижче ліктя)', sub: true },
+            { label: "Вирахування зап'ястка", sub: false },
+            { label: 'Транс-карпальна', sub: false },
+            { label: 'Транс-метакарпальна', sub: false },
+            { label: 'Транс-фалангова (пальці)', sub: false }
+        ];
+
+        const AMP_LEVELS_LOWER = [
+            { label: 'Геміпельвектомія', sub: false },
+            { label: 'Вирахування стегна', sub: false },
+            { label: 'Транс-феморальна (стегно)', sub: true },
+            { label: 'Вирахування колінного суглоба', sub: false },
+            { label: 'Транс-тібіальна (гомілка)', sub: true },
+            { label: 'Вирахування гомілковостопного суглоба (Syme)', sub: false },
+            { label: 'За Шопаром', sub: false },
+            { label: 'За Лісфранком', sub: false },
+            { label: 'Транс-метатарзальна', sub: false },
+            { label: 'Резекція променя стопи', sub: false },
+            { label: 'Палець стопи', sub: false }
+        ];
+
+        const AMP_SUB_OPTIONS = ['в/3', '1/2', 'н/3'];
+
+        // key — використовується для id полів та Airtable (LUE/RUE/LLE/RLE)
+        const AMP_LIMBS = [
+            { key: 'LUE', label: "Ліва верхня кінцівка", airtablePrefix: 'ЛВК', levels: AMP_LEVELS_UPPER },
+            { key: 'RUE', label: "Права верхня кінцівка", airtablePrefix: 'ПВК', levels: AMP_LEVELS_UPPER },
+            { key: 'LLE', label: "Ліва нижня кінцівка", airtablePrefix: 'ЛНК', levels: AMP_LEVELS_LOWER },
+            { key: 'RLE', label: "Права нижня кінцівка", airtablePrefix: 'ПНК', levels: AMP_LEVELS_LOWER }
+        ];
+
+        // Будує блок вибору рівня ампутації для однієї кінцівки (екранний select + друкований список)
+        function renderAmpLimbPicker(limb) {
+            const levelOptions = limb.levels.map(l => `<option value="${l.label}">${l.label}</option>`).join('');
+            const subOptions = AMP_SUB_OPTIONS.map(s => `<option value="${s}">${s}</option>`).join('');
+            const printLevels = limb.levels.map(l =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${l.label}</span></div>`
+            ).join('');
+            const printSubs = AMP_SUB_OPTIONS.map(s =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${s}</span></div>`
+            ).join('');
+
+            return `
+                <div class="form-group">
+                    <label for="amp_${limb.key}_level">${limb.label}</label>
+                    <select id="amp_${limb.key}_level" class="screen-only">
+                        <option value="">Немає ампутації</option>
+                        ${levelOptions}
+                    </select>
+                    <select id="amp_${limb.key}_sub" class="screen-only" style="margin-top: 8px; display: none;">
+                        <option value="">Третина — оберіть рівень з третиною</option>
+                        ${subOptions}
+                    </select>
+                    <div class="print-checkbox-group print-only" aria-label="${limb.label} — рівень ампутації">
+                        ${printLevels}
+                    </div>
+                    <div class="section-hint print-only">Якщо рівень має третину — позначте також:</div>
+                    <div class="print-checkbox-group print-only" aria-label="${limb.label} — третина">
+                        ${printSubs}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAmpLimbPickers() {
+            const container = document.getElementById('ampLimbsContainer');
+            container.innerHTML = AMP_LIMBS.map(renderAmpLimbPicker).join('');
+
+            AMP_LIMBS.forEach(limb => {
+                const levelSelect = document.getElementById(`amp_${limb.key}_level`);
+                const subSelect = document.getElementById(`amp_${limb.key}_sub`);
+                levelSelect.addEventListener('change', () => {
+                    const level = limb.levels.find(l => l.label === levelSelect.value);
+                    if (level && level.sub) {
+                        subSelect.style.display = '';
+                    } else {
+                        subSelect.style.display = 'none';
+                        subSelect.value = '';
+                    }
+                });
+            });
+        }
+
+        // Варіанти добового ритму болю (для ФБ/ФВ/БК)
+        const PAIN_RHYTHM_OPTIONS = ['Вранці', 'Вдень', 'Ввечері', 'Вночі', 'Постійно без змін'];
+
+        // Феномени болю: key — суфікс id полів, hasField — чекбокс наявності, airtablePrefix — префікс назв полів в Airtable
+        const PAIN_PHENOMENA = [
+            { key: 'FB', label: 'Фантомний біль (ФБ)', hasField: 'hasFB', airtablePrefix: 'ФБ' },
+            { key: 'FV', label: 'Фантомні відчуття (ФВ)', hasField: 'hasFV', airtablePrefix: 'ФВ' },
+            { key: 'BK', label: 'Біль кукси (БК)', hasField: 'hasBK', airtablePrefix: 'БК' }
+        ];
+
+        // Будує блок "Локалізація / VAS / Добовий ритм" для одного феномену болю
+        function renderPainPhenomenon(p) {
+            const rhythmChips = PAIN_RHYTHM_OPTIONS.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const rhythmPrint = PAIN_RHYTHM_OPTIONS.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            const vasPrint = Array.from({ length: 11 }, (_, i) =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${i}</span></div>`
+            ).join('');
+
+            return `
+                <div id="painBlock${p.key}">
+                    <h3 class="section-title">${p.label}</h3>
+                    <div class="form-group">
+                        <label for="pain${p.key}Loc">Локалізація</label>
+                        <input type="text" id="pain${p.key}Loc" placeholder="Напр., кисть, що відсутня">
+                    </div>
+                    <div class="form-group">
+                        <label for="pain${p.key}Vas">Інтенсивність (VAS 0-10)</label>
+                        <div class="screen-only" style="display: flex; align-items: center; gap: 12px;">
+                            <input type="range" id="pain${p.key}Vas" min="0" max="10" step="1" value="0" style="flex: 1;">
+                            <span id="pain${p.key}VasValue">0</span>
+                        </div>
+                        <div class="section-hint print-only">Обведіть значення від 0 (немає болю) до 10 (нестерпний біль):</div>
+                        <div class="print-checkbox-group print-only" aria-label="${p.label} — VAS для друку">
+                            ${vasPrint}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Добовий ритм</label>
+                        <div class="chips-group screen-only" id="pain${p.key}Rhythm">
+                            ${rhythmChips}
+                        </div>
+                        <div class="print-checkbox-group print-only" aria-label="${p.label} — добовий ритм для друку">
+                            ${rhythmPrint}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPainPhenomena() {
+            const container = document.getElementById('painPhenomenaContainer');
+            container.innerHTML = PAIN_PHENOMENA.map(renderPainPhenomenon).join('');
+
+            PAIN_PHENOMENA.forEach(p => {
+                const vasInput = document.getElementById(`pain${p.key}Vas`);
+                const vasValue = document.getElementById(`pain${p.key}VasValue`);
+                vasInput.addEventListener('input', () => {
+                    vasValue.textContent = vasInput.value;
+                });
+            });
+        }
+
+        // Канонічний довідник дескрипторів болю (Periph_Descriptors, 16 позицій).
+        // Спільний для трьох блоків: Генез (оцінка дослідника), ДОГ-периферичний і ДОГ-предиктор (самозвіт пацієнта).
+        const PERIPH_DESCRIPTORS = ['ріжучий', 'тупий', 'гострий', 'пронизуючий', 'спазмуючий', 'прострілюючий', 'пекучий', 'колючий', 'тягнучий', 'ниючий', 'болісні судоми', 'розпираючий', 'пульсуючий', 'тиснучий', 'розряди струмом', 'всвердлювання'];
+        // Підмножина для предиктора "біль у куксі" — без розрядів струмом і всвердлювання
+        const PERIPH_DESCRIPTORS_PREDICTOR = PERIPH_DESCRIPTORS.slice(0, 14);
+
+        // Клінічні дескриптори генезу (мультивибір + поле "інше" для кожного типу)
+        const GENESIS_DESCRIPTORS = [
+            {
+                key: 'genPeripheral', otherKey: 'genPeripheralOther', label: 'Генез — периферичні ознаки', airtableLabel: 'периферичний',
+                items: ['Біль при дотику', 'Механ. чинники', 'Запалення', 'Температура', 'Закреп.', 'Контрактура ф.к.'],
+                descKey: 'genPeriphDescClin', descLabel: 'Дескриптори болю (оцінка дослідника)', descItems: PERIPH_DESCRIPTORS
+            },
+            {
+                key: 'genCerebral', otherKey: 'genCerebralOther', label: 'Генез — церебральні ознаки', airtableLabel: 'церебральний',
+                items: ['Оніміння', 'Поколювання', 'Мурашки', 'Тепло', 'Тонус', 'Відчуття предметів', 'Мокро', 'Сухо', 'Твердо', "М'якість", 'Стискання', 'Згинання', 'Вітерець по ф.к.', 'Скручування пальців', 'Важкість ф.к.', 'Телескопія', 'Бажання скористатись ф.к.', 'Контрактура ф.к.', 'Можливість рухати ф.к.', 'Можливість відчувати ф.к.']
+            },
+            {
+                key: 'genSpinal', otherKey: 'genSpinalOther', label: 'Генез — спінальні ознаки', airtableLabel: 'спінальний',
+                items: ['Прострілюючий біль від кукси до поясниці/шиї', 'Посилення болю при заспокоюючих вправах', 'Судоми по тілу', 'Наростання болю при повторних стимулах']
+            },
+            {
+                key: 'genPsychogenic', otherKey: 'genPsychogenicOther', label: 'Генез — психогенні ознаки', airtableLabel: 'психогенний',
+                subtitle: 'Біль/відчуття викликаються спогадами, емоціями про:',
+                items: ['Вибух міни', 'Біль від кулі/уламка', 'Хірургічне втручання', 'Відчуття годинника на руці', 'Страх/відраза від вигляду ампутації', 'Спогади про запах', 'Біль від спогадів про евакуацію', 'Кошмари про амп. кінцівку', 'Посилення від емоцій страху', 'Посилення від емоцій гніву', 'Посилення від емоцій суму']
+            }
+        ];
+
+        // Реакції на тести генезу (спільний перелік для всіх трьох категорій тестів)
+        const GENESIS_REACTIONS = ['ФБ зменшився', 'ФБ збільшився', 'ФБ зник', 'ФБ появився', 'ФВ зменшились', 'ФВ збільшились', 'ФВ зникли', 'ФВ появились', 'Телескопія', 'Зворотня телескопія', 'Немає реакції'];
+        // Відома неузгодженість Airtable: варіант "ФБ зменшився" створено з друкарською помилкою "ФБ земеншився"
+        const GENESIS_REACTION_AIRTABLE_MAP = { 'ФБ зменшився': 'ФБ земеншився' };
+
+        // Тести генезу: для кожної категорії — перелік тестів + загальний перелік реакцій
+        const GENESIS_TESTS = [
+            {
+                key: 'genTestsCerebral', label: 'Церебральні тести', airtableLabel: 'церебральні',
+                tests: ['Контрлат.тест (дзеркало)', 'Контрлат.тест (муляж)', 'Контрлат.тест (стимул. інтакт. кінцівки)', 'Тест моторної уяви', 'Хватальний рефлекс', 'Рефлекс захисту', 'Пальце-носова проба', 'Телескопія гумкою', 'Телескопія панчохою', 'Телескопія муляжем', 'Мозочковий тест'],
+                // Відома неузгодженість Airtable: ці варіанти створено з малої букви
+                airtableMap: { 'Хватальний рефлекс': 'хватальний рефлекс', 'Рефлекс захисту': 'рефлекс захисту', 'Телескопія гумкою': 'телескопія гумкою', 'Телескопія панчохою': 'телескопія панчохою', 'Телескопія муляжем': 'телескопія муляжем' }
+            },
+            {
+                key: 'genTestsPeripheral', label: 'Периферичні тести', airtableLabel: 'периферичні',
+                tests: ['Мобілізація шва', 'МФТ з мобіл. шва', 'Компресія в тригерних точках', 'Тест компресії тазу', 'Тест МФ ланцюгів (передній)', 'Тест МФ ланцюгів (задній)', 'Тест МФ ланцюгів (діагональний)', 'Контрлат.тест патерну крока', "Тракція м'язів кукси", 'Тест пензликом', 'Переривання сенс. потоку', 'Біль при дефекації/сечоспусканні'],
+                // Відома неузгодженість Airtable: варіант створено зі словом "сечовипусканні"
+                airtableMap: { 'Біль при дефекації/сечоспусканні': 'Біль при дефекації/сечовипусканні' }
+            },
+            {
+                key: 'genTestsPsychogenic', label: 'Психогенні тести', airtableLabel: 'психогенні',
+                tests: ['Флеш-тест (спалахом)', 'Тест тілесного відреагування болю', 'Відволікання', 'Когнітивне навантаження']
+            }
+        ];
+
+        // Замінює значення на відповідні (неузгоджені) варіанти Airtable за картою мапінгу
+        function mapGenesisValues(values, map) {
+            if (!map) return values;
+            return values.map(v => map[v] || v);
+        }
+
+        // Зворотна заміна: повертає значення Airtable до варіантів форми за картою мапінгу (mapGenesisValues навпаки)
+        function reverseMapGenesisValues(values, map) {
+            if (!values) return [];
+            if (!map) return values;
+            const reverse = {};
+            Object.keys(map).forEach(k => { reverse[map[k]] = k; });
+            return values.map(v => reverse[v] || v);
+        }
+
+        // Будує блок мультивибору ознак генезу + поле "інше" для одного типу генезу
+        function renderGenesisDescriptor(g) {
+            const chips = g.items.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const print = g.items.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            const subtitleHtml = g.subtitle ? `<div class="section-hint">${g.subtitle}</div>` : '';
+            let descHtml = '';
+            if (g.descKey) {
+                const descChips = g.descItems.map(opt =>
+                    `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+                ).join('');
+                const descPrint = g.descItems.map(opt =>
+                    `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+                ).join('');
+                descHtml = `
+                <div class="form-group">
+                    <label>${g.descLabel}</label>
+                    <div class="chips-group screen-only" id="${g.descKey}Chips">${descChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${g.descLabel} для друку">${descPrint}</div>
+                </div>
+                `;
+            }
+            return `
+                <div class="form-group">
+                    <label>${g.label}</label>
+                    ${subtitleHtml}
+                    <div class="chips-group screen-only" id="${g.key}Chips">${chips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${g.label} для друку">${print}</div>
+                </div>
+                ${descHtml}
+                <div class="form-group">
+                    <label for="${g.otherKey}">${g.label} — інше</label>
+                    <input type="text" id="${g.otherKey}" placeholder="Інші ознаки">
+                </div>
+            `;
+        }
+
+        // Будує блок "позитивні тести + реакції" для однієї категорії тестів генезу
+        function renderGenesisTest(t) {
+            const testsChips = t.tests.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const testsPrint = t.tests.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            const reactionChips = GENESIS_REACTIONS.map(opt =>
+                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
+            ).join('');
+            const reactionPrint = GENESIS_REACTIONS.map(opt =>
+                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
+            ).join('');
+            return `
+                <h3 class="section-title">${t.label}</h3>
+                <div class="form-group">
+                    <label>Позитивні тести</label>
+                    <div class="chips-group screen-only" id="${t.key}Chips">${testsChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${t.label} — позитивні для друку">${testsPrint}</div>
+                </div>
+                <div class="form-group">
+                    <label>Реакції</label>
+                    <div class="chips-group screen-only" id="${t.key}ReactionsChips">${reactionChips}</div>
+                    <div class="print-checkbox-group print-only" aria-label="${t.label} — реакції для друку">${reactionPrint}</div>
+                </div>
+            `;
+        }
+
+        function renderGenesisSection() {
+            document.getElementById('genesisDescriptorsContainer').innerHTML = GENESIS_DESCRIPTORS.map(renderGenesisDescriptor).join('');
+            document.getElementById('genesisTestsContainer').innerHTML = GENESIS_TESTS.map(renderGenesisTest).join('');
+            document.querySelectorAll('#genPeriphDescClinChips input[type="checkbox"]').forEach(el => {
+                el.addEventListener('change', () => { if (typeof updateDogTotals === 'function') updateDogTotals(); });
+            });
+        }
+
+        // Інформована згода — зчитує всі відповіді блоку
+        function getConsentData() {
+            return {
+                given: document.getElementById('consent_given').value,
+                date: document.getElementById('consent_date').value,
+                researchItems: getCheckedValues('consentResearchItemsChips')
+            };
+        }
+
+        // Сексуальна функція — показ/приховування залежних полів на екрані
+        function updateSexFunctionVisibility() {
+            const phantomSex = document.getElementById('sf_phantom_sex').value;
+            const showPhantomDetails = phantomSex === 'Так';
+            document.getElementById('sfPhantomOrgasmLocGroup').classList.toggle('screen-hidden', !showPhantomDetails);
+            document.getElementById('sfPhantomDescGroup').classList.toggle('screen-hidden', !showPhantomDetails);
+            document.getElementById('sfPhantomDescOtherGroup').classList.toggle('screen-hidden', !showPhantomDetails);
+
+            const painDuringSex = document.getElementById('sf_pain_during_sex').value;
+            document.getElementById('sfPainIncreaseGroup').classList.toggle('screen-hidden', painDuringSex !== 'Посилюється');
+            document.getElementById('sfPainDecreaseGroup').classList.toggle('screen-hidden', painDuringSex !== 'Зменшується');
+        }
+
+        function renderPsiSection() {
+            document.getElementById('psiLec5Container').innerHTML = PSI_LEC5_EVENTS.map(renderPsiLec5Event).join('');
+            document.getElementById('psiPcl5Container').innerHTML = PSI_PCL5_QUESTIONS.map(renderPsiPcl5Question).join('');
+            document.getElementById('psiHadsContainer').innerHTML = PSI_HADS_ITEMS.map(renderPsiHadsItem).join('');
+            document.getElementById('psiAisContainer').innerHTML = PSI_AIS_ITEMS.map(renderPsiAisItem).join('');
+            document.getElementById('psiDn4Container').innerHTML = PSI_DN4_ITEMS.map(renderPsiDn4Item).join('');
+            document.getElementById('psiCssrsContainer').innerHTML = PSI_CSSRS_ITEMS.map(renderPsiCssrsItem).join('');
+            document.getElementById('psiDestContainer').innerHTML = PSI_DEST_ITEMS.map(renderPsiDestItem).join('');
+            document.querySelectorAll('#psiSection input[type="checkbox"]').forEach(el => {
+                el.addEventListener('change', updatePsiSummary);
+            });
+            document.querySelectorAll('#psiPcl5Container select').forEach(el => {
+                el.addEventListener('change', updatePsiPcl5Summary);
+            });
+            document.querySelectorAll('#psiHadsContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiHadsSummary);
+            });
+            document.querySelectorAll('#psiAisContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiAisSummary);
+            });
+            document.querySelectorAll('#psiDn4Container select').forEach(el => {
+                el.addEventListener('change', updatePsiDn4Summary);
+            });
+            document.querySelectorAll('#psiCssrsContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiCssrsSummary);
+            });
+            document.querySelectorAll('#psiDestContainer select').forEach(el => {
+                el.addEventListener('change', updatePsiDestSummary);
+            });
+            document.getElementById('psi_moca').addEventListener('input', updatePsiMocaSummary);
+            updatePsiSummary();
+            updatePsiPcl5Summary();
+            updatePsiHadsSummary();
+            updatePsiAisSummary();
+            updatePsiDn4Summary();
+            updatePsiCssrsSummary();
+            updatePsiDestSummary();
+            updatePsiMocaSummary();
+        }
+
+        const printModeToggle = document.getElementById('printModeToggle');
+        const form = document.getElementById('patientForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const passwordOverlay = document.getElementById('passwordOverlay');
+        const passwordInput = document.getElementById('airtablePassword');
+        const passwordError = document.getElementById('passwordError');
+        const passwordConfirm = document.getElementById('passwordConfirm');
+        const passwordCancel = document.getElementById('passwordCancel');
+
+        // Режим друку
+        printModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('print-layout');
+                window.print();
+            } else {
+                document.body.classList.remove('print-layout');
+            }
+        });
+
+        // Дія, яку виконає пароль-діалог після введення пароля ('save' або 'load')
+        let pendingAction = 'save';
+
+        // Покрокова навігація по розділах форми
+        const TOTAL_STEPS = 4;
+        let currentStep = 1;
+        const stepTabs = document.querySelectorAll('.step-tab');
+        const formSteps = document.querySelectorAll('.form-step');
+
+        function showStep(step) {
+            currentStep = step;
+            formSteps.forEach(function(el) {
+                el.classList.toggle('active', parseInt(el.dataset.step, 10) === step);
+            });
+            stepTabs.forEach(function(tab) {
+                tab.classList.toggle('active', parseInt(tab.dataset.stepTab, 10) === step);
+            });
+            document.querySelectorAll('.btn-step-prev').forEach(function(btn) {
+                btn.disabled = step === 1;
+            });
+            document.querySelectorAll('.btn-step-next').forEach(function(btn) {
+                btn.disabled = step === TOTAL_STEPS;
+            });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        stepTabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                showStep(parseInt(tab.dataset.stepTab, 10));
+            });
+        });
+
+        // Підвкладки в кроці "Біль та генез"
+        const subStepTabs = document.querySelectorAll('.sub-step-tab');
+        const subSteps = document.querySelectorAll('.sub-step');
+
+        subStepTabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                const target = tab.dataset.substepTab;
+                subStepTabs.forEach(t => t.classList.toggle('active', t === tab));
+                subSteps.forEach(s => s.classList.toggle('active', s.dataset.substep === target));
+            });
+        });
+
+        document.querySelectorAll('.btn-step-prev').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    showStep(currentStep - 1);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-step-next').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (currentStep < TOTAL_STEPS) {
+                    showStep(currentStep + 1);
+                }
+            });
+        });
+
+        showStep(1);
+
+        // Побудувати селектори рівня ампутації для кожної кінцівки
+        renderAmpLimbPickers();
+
+        // Показувати блок "Ампутація" лише якщо позначено "Є ампутація"
+        const hasAmputationCheckbox = document.getElementById('hasAmputation');
+        const amputationSection = document.getElementById('amputationSection');
+
+        function updateAmputationSectionVisibility() {
+            amputationSection.classList.toggle('screen-hidden', !hasAmputationCheckbox.checked);
+        }
+
+        hasAmputationCheckbox.addEventListener('change', updateAmputationSectionVisibility);
+
+        // Побудувати блоки локалізація/VAS/ритм для ФБ, ФВ, БК
+        renderPainPhenomena();
+
+        // Побудувати блоки клінічних ознак та тестів генезу
+        renderGenesisSection();
+
+
+        // Показувати підвкладки "Біль", "Патології кукси", "Генез", "Тести", "ДОГ" лише якщо позначено хоча б один з феноменів (ФБ/ФВ/БК)
+        const painGenesisContent = document.getElementById('painGenesisContent');
+        const painHasCheckboxes = PAIN_PHENOMENA.map(p => document.getElementById(p.hasField));
+
+        function updatePainSectionVisibility() {
+            const anyPhenomenon = painHasCheckboxes.some(cb => cb.checked);
+            painGenesisContent.classList.toggle('screen-hidden', !anyPhenomenon);
+            PAIN_PHENOMENA.forEach((p, i) => {
+                document.getElementById(`painBlock${p.key}`).classList.toggle('screen-hidden', !painHasCheckboxes[i].checked);
+            });
+        }
+
+        PAIN_PHENOMENA.forEach((p, i) => {
+            painHasCheckboxes[i].addEventListener('change', updatePainSectionVisibility);
+        });
+
+        function showError(text) {
+            errorMessage.textContent = text;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(wasUpdated) {
+            successMessage.textContent = wasUpdated
+                ? '✓ Запис пацієнта оновлено в Airtable!'
+                : '✓ Дані успішно збережені в Airtable!';
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Розрахунок повних років на основі дати народження
+        function calcAge(birthdateStr) {
+            if (!birthdateStr) {
+                return null;
+            }
+            const birth = new Date(birthdateStr);
+            if (isNaN(birth.getTime())) {
+                return null;
+            }
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age >= 0 ? age : null;
+        }
+
+        function updateAgeDisplay() {
+            const age = calcAge(document.getElementById('patientBirthdate').value);
+            document.getElementById('patientAgeDisplay').textContent = age !== null ? `Повних років: ${age}` : '';
+        }
+
+        document.getElementById('patientBirthdate').addEventListener('input', updateAgeDisplay);
+
+        // Зчитує значення позначених чекбоксів-чипів у контейнері
+        function getCheckedValues(containerId) {
+            return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
+        }
+
+        // Позначає чекбокси-чипи в контейнері за списком значень
+        function setCheckedValues(containerId, values) {
+            const selected = new Set(values || []);
+            document.querySelectorAll(`#${containerId} input[type="checkbox"]`).forEach(el => {
+                el.checked = selected.has(el.value);
+            });
+        }
+
+        // Зчитує локалізацію, VAS та добовий ритм для всіх феноменів болю (ФБ/ФВ/БК)
+        function getPainData() {
+            const data = {};
+            PAIN_PHENOMENA.forEach(p => {
+                data[`pain_${p.key.toLowerCase()}_loc`] = document.getElementById(`pain${p.key}Loc`).value;
+                data[`pain_${p.key.toLowerCase()}_vas`] = Number(document.getElementById(`pain${p.key}Vas`).value);
+                data[`pain_${p.key.toLowerCase()}_rhythm`] = getCheckedValues(`pain${p.key}Rhythm`);
+            });
+            return data;
+        }
+
+        // Зчитує клінічні ознаки генезу та результати тестів генезу
+        function getGenesisData() {
+            const data = {};
+            GENESIS_DESCRIPTORS.forEach(g => {
+                data[g.key] = getCheckedValues(`${g.key}Chips`);
+                data[g.otherKey] = document.getElementById(g.otherKey).value;
+                if (g.descKey) data[g.descKey] = getCheckedValues(`${g.descKey}Chips`);
+            });
+            GENESIS_TESTS.forEach(t => {
+                data[t.key] = getCheckedValues(`${t.key}Chips`);
+                data[`${t.key}Reactions`] = getCheckedValues(`${t.key}ReactionsChips`);
+            });
+            return data;
+        }
+
+
+        // Зчитує значення вибору рівня ампутації та третини для всіх кінцівок
+        function getAmputationData() {
+            const data = {};
+            AMP_LIMBS.forEach(limb => {
+                data[`amp_${limb.key}_level`] = document.getElementById(`amp_${limb.key}_level`).value;
+                data[`amp_${limb.key}_sub`] = document.getElementById(`amp_${limb.key}_sub`).value;
+            });
+            return data;
+        }
+
+        function getFormData() {
+            const birthdate = document.getElementById('patientBirthdate').value;
+            return {
+                patient_full_name: document.getElementById('patientFullName').value,
+                patient_nickname: document.getElementById('patientNickname').value,
+                patient_gender: document.getElementById('patientGender').value,
+                patient_birthdate: birthdate,
+                patient_age: calcAge(birthdate),
+                patient_ward: document.getElementById('patientWard').value,
+                person_type: document.getElementById('personType').value,
+                has_amputation: document.getElementById('hasAmputation').checked,
+                has_fb: document.getElementById('hasFB').checked,
+                has_fv: document.getElementById('hasFV').checked,
+                has_bk: document.getElementById('hasBK').checked,
+                patient_complaints: document.getElementById('patientComplaints').value,
+                research_consent: document.getElementById('researchConsent').checked,
+                research_consent_items: getCheckedValues('consentItemsChips'),
+                research_confidence: document.getElementById('researchConfidence').value,
+                ...getAmputationData(),
+                rpni: document.getElementById('rpni').checked,
+                tmr: document.getElementById('tmr').checked,
+                amp_type: document.getElementById('ampType').value,
+                inj_date: document.getElementById('injDate').value,
+                amp_date: document.getElementById('ampDate').value,
+                adm_date: document.getElementById('admDate').value,
+                reamp_date: document.getElementById('reampDate').value,
+                ...getPainData(),
+                pain_flow: getCheckedValues('painFlowChips'),
+                traum_mem: document.getElementById('traumMem').value,
+                stump_path: getCheckedValues('stumpPathChips'),
+                stump_path_note: document.getElementById('stumpPathNote').value,
+                stump_path_source: getCheckedValues('stumpPathSourceChips'),
+                som_react: getCheckedValues('somReactChips'),
+                ...getGenesisData(),
+                consent: getConsentData()
+            };
+        }
+
+        // Повертає ключ за значенням у мапі (зворотній пошук); якщо не знайдено — undefined
+        function reverseLookup(map, value) {
+            return Object.keys(map).find(k => map[k] === value);
+        }
+
+        // Перетворює об'єкт полів Airtable у формат даних анкети (зворотнє до saveToAirtable)
+        function fieldsToFormData(fields) {
+            const data = {
+                patient_nickname: fields['Study ID'] || '',
+                patient_full_name: fields['ПІБ'] || '',
+                patient_ward: fields['Палата'] || '',
+                has_amputation: !!fields['Є ампутація'],
+                has_fb: !!fields['Фантомний біль (наявність)'],
+                has_fv: !!fields['Фантомні відчуття (наявність)'],
+                has_bk: !!fields['Біль кукси (наявність)'],
+                patient_complaints: fields['Скарги'] || '',
+                research_consent: !!fields['Згода на дослідження'],
+                research_consent_items: fields['Пункти згоди'] || [],
+                patient_birthdate: '',
+                person_type: fields['Тип учасника'] || '',
+                research_confidence: fields['Впевненість дослідника'] || '',
+                rpni: !!fields['RPNI виконано'],
+                tmr: !!fields['TMR виконано'],
+                amp_type: fields['Тип ампутації'] || '',
+                inj_date: fields['Дата поранення'] || '',
+                amp_date: fields['Дата ампутації'] || '',
+                adm_date: fields['Дата госпіталізації'] || '',
+                reamp_date: fields['Дата реампутації'] || ''
+            };
+
+            data.patient_gender = reverseLookup(GENDER_MAP, fields['Стать']) || '';
+
+            AMP_LIMBS.forEach(limb => {
+                data[`amp_${limb.key}_level`] = fields[`${limb.airtablePrefix} — рівень ампутації`] || '';
+                data[`amp_${limb.key}_sub`] = fields[`${limb.airtablePrefix} — третина`] || '';
+            });
+
+            PAIN_PHENOMENA.forEach(p => {
+                const k = p.key.toLowerCase();
+                if (!fields[`${p.airtablePrefix} — локалізація`] && !fields[`${p.airtablePrefix} — інтенсивність (VAS)`] && !fields[`${p.airtablePrefix} — добовий ритм`]) {
+                    data[`pain_${k}_loc`] = '';
+                    data[`pain_${k}_vas`] = 0;
+                    data[`pain_${k}_rhythm`] = [];
+                    return;
+                }
+                data[`pain_${k}_loc`] = fields[`${p.airtablePrefix} — локалізація`] || '';
+                data[`pain_${k}_vas`] = fields[`${p.airtablePrefix} — інтенсивність (VAS)`] || 0;
+                data[`pain_${k}_rhythm`] = fields[`${p.airtablePrefix} — добовий ритм`] || [];
+            });
+
+            data.pain_flow = fields['Характер протікання болю'] || [];
+            data.stump_path = fields['Патологія кукси'] || [];
+            data.stump_path_note = fields['Патологія кукси — примітка'] || '';
+            data.stump_path_source = fields['Патологія кукси — джерело виявлення'] || [];
+            data.som_react = fields['Соматичні реакції на біль'] || [];
+            data.traum_mem = fields["Травматичні спогади, пов'язані з болем"] || '';
+
+            GENESIS_DESCRIPTORS.forEach(g => {
+                data[g.key] = fields[`Генез — ${g.airtableLabel} (дескриптори)`] || [];
+                data[g.otherKey] = fields[`Генез — ${g.airtableLabel} (інше)`] || '';
+                if (g.descKey) data[g.descKey] = fields['Генез — дескриптори болю (оцінка дослідника)'] || [];
+            });
+
+            GENESIS_TESTS.forEach(t => {
+                data[t.key] = reverseMapGenesisValues(fields[`Тести — ${t.airtableLabel} (позитивні)`], t.airtableMap);
+                data[`${t.key}Reactions`] = reverseMapGenesisValues(fields[`Тести — ${t.airtableLabel} (реакції)`], GENESIS_REACTION_AIRTABLE_MAP);
+            });
+
+            // Інформована згода
+            data.consent = {
+                given: fields['Згода — надана'] || '',
+                date: fields['Згода — дата'] || '',
+                researchItems: fields['Згода — дослідницькі дозволи'] || []
+            };
+
+            return data;
+        }
+
+        // Завантажує запис пацієнта з Airtable за Study ID. Повертає об'єкт fields або null, якщо не знайдено
+        async function loadPatientFromAirtable(apiKey, nickname) {
+            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
+            const response = await fetch(
+                `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                const message = errorBody?.error?.message || response.statusText;
+                throw new Error(`Airtable: ${message}`);
+            }
+
+            const data = await response.json();
+            if (data.records.length === 0) return null;
+            return data.records[0].fields;
+        }
+
+        // Розшифрування Airtable API-ключа за паролем користувача
+        // (формат і параметри описані в .claude/skills/airtable-key-encryption/SKILL.md)
+        async function deriveAesKey(password, saltB64) {
+            const enc = new TextEncoder();
+            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+            const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+                baseKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['decrypt']
+            );
+        }
+
+        async function decryptAirtableKey(password) {
+            const key = await deriveAesKey(password, AIRTABLE_KEY_SALT);
+            const iv = Uint8Array.from(atob(AIRTABLE_KEY_IV), c => c.charCodeAt(0));
+            const ciphertext = Uint8Array.from(atob(AIRTABLE_KEY_CIPHERTEXT), c => c.charCodeAt(0));
+            const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+            return new TextDecoder().decode(plaintext);
+        }
+
+        // Пошук існуючого запису пацієнта в Airtable за Study ID
+        async function findRecordIdByNickname(apiKey, nickname) {
+            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
+            const response = await fetch(
+                `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                const message = errorBody?.error?.message || response.statusText;
+                throw new Error(`Airtable: ${message}`);
+            }
+
+            const data = await response.json();
+            return data.records.length > 0 ? data.records[0].id : null;
+        }
+
+        // Запис анкети в Airtable через REST API.
+        // Якщо запис з таким нікнеймом вже існує, оновлює його замість створення нового —
+        // це дозволяє виправляти помилково введені дані без появи дублікатів пацієнтів.
+        async function saveToAirtable(apiKey, formData) {
+            const fields = {
+                'Study ID': formData.patient_nickname,
+                'ПІБ': formData.patient_full_name,
+                'Палата': formData.patient_ward,
+                'Є ампутація': formData.has_amputation,
+                'Фантомний біль (наявність)': formData.has_fb,
+                'Фантомні відчуття (наявність)': formData.has_fv,
+                'Біль кукси (наявність)': formData.has_bk,
+                'Скарги': formData.patient_complaints,
+                'Згода на дослідження': formData.research_consent,
+                'Пункти згоди': formData.research_consent_items
+            };
+
+            const genderValue = GENDER_MAP[formData.patient_gender];
+            if (genderValue) {
+                fields['Стать'] = genderValue;
+            }
+
+            if (formData.patient_age !== null && formData.patient_age !== undefined) {
+                fields['Вік'] = formData.patient_age;
+            }
+
+            if (formData.person_type) {
+                fields['Тип учасника'] = formData.person_type;
+            }
+
+            if (formData.research_confidence) {
+                fields['Впевненість дослідника'] = formData.research_confidence;
+            }
+
+            fields['RPNI виконано'] = formData.rpni;
+            fields['TMR виконано'] = formData.tmr;
+            fields['Тип ампутації'] = formData.amp_type;
+
+            if (formData.inj_date) fields['Дата поранення'] = formData.inj_date;
+            if (formData.amp_date) fields['Дата ампутації'] = formData.amp_date;
+            if (formData.adm_date) fields['Дата госпіталізації'] = formData.adm_date;
+            if (formData.reamp_date) fields['Дата реампутації'] = formData.reamp_date;
+
+            AMP_LIMBS.forEach(limb => {
+                const level = formData[`amp_${limb.key}_level`];
+                const sub = formData[`amp_${limb.key}_sub`];
+                if (level) fields[`${limb.airtablePrefix} — рівень ампутації`] = level;
+                if (sub) fields[`${limb.airtablePrefix} — третина`] = sub;
+            });
+
+            PAIN_PHENOMENA.forEach(p => {
+                const k = p.key.toLowerCase();
+                if (!formData[`has_${k}`]) return;
+                fields[`${p.airtablePrefix} — локалізація`] = formData[`pain_${k}_loc`];
+                fields[`${p.airtablePrefix} — інтенсивність (VAS)`] = formData[`pain_${k}_vas`];
+                fields[`${p.airtablePrefix} — добовий ритм`] = formData[`pain_${k}_rhythm`];
+            });
+
+            fields['Характер протікання болю'] = formData.pain_flow;
+            fields['Патологія кукси'] = formData.stump_path;
+            fields['Патологія кукси — примітка'] = formData.stump_path_note;
+            fields['Патологія кукси — джерело виявлення'] = formData.stump_path_source;
+            fields['Соматичні реакції на біль'] = formData.som_react;
+
+            if (formData.traum_mem) {
+                fields["Травматичні спогади, пов'язані з болем"] = formData.traum_mem;
+            }
+
+            GENESIS_DESCRIPTORS.forEach(g => {
+                fields[`Генез — ${g.airtableLabel} (дескриптори)`] = formData[g.key];
+                if (formData[g.otherKey]) fields[`Генез — ${g.airtableLabel} (інше)`] = formData[g.otherKey];
+                if (g.descKey) fields['Генез — дескриптори болю (оцінка дослідника)'] = formData[g.descKey];
+            });
+
+            GENESIS_TESTS.forEach(t => {
+                fields[`Тести — ${t.airtableLabel} (позитивні)`] = mapGenesisValues(formData[t.key], t.airtableMap);
+                fields[`Тести — ${t.airtableLabel} (реакції)`] = mapGenesisValues(formData[`${t.key}Reactions`], GENESIS_REACTION_AIRTABLE_MAP);
+            });
+
+            const consent = formData.consent;
+            if (consent.given) fields['Згода — надана'] = consent.given;
+            if (consent.date) fields['Згода — дата'] = consent.date;
+            if (consent.researchItems.length) fields['Згода — дослідницькі дозволи'] = consent.researchItems;
+
+            const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
+            const url = existingId
+                ? `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}/${existingId}`
+                : `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
+
+            const response = await fetch(url, {
+                method: existingId ? 'PATCH' : 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fields })
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                const message = errorBody?.error?.message || response.statusText;
+                throw new Error(`Airtable: ${message}`);
+            }
+
+            return existingId !== null;
+        }
+
+        function openPasswordDialog() {
+            passwordInput.value = '';
+            passwordError.style.display = 'none';
+            passwordOverlay.classList.add('visible');
+            passwordInput.focus();
+        }
+
+        function closePasswordDialog() {
+            passwordOverlay.classList.remove('visible');
+            passwordInput.value = '';
+        }
+
+        passwordCancel.addEventListener('click', closePasswordDialog);
+
+        passwordConfirm.addEventListener('click', async function() {
+            const password = passwordInput.value;
+            if (!password) {
+                return;
+            }
+
+            passwordError.style.display = 'none';
+            passwordConfirm.disabled = true;
+
+            try {
+                const apiKey = await decryptAirtableKey(password);
+
+                if (pendingAction === 'load') {
+                    const nickname = document.getElementById('patientNickname').value;
+                    const fields = await loadPatientFromAirtable(apiKey, nickname);
+                    if (!fields) {
+                        passwordError.textContent = 'Пацієнта з таким Study ID не знайдено.';
+                        passwordError.style.display = 'block';
+                        passwordConfirm.disabled = false;
+                        return;
+                    }
+                    const data = fieldsToFormData(fields);
+                    applyFormData(data);
+                    localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
+                    closePasswordDialog();
+                    successMessage.textContent = '✓ Дані пацієнта завантажено.';
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    const wasUpdated = await saveToAirtable(apiKey, getFormData());
+                    closePasswordDialog();
+                    showSuccess(wasUpdated);
+                }
+            } catch (err) {
+                console.error('Не вдалося виконати операцію з Airtable:', err);
+                passwordError.textContent = pendingAction === 'load'
+                    ? 'Неправильний пароль або помилка завантаження. Спробуйте ще раз.'
+                    : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
+                passwordError.style.display = 'block';
+            } finally {
+                passwordConfirm.disabled = false;
+            }
+        });
+
+        // Обробка відправки форми
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!AIRTABLE_KEY_CIPHERTEXT) {
+                showError('Збереження в Airtable ще не налаштоване. Зверніться до адміністратора форми.');
+                return;
+            }
+
+            pendingAction = 'save';
+            openPasswordDialog();
+        });
+
+        // Завантажити дані пацієнта з Airtable за Study ID
+        document.getElementById('loadPatientBtn').addEventListener('click', function() {
+            const nickname = document.getElementById('patientNickname').value;
+            if (!nickname) {
+                showError('Спочатку введіть Study ID пацієнта.');
+                return;
+            }
+
+            if (!AIRTABLE_KEY_CIPHERTEXT) {
+                showError('Збереження в Airtable ще не налаштоване. Зверніться до адміністратора форми.');
+                return;
+            }
+
+            pendingAction = 'load';
+            openPasswordDialog();
+        });
+
+        // Застосовує об'єкт даних анкети (у форматі getFormData()) до полів форми
+        function applyFormData(data) {
+            document.getElementById('patientFullName').value = data.patient_full_name || '';
+            document.getElementById('patientNickname').value = data.patient_nickname || '';
+            document.getElementById('patientGender').value = data.patient_gender || '';
+            document.getElementById('patientBirthdate').value = data.patient_birthdate || '';
+            document.getElementById('patientWard').value = data.patient_ward || '';
+            document.getElementById('personType').value = data.person_type || '';
+            document.getElementById('hasAmputation').checked = !!data.has_amputation;
+            document.getElementById('hasFB').checked = !!data.has_fb;
+            document.getElementById('hasFV').checked = !!data.has_fv;
+            document.getElementById('hasBK').checked = !!data.has_bk;
+            document.getElementById('patientComplaints').value = data.patient_complaints || '';
+            document.getElementById('researchConsent').checked = !!data.research_consent;
+            setCheckedValues('consentItemsChips', data.research_consent_items);
+            document.getElementById('researchConfidence').value = data.research_confidence || '';
+            AMP_LIMBS.forEach(limb => {
+                const levelSelect = document.getElementById(`amp_${limb.key}_level`);
+                const subSelect = document.getElementById(`amp_${limb.key}_sub`);
+                levelSelect.value = data[`amp_${limb.key}_level`] || '';
+                const level = limb.levels.find(l => l.label === levelSelect.value);
+                if (level && level.sub) {
+                    subSelect.style.display = '';
+                    subSelect.value = data[`amp_${limb.key}_sub`] || '';
+                }
+            });
+            document.getElementById('rpni').checked = !!data.rpni;
+            document.getElementById('tmr').checked = !!data.tmr;
+            document.getElementById('ampType').value = data.amp_type || '';
+            document.getElementById('injDate').value = data.inj_date || '';
+            document.getElementById('ampDate').value = data.amp_date || '';
+            document.getElementById('admDate').value = data.adm_date || '';
+            document.getElementById('reampDate').value = data.reamp_date || '';
+            updateAmputationSectionVisibility();
+            PAIN_PHENOMENA.forEach(p => {
+                const k = p.key.toLowerCase();
+                document.getElementById(`pain${p.key}Loc`).value = data[`pain_${k}_loc`] || '';
+                const vas = data[`pain_${k}_vas`] || 0;
+                document.getElementById(`pain${p.key}Vas`).value = vas;
+                document.getElementById(`pain${p.key}VasValue`).textContent = vas;
+                setCheckedValues(`pain${p.key}Rhythm`, data[`pain_${k}_rhythm`]);
+            });
+            setCheckedValues('painFlowChips', data.pain_flow);
+            document.getElementById('traumMem').value = data.traum_mem || '';
+            setCheckedValues('stumpPathChips', data.stump_path);
+            document.getElementById('stumpPathNote').value = data.stump_path_note || '';
+            setCheckedValues('stumpPathSourceChips', data.stump_path_source);
+            setCheckedValues('somReactChips', data.som_react);
+            GENESIS_DESCRIPTORS.forEach(g => {
+                setCheckedValues(`${g.key}Chips`, data[g.key]);
+                document.getElementById(g.otherKey).value = data[g.otherKey] || '';
+                if (g.descKey) setCheckedValues(`${g.descKey}Chips`, data[g.descKey]);
+            });
+            GENESIS_TESTS.forEach(t => {
+                setCheckedValues(`${t.key}Chips`, data[t.key]);
+                setCheckedValues(`${t.key}ReactionsChips`, data[`${t.key}Reactions`]);
+            });
+            if (data.consent) {
+                const consent = data.consent;
+                document.getElementById('consent_given').value = consent.given || '';
+                document.getElementById('consent_date').value = consent.date || '';
+                setCheckedValues('consentResearchItemsChips', consent.researchItems);
+            }
+            updatePainSectionVisibility();
+            updateAgeDisplay();
+        }
+
+        // Завантажити дані з localStorage (якщо були збережені)
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem('patientFormData');
+            if (savedData) {
+                applyFormData(JSON.parse(savedData));
+            }
+        });
+
+        // Зберегти дані в localStorage при змінах
+        form.addEventListener('change', function() {
+            localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
+        });
+
+        // Новий пацієнт — очистити форму та почати нову анкету
+        document.getElementById('newPatientBtn').addEventListener('click', function() {
+            if (confirm('Усі незбережені дані поточної анкети буде видалено. Створити нову анкету для нового пацієнта?')) {
+                localStorage.removeItem('patientFormData');
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
