@@ -1414,11 +1414,13 @@ document.getElementById('assessmentNickname').addEventListener('blur', async () 
   if (!nick) { dobEl.textContent='—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; return; }
   dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; dobEl.textContent='Пошук…';
   try {
-    const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=500`;
+    const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?maxRecords=500`;
     const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||'', dob: rec.fields['fldhSmAshVfZmuC63']||'' }));
+    const first = data.records[0];
+    const firstFields = first ? JSON.stringify(Object.keys(first.fields||{})).slice(0,60) : 'no-rec';
+    const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||rec.fields['ПІБ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||rec.fields['Study ID']||'', dob: rec.fields['fldhSmAshVfZmuC63']||rec.fields['Дата народження']||'' }));
     const q = nick.toLowerCase();
     const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().startsWith(q)));
     if (matches.length===1) {
@@ -1427,9 +1429,8 @@ document.getElementById('assessmentNickname').addEventListener('blur', async () 
     } else if (matches.length>1) {
       dobEl.style.color='#e67e22'; dobEl.style.background='#fef9e7'; dobEl.style.borderColor='#e67e22'; dobEl.textContent=`${matches.length} збіги — уточніть`;
     } else {
-      const sample = all.find(p=>p.name)||all[0];
       dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c';
-      dobEl.textContent=`q[${q.length}]="${q}" vs "${sample?.name?.slice(0,10)||'?'}"`;
+      dobEl.textContent=`keys:${firstFields}`;
     }
   } catch(e) { dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Помилка: '+String(e); }
 });
