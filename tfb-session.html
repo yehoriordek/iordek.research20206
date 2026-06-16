@@ -878,13 +878,13 @@
           if (!nick) { dobEl.textContent='—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; return; }
           dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; dobEl.textContent='Пошук…';
           try {
-            const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=500`;
+            const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?maxRecords=500`;
             const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
             if (!r.ok) throw new Error(r.status);
             const data = await r.json();
-            const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||'', dob: rec.fields['fldhSmAshVfZmuC63']||'' }));
+            const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||rec.fields['ПІБ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||rec.fields['Study ID']||'', dob: rec.fields['fldhSmAshVfZmuC63']||rec.fields['Дата народження']||'' }));
             const q = nick.toLowerCase();
-            const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().split(' ')[0]===q));
+            const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().startsWith(q)));
             if (matches.length===1) {
               const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
               dobEl.style.color='#27ae60'; dobEl.style.background='#eafaf1'; dobEl.style.borderColor='#27ae60'; dobEl.textContent=dob;
