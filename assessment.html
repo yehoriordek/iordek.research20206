@@ -1060,42 +1060,6 @@
         if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
         let _passwordCallback = null;
 
-        let _participantsCache = null;
-        async function loadAllParticipants(apiKey) {
-            if (_participantsCache) return _participantsCache;
-            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=500`;
-            try {
-                const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
-                if (!r.ok) {
-                    const errText = await r.text().catch(() => r.status);
-                    return { error: `⚠️ Помилка ${r.status}: ${String(errText).slice(0,80)}` };
-                }
-                const data = await r.json();
-                _participantsCache = data.records.map(rec => ({
-                    name: rec.fields['fldc7W3fLYZxuBnDQ'] || '',
-                    id: rec.fields['fldyUD3kFFZNJmbPF'] || '',
-                    dob: rec.fields['fldhSmAshVfZmuC63'] || ''
-                }));
-                return _participantsCache;
-            } catch(e) {
-                return { error: `⚠️ Помилка з'єднання: ${String(e).slice(0,80)}` };
-            }
-        }
-        async function fetchNicknameSuggestions(apiKey, query) {
-            const result = await loadAllParticipants(apiKey);
-            if (result && result.error) return [{ value: '', label: result.error, _error: true }];
-            const q = query.toLowerCase();
-            return result
-                .filter(p => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q))
-                .slice(0, 10)
-                .map(p => {
-                    const label_val = p.id || p.name;
-                    const dobFormatted = p.dob ? new Date(p.dob).toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'}) : '';
-                    const display = dobFormatted ? `${p.name} (${dobFormatted})` : p.name;
-                    return { value: label_val, label: display };
-                });
-        }
-
         async function fetchCompletedStages(apiKey, nickname) {
             const participantId = await findRecordIdByNickname(apiKey, nickname);
             if (!participantId) return [];
@@ -1442,44 +1406,30 @@ document.getElementById('airtablePassword').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('passwordConfirm').click();
 });
 
+const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
 document.getElementById('assessmentNickname').addEventListener('blur', async () => {
   const nick = document.getElementById('assessmentNickname').value.trim();
   updateStageOptions(nick);
   const dobEl = document.getElementById('participantDobInfo');
-  if (!nick) { dobEl.textContent = '—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; return; }
-  dobEl.style.color = '#888';
-  dobEl.textContent = 'Пошук…';
+  if (!nick) { dobEl.textContent='—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; return; }
+  dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; dobEl.textContent='Пошук…';
   try {
-    const all = await loadAllParticipants(cachedApiKey);
-    if (all && all.error) { dobEl.style.color = '#e74c3c'; dobEl.textContent = all.error; return; }
+    const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=500`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||'', dob: rec.fields['fldhSmAshVfZmuC63']||'' }));
     const q = nick.toLowerCase();
-    const matches = all.filter(p =>
-      p.id.toLowerCase() === q ||
-      p.name.toLowerCase() === q ||
-      (p.name && p.name.toLowerCase().split(' ')[0] === q)
-    );
-    if (matches.length === 1) {
-      const p = matches[0];
-      const dob = p.dob ? new Date(p.dob).toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
-      dobEl.style.color = '#27ae60';
-      dobEl.style.background = '#eafaf1';
-      dobEl.style.borderColor = '#27ae60';
-      dobEl.textContent = dob;
-    } else if (matches.length > 1) {
-      dobEl.style.color = '#e67e22';
-      dobEl.style.background = '#fef9e7';
-      dobEl.style.borderColor = '#e67e22';
-      dobEl.textContent = `${matches.length} збіги — уточніть`;
+    const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().split(' ')[0]===q));
+    if (matches.length===1) {
+      const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
+      dobEl.style.color='#27ae60'; dobEl.style.background='#eafaf1'; dobEl.style.borderColor='#27ae60'; dobEl.textContent=dob;
+    } else if (matches.length>1) {
+      dobEl.style.color='#e67e22'; dobEl.style.background='#fef9e7'; dobEl.style.borderColor='#e67e22'; dobEl.textContent=`${matches.length} збіги — уточніть`;
     } else {
-      dobEl.style.color = '#e74c3c';
-      dobEl.style.background = '#fdf2f2';
-      dobEl.style.borderColor = '#e74c3c';
-      dobEl.textContent = 'Не знайдено';
+      dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Не знайдено';
     }
-  } catch(e) {
-    dobEl.style.color = '#e74c3c';
-    dobEl.textContent = 'Помилка пошуку';
-  }
+  } catch(e) { dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Помилка'; }
 });
 
 
