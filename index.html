@@ -625,7 +625,6 @@
                 <button type="button" class="step-tab" data-step-tab="1">ID</button>
                 <button type="button" class="step-tab" data-step-tab="2">Ампутація</button>
                 <button type="button" class="step-tab" data-step-tab="3">Біль/Генез</button>
-                <button type="button" class="step-tab" data-step-tab="4">Об'єктивні дослідження</button>
             </div>
 
             <div class="form-step" data-step="1">
@@ -1111,106 +1110,6 @@ Email: yehor.iordek@gmail.com
             </div>
 
 
-            <div class="form-step" data-step="4">
-            <div id="objectiveSection">
-                <h2 class="section-title">Об'єктивні дослідження</h2>
-                <div class="section-hint">Опишіть наявні дослідження, втручання та призначення. Якщо чогось немає — залиште поле порожнім.</div>
-
-                <div class="form-group">
-                    <label for="obj_imaging_desc">Інструментальні дослідження (УЗД, рентген, КТ, МРТ)</label>
-                    <textarea id="obj_imaging_desc" placeholder="Тип дослідження, дата, заключення — для кожного дослідження"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="obj_imaging_photo">Чи є фото результатів інструментальних досліджень?</label>
-                    <select id="obj_imaging_photo" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Фото інструментальних досліджень для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-                <div class="form-group screen-only">
-                    <label for="obj_imaging_files">Додати фото / скани (УЗД, рентген, КТ, МРТ тощо)</label>
-                    <input type="file" id="obj_imaging_files" accept="image/*,application/pdf" multiple>
-                    <div class="file-list" id="obj_imaging_files_list"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="obj_surgery_desc">Оперативні втручання</label>
-                    <textarea id="obj_surgery_desc" placeholder="Назва втручання та дата — для кожного втручання"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="obj_surgery_photo">Чи є фото документів про оперативні втручання?</label>
-                    <select id="obj_surgery_photo" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Фото оперативних втручань для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-                <div class="form-group screen-only">
-                    <label for="obj_surgery_files">Додати фото / скани виписок про оперативні втручання</label>
-                    <input type="file" id="obj_surgery_files" accept="image/*,application/pdf" multiple>
-                    <div class="file-list" id="obj_surgery_files_list"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="obj_regional_desc">Регіонарне знеболення (блокади тощо)</label>
-                    <textarea id="obj_regional_desc" placeholder="Назва блокади/методу та дата — для кожної процедури"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="obj_regional_photo">Чи є фото документів про регіонарне знеболення?</label>
-                    <select id="obj_regional_photo" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Фото регіонарного знеболення для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-                <div class="form-group screen-only">
-                    <label for="obj_regional_files">Додати фото / скани документів про регіонарне знеболення</label>
-                    <input type="file" id="obj_regional_files" accept="image/*,application/pdf" multiple>
-                    <div class="file-list" id="obj_regional_files_list"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="obj_systemic_desc">Системне знеболення / фармакотерапія</label>
-                    <textarea id="obj_systemic_desc" placeholder="Препарат, дозування/схема, дата призначення — для кожного препарату"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="obj_systemic_photo">Чи є фото призначень системного знеболення / фармакотерапії?</label>
-                    <select id="obj_systemic_photo" class="screen-only">
-                        <option value="">—</option>
-                        <option value="Так">Так</option>
-                        <option value="Ні">Ні</option>
-                    </select>
-                    <div class="print-checkbox-group print-only" aria-label="Фото призначень фармакотерапії для друку">
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Так</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Ні</span></div>
-                    </div>
-                </div>
-                <div class="form-group screen-only">
-                    <label for="obj_systemic_files">Додати фото / скани призначень системного знеболення / фармакотерапії</label>
-                    <input type="file" id="obj_systemic_files" accept="image/*,application/pdf" multiple>
-                    <div class="file-list" id="obj_systemic_files_list"></div>
-                </div>
-                <div class="section-hint screen-only">Фото додаються при натисканні кнопки збереження і не зберігаються при оновленні сторінки — додавайте їх безпосередньо перед збереженням анкети.</div>
-            </div>
-
-            <div class="form-step-nav screen-only">
-                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
-                <button type="button" class="btn-step-next" data-action="next">Далі →</button>
-            </div>
-            </div>
 
             <div class="form-step-nav screen-only">
                 <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
@@ -1244,23 +1143,6 @@ Email: yehor.iordek@gmail.com
         // Підключення до Airtable (див. data-structure.md)
         const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
         const AIRTABLE_TABLE_ID = 'tblMV2RrZGmcGAdqz';
-
-        // Поля-вкладення для фото/сканів в розділі "Об'єктивні дослідження"
-        const OBJECTIVE_ATTACHMENT_INPUTS = {
-            imaging: 'obj_imaging_files',
-            surgery: 'obj_surgery_files',
-            regional: 'obj_regional_files',
-            systemic: 'obj_systemic_files'
-        };
-
-        const OBJECTIVE_ATTACHMENT_FIELD_IDS = {
-            imaging: 'fldySXhMmHSiZHtpV',
-            surgery: 'fldZUQjQpbK2AT0I8',
-            regional: 'fldDfS4hZCfoZidEg',
-            systemic: 'fldqNvqdPO9KLF6AU'
-        };
-
-        const objectiveAttachmentFiles = { imaging: [], surgery: [], regional: [], systemic: [] };
 
         // Зашифрований API-ключ Airtable (PBKDF2 + AES-256-GCM, пароль вводиться користувачем).
         // Порожні рядки = шифрування ще не налаштоване.
@@ -1585,103 +1467,6 @@ Email: yehor.iordek@gmail.com
             };
         }
 
-        // Об'єктивні дослідження — зчитує всі відповіді блоку
-        function getObjectiveData() {
-            return {
-                imagingDesc: document.getElementById('obj_imaging_desc').value,
-                imagingPhoto: document.getElementById('obj_imaging_photo').value,
-                surgeryDesc: document.getElementById('obj_surgery_desc').value,
-                surgeryPhoto: document.getElementById('obj_surgery_photo').value,
-                regionalDesc: document.getElementById('obj_regional_desc').value,
-                regionalPhoto: document.getElementById('obj_regional_photo').value,
-                systemicDesc: document.getElementById('obj_systemic_desc').value,
-                systemicPhoto: document.getElementById('obj_systemic_photo').value
-            };
-        }
-
-        // Об'єктивні дослідження — список вибраних файлів для конкретного блоку
-        function renderObjectiveFileList(key) {
-            const list = document.getElementById(OBJECTIVE_ATTACHMENT_INPUTS[key] + '_list');
-            list.innerHTML = '';
-            objectiveAttachmentFiles[key].forEach((file, index) => {
-                const item = document.createElement('div');
-                item.className = 'file-list-item';
-
-                const name = document.createElement('span');
-                name.textContent = file.name;
-
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.textContent = '✕';
-                removeBtn.setAttribute('aria-label', 'Видалити файл');
-                removeBtn.addEventListener('click', () => {
-                    objectiveAttachmentFiles[key].splice(index, 1);
-                    renderObjectiveFileList(key);
-                });
-
-                item.appendChild(name);
-                item.appendChild(removeBtn);
-                list.appendChild(item);
-            });
-        }
-
-        Object.keys(OBJECTIVE_ATTACHMENT_INPUTS).forEach(key => {
-            const input = document.getElementById(OBJECTIVE_ATTACHMENT_INPUTS[key]);
-            input.addEventListener('change', () => {
-                Array.from(input.files).forEach(file => objectiveAttachmentFiles[key].push(file));
-                input.value = '';
-                renderObjectiveFileList(key);
-            });
-        });
-
-        // Перетворює File у base64-рядок для завантаження в Airtable
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // Завантажує вибрані фото/скани у відповідні поля-вкладення Airtable
-        async function uploadObjectiveAttachments(apiKey, recordId) {
-            for (const key of Object.keys(objectiveAttachmentFiles)) {
-                for (const file of objectiveAttachmentFiles[key]) {
-                    const base64 = await fileToBase64(file);
-                    const response = await fetch(
-                        `https://content.airtable.com/v0/${AIRTABLE_BASE_ID}/${recordId}/${OBJECTIVE_ATTACHMENT_FIELD_IDS[key]}/uploadAttachment`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${apiKey}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                contentType: file.type || 'application/octet-stream',
-                                filename: file.name,
-                                file: base64
-                            })
-                        }
-                    );
-
-                    if (!response.ok) {
-                        const errorBody = await response.json().catch(() => null);
-                        const message = errorBody?.error?.message || response.statusText;
-                        throw new Error(`Airtable (фото): ${message}`);
-                    }
-                }
-            }
-        }
-
-        // Очищає вибрані файли після успішного збереження
-        function clearObjectiveAttachments() {
-            Object.keys(objectiveAttachmentFiles).forEach(key => {
-                objectiveAttachmentFiles[key] = [];
-                renderObjectiveFileList(key);
-            });
-        }
-
         // Сексуальна функція — показ/приховування залежних полів на екрані
         function updateSexFunctionVisibility() {
             const phantomSex = document.getElementById('sf_phantom_sex').value;
@@ -1759,7 +1544,7 @@ Email: yehor.iordek@gmail.com
         let pendingAction = 'save';
 
         // Покрокова навігація по розділах форми
-        const TOTAL_STEPS = 5;
+        const TOTAL_STEPS = 4;
         let currentStep = 1;
         const stepTabs = document.querySelectorAll('.step-tab');
         const formSteps = document.querySelectorAll('.form-step');
@@ -1980,7 +1765,6 @@ Email: yehor.iordek@gmail.com
                 stump_path_source: getCheckedValues('stumpPathSourceChips'),
                 som_react: getCheckedValues('somReactChips'),
                 ...getGenesisData(),
-                objective: getObjectiveData(),
                 consent: getConsentData()
             };
         }
@@ -2052,18 +1836,6 @@ Email: yehor.iordek@gmail.com
                 data[t.key] = reverseMapGenesisValues(fields[`Тести — ${t.airtableLabel} (позитивні)`], t.airtableMap);
                 data[`${t.key}Reactions`] = reverseMapGenesisValues(fields[`Тести — ${t.airtableLabel} (реакції)`], GENESIS_REACTION_AIRTABLE_MAP);
             });
-
-            // Об'єктивні дослідження
-            data.objective = {
-                imagingDesc: fields["Об'єктивні дослідження — інструментальні (УЗД/Рентген/КТ/МРТ)"] || '',
-                imagingPhoto: fields["Об'єктивні дослідження — фото інструментальних досліджень"] || '',
-                surgeryDesc: fields["Об'єктивні дослідження — оперативні втручання"] || '',
-                surgeryPhoto: fields["Об'єктивні дослідження — фото оперативних втручань"] || '',
-                regionalDesc: fields["Об'єктивні дослідження — регіонарне знеболення"] || '',
-                regionalPhoto: fields["Об'єктивні дослідження — фото регіонарного знеболення"] || '',
-                systemicDesc: fields["Об'єктивні дослідження — системне знеболення / фармакотерапія"] || '',
-                systemicPhoto: fields["Об'єктивні дослідження — фото системного знеболення / фармакотерапії"] || ''
-            };
 
             // Інформована згода
             data.consent = {
@@ -2222,16 +1994,6 @@ Email: yehor.iordek@gmail.com
                 fields[`Тести — ${t.airtableLabel} (реакції)`] = mapGenesisValues(formData[`${t.key}Reactions`], GENESIS_REACTION_AIRTABLE_MAP);
             });
 
-            const obj = formData.objective;
-            if (obj.imagingDesc) fields["Об'єктивні дослідження — інструментальні (УЗД/Рентген/КТ/МРТ)"] = obj.imagingDesc;
-            if (obj.imagingPhoto) fields["Об'єктивні дослідження — фото інструментальних досліджень"] = obj.imagingPhoto;
-            if (obj.surgeryDesc) fields["Об'єктивні дослідження — оперативні втручання"] = obj.surgeryDesc;
-            if (obj.surgeryPhoto) fields["Об'єктивні дослідження — фото оперативних втручань"] = obj.surgeryPhoto;
-            if (obj.regionalDesc) fields["Об'єктивні дослідження — регіонарне знеболення"] = obj.regionalDesc;
-            if (obj.regionalPhoto) fields["Об'єктивні дослідження — фото регіонарного знеболення"] = obj.regionalPhoto;
-            if (obj.systemicDesc) fields["Об'єктивні дослідження — системне знеболення / фармакотерапія"] = obj.systemicDesc;
-            if (obj.systemicPhoto) fields["Об'єктивні дослідження — фото системного знеболення / фармакотерапії"] = obj.systemicPhoto;
-
             const consent = formData.consent;
             if (consent.given) fields['Згода — надана'] = consent.given;
             if (consent.date) fields['Згода — дата'] = consent.date;
@@ -2256,11 +2018,6 @@ Email: yehor.iordek@gmail.com
                 const message = errorBody?.error?.message || response.statusText;
                 throw new Error(`Airtable: ${message}`);
             }
-
-            const savedRecord = await response.json();
-            const recordId = existingId || savedRecord.id;
-            await uploadObjectiveAttachments(apiKey, recordId);
-            clearObjectiveAttachments();
 
             return existingId !== null;
         }
@@ -2412,17 +2169,6 @@ Email: yehor.iordek@gmail.com
                 setCheckedValues(`${t.key}Chips`, data[t.key]);
                 setCheckedValues(`${t.key}ReactionsChips`, data[`${t.key}Reactions`]);
             });
-            if (data.objective) {
-                const obj = data.objective;
-                document.getElementById('obj_imaging_desc').value = obj.imagingDesc || '';
-                document.getElementById('obj_imaging_photo').value = obj.imagingPhoto || '';
-                document.getElementById('obj_surgery_desc').value = obj.surgeryDesc || '';
-                document.getElementById('obj_surgery_photo').value = obj.surgeryPhoto || '';
-                document.getElementById('obj_regional_desc').value = obj.regionalDesc || '';
-                document.getElementById('obj_regional_photo').value = obj.regionalPhoto || '';
-                document.getElementById('obj_systemic_desc').value = obj.systemicDesc || '';
-                document.getElementById('obj_systemic_photo').value = obj.systemicPhoto || '';
-            }
             if (data.consent) {
                 const consent = data.consent;
                 document.getElementById('consent_given').value = consent.given || '';
