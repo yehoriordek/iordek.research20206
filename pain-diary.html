@@ -496,7 +496,7 @@
 
         <form id="painDiaryForm">
             <div class="form-group">
-                <label for="pdNickname">Study ID учасника <span class="required">*</span></label>
+                <label for="pdNickname">Study ID або прізвище учасника <span class="required">*</span></label>
                 <input type="text" id="pdNickname" required>
             </div>
 
@@ -756,7 +756,7 @@
             return new TextDecoder().decode(plaintext);
         }
 
-        // Пошук запису учасника в Airtable за Study ID
+        // Пошук запису учасника в Airtable за Study ID або прізвищем
         async function findRecordIdByNickname(apiKey, nickname) {
             const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
             const response = await fetch(
@@ -771,7 +771,19 @@
             }
 
             const data = await response.json();
-            return data.records.length > 0 ? data.records[0].id : null;
+            if (data.records.length > 0) return data.records[0].id;
+            // Пошук за прізвищем (ПІБ)
+            const safe = nickname.replace(/"/g, '');
+            const formula2 = encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
+            const r2 = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula2}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&maxRecords=5`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
+            if (!r2.ok) return null;
+            const d2 = await r2.json();
+            if (d2.records.length === 1) return d2.records[0].id;
+            if (d2.records.length > 1) {
+                const names = d2.records.map(r => `${r.fields['fldc7W3fLYZxuBnDQ'] || '?'} (${r.fields['fldyUD3kFFZNJmbPF'] || '?'})`).join(', ');
+                throw new Error(`Знайдено кількох учасників: ${names}. Уточніть прізвище або введіть точний Study ID.`);
+            }
+            return null;
         }
 
         // Запис у щоденник болю в Airtable. Кожен запис — новий окремий рядок у таблиці "Щоденник болю",
@@ -779,7 +791,7 @@
         async function savePainDiaryEntry(apiKey, formData) {
             const participantId = await findRecordIdByNickname(apiKey, formData.nickname);
             if (!participantId) {
-                throw new Error(`Учасника зі Study ID "${formData.nickname}" не знайдено.`);
+                throw new Error(`Учасника зі Study ID або прізвищем "${formData.nickname}" не знайдено.`);
             }
 
             const fields = {
@@ -849,7 +861,7 @@
                 });
             } catch (err) {
                 console.error('Не вдалося зберегти запис щоденника болю в Airtable:', err);
-                passwordError.textContent = err.message && err.message.includes('не знайдено')
+                passwordError.textContent = err.message && (err.message.includes('не знайдено') || err.message.includes('кількох учасників'))
                     ? err.message
                     : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
                 passwordError.style.display = 'block';

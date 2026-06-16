@@ -97,7 +97,7 @@
         <form id="assessmentForm">
             <div class="header-fields">
                 <div class="form-group">
-                    <label for="assessmentNickname">Study ID учасника <span class="required">*</span></label>
+                    <label for="assessmentNickname">Study ID або прізвище учасника <span class="required">*</span></label>
                     <input type="text" id="assessmentNickname" required>
                 </div>
                 <div class="form-group">
@@ -1094,7 +1094,19 @@
             const response=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,{headers:{'Authorization':`Bearer ${apiKey}`}});
             if(!response.ok){const eb=await response.json().catch(()=>null);throw new Error(`Airtable: ${eb?.error?.message||response.statusText}`);}
             const data=await response.json();
-            return data.records.length>0?data.records[0].id:null;
+            if(data.records.length>0) return data.records[0].id;
+            // Пошук за прізвищем (ПІБ)
+            const safe=nickname.replace(/"/g,'');
+            const formula2=encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
+            const r2=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula2}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&maxRecords=5`,{headers:{'Authorization':`Bearer ${apiKey}`}});
+            if(!r2.ok) return null;
+            const d2=await r2.json();
+            if(d2.records.length===1) return d2.records[0].id;
+            if(d2.records.length>1){
+                const names=d2.records.map(r=>`${r.fields['fldc7W3fLYZxuBnDQ']||'?'} (${r.fields['fldyUD3kFFZNJmbPF']||'?'})`).join(', ');
+                throw new Error(`Знайдено кількох учасників: ${names}. Уточніть прізвище або введіть точний Study ID.`);
+            }
+            return null;
         }
 
         async function fetchParticipantPeriphDesc(apiKey, participantId) {
@@ -1117,7 +1129,7 @@
 
         async function saveAssessment(apiKey, formData) {
             const participantId=await findRecordIdByNickname(apiKey,formData.nickname);
-            if(!participantId) throw new Error(`Учасника зі Study ID "${formData.nickname}" не знайдено.`);
+            if(!participantId) throw new Error(`Учасника зі Study ID або прізвищем "${formData.nickname}" не знайдено.`);
 
             const clinDesc=await fetchParticipantPeriphDesc(apiKey,participantId);
             const ptDesc=formData.dog.dogPeripheral_descriptors||[];
