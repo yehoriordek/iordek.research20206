@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сесія психотерапії</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .print-mode-toggle {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-mode-toggle input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: #229954;
+        }
+
+        .btn-reset {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #7f8c8d;
+        }
+
+        .success-message {
+            display: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        .print-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .print-checkbox-group.print-only {
+            display: none;
+        }
+
+        .print-checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .print-checkbox-box {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #000;
+            flex-shrink: 0;
+        }
+
+        .chips-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #2c3e50;
+            transition: all 0.2s;
+        }
+
+        .chip input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+        .chip:has(input:checked) {
+            background-color: #3498db;
+            color: #fff;
+            border-color: #3498db;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        /* Режим друку */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .print-mode-toggle,
+            .button-group,
+            .success-message {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px 0;
+            }
+
+            .screen-only {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .print-checkbox-group.print-only {
+                display: flex !important;
+            }
+
+            input[type="text"],
+            select,
+            textarea {
+                border: none;
+                border-bottom: 1px solid #000;
+                padding: 8px 0;
+                margin-bottom: 20px;
+            }
+
+            input[type="text"]:focus,
+            select:focus,
+            textarea:focus {
+                box-shadow: none;
+                border-bottom: 1px dashed #000;
+            }
+
+            input[type="text"]::placeholder,
+            textarea::placeholder {
+                color: transparent;
+            }
+
+            label {
+                font-size: 12px;
+            }
+        }
+
+        /* Режим друку - візуальна імітація */
+        body.print-layout .container {
+            background-color: #fff;
+            box-shadow: none;
+            padding: 20px;
+        }
+
+        body.print-layout .screen-only {
+            display: none;
+        }
+
+        body.print-layout .print-only {
+            display: block;
+        }
+
+        body.print-layout .print-checkbox-group.print-only {
+            display: flex;
+        }
+
+        body.print-layout input[type="text"],
+        body.print-layout select {
+            border: none;
+            border-bottom: 2px solid #000;
+            padding: 8px 0;
+            background-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        body.print-layout input[type="text"]:focus,
+        body.print-layout select:focus {
+            box-shadow: none;
+            border-bottom-style: dashed;
+        }
+
+        body.print-layout input[type="text"]::placeholder {
+            color: transparent;
+        }
+
+        body.print-layout .button-group {
+            display: none;
+        }
+
+        body.print-layout .print-mode-toggle {
+            display: flex;
+        }
+
+        /* Модальне вікно для пароля */
+        .password-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .password-overlay.visible {
+            display: flex;
+        }
+
+        .password-dialog {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .password-dialog h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .password-dialog p {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .password-error {
+            display: none;
+            color: #e74c3c;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            display: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-mode-toggle">
+        <label>
+            <input type="checkbox" id="printModeToggle">
+            Режим друку
+        </label>
+    </div>
+
+    <div class="container">
+        <h1>Сесія психотерапії</h1>
+
+        <div class="success-message" id="successMessage">
+            ✓ Сесію збережено в Airtable!
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="psychotherapyForm">
+            <div class="form-group">
+                <label for="ptNickname">Study ID учасника <span class="required">*</span></label>
+                <input type="text" id="ptNickname" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ptDate">Дата сесії</label>
+                <input type="date" id="ptDate" class="screen-only">
+                <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата сесії (дд.мм.рррр)">
+            </div>
+
+            <div class="form-group">
+                <label>Тип запиту <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
+                <div class="chips-group screen-only" id="requestCatsChips">
+                    <label class="chip"><input type="checkbox" value="БАР"><span>БАР</span></label>
+                    <label class="chip"><input type="checkbox" value="Депресивні"><span>Депресивні</span></label>
+                    <label class="chip"><input type="checkbox" value="Тривожні"><span>Тривожні</span></label>
+                    <label class="chip"><input type="checkbox" value="Стрес/Травма"><span>Стрес/Травма</span></label>
+                    <label class="chip"><input type="checkbox" value="РХП"><span>РХП</span></label>
+                    <label class="chip"><input type="checkbox" value="Органічні"><span>Органічні</span></label>
+                    <label class="chip"><input type="checkbox" value="Інтерперсон. складн."><span>Інтерперсон. складн.</span></label>
+                    <label class="chip"><input type="checkbox" value="Сімейні стосунки"><span>Сімейні стосунки</span></label>
+                    <label class="chip"><input type="checkbox" value="Кризова"><span>Кризова</span></label>
+                    <label class="chip"><input type="checkbox" value="Суїцидальна"><span>Суїцидальна</span></label>
+                    <label class="chip"><input type="checkbox" value="Когнітивна"><span>Когнітивна</span></label>
+                    <label class="chip"><input type="checkbox" value="Конверсійний синдром"><span>Конверсійний синдром</span></label>
+                    <label class="chip"><input type="checkbox" value="Позит. психіатр. симпт."><span>Позит. психіатр. симпт.</span></label>
+                    <label class="chip"><input type="checkbox" value="Розлади мотивації"><span>Розлади мотивації</span></label>
+                </div>
+                <div class="print-checkbox-group print-only" aria-label="Тип запиту для друку">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>БАР</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Депресивні</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тривожні</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Стрес/Травма</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>РХП</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Органічні</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Інтерперсон. складн.</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Сімейні стосунки</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Кризова</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Суїцидальна</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Когнітивна</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Конверсійний синдром</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Позит. психіатр. симпт.</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Розлади мотивації</span></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="ptSymptomatology">Симптоматика</label>
+                <textarea id="ptSymptomatology" placeholder="Опишіть актуальну симптоматику учасника"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="ptMethods">Методи терапії</label>
+                <textarea id="ptMethods" placeholder="Опишіть застосовані методи"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="ptNotes">Нотатки</label>
+                <textarea id="ptNotes" placeholder="Додаткові нотатки"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Зберегти</button>
+                <button type="reset" class="btn-reset">Очистити</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-dialog">
+            <h2>Збереження в Airtable</h2>
+            <p>Введіть пароль для розблокування доступу до Airtable.</p>
+            <div class="form-group">
+                <input type="password" id="airtablePassword" placeholder="Пароль">
+            </div>
+            <div class="password-error" id="passwordError">Неправильний пароль. Спробуйте ще раз.</div>
+            <div class="button-group">
+                <button type="button" class="btn-submit" id="passwordConfirm">Зберегти</button>
+                <button type="button" class="btn-reset" id="passwordCancel">Скасувати</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Підключення до Airtable (див. data-structure.md)
+        const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
+        const PARTICIPANTS_TABLE_ID = 'tblMV2RrZGmcGAdqz';
+        const PSYCHOTHERAPY_TABLE_ID = 'tblbhovmQ9uk1fDp2';
+
+        // Зашифрований API-ключ Airtable (PBKDF2 + AES-256-GCM, пароль вводиться користувачем).
+        // Той самий ключ, що й в index.html та tfb-session.html.
+        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
+        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
+        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
+
+        const printModeToggle = document.getElementById('printModeToggle');
+        const form = document.getElementById('psychotherapyForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const passwordOverlay = document.getElementById('passwordOverlay');
+        const passwordInput = document.getElementById('airtablePassword');
+        const passwordError = document.getElementById('passwordError');
+        const passwordConfirm = document.getElementById('passwordConfirm');
+        const passwordCancel = document.getElementById('passwordCancel');
+
+        // Режим друку
+        printModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('print-layout');
+                window.print();
+            } else {
+                document.body.classList.remove('print-layout');
+            }
+        });
+
+        function showError(text) {
+            errorMessage.textContent = text;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess() {
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Зчитує значення позначених чекбоксів-чипів у контейнері
+        function getCheckedValues(containerId) {
+            return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
+        }
+
+        // Позначає чекбокси-чипи в контейнері за списком значень
+        function setCheckedValues(containerId, values) {
+            const selected = new Set(values || []);
+            document.querySelectorAll(`#${containerId} input[type="checkbox"]`).forEach(el => {
+                el.checked = selected.has(el.value);
+            });
+        }
+
+        function getFormData() {
+            return {
+                nickname: document.getElementById('ptNickname').value,
+                date: document.getElementById('ptDate').value,
+                requestCats: getCheckedValues('requestCatsChips'),
+                symptomatology: document.getElementById('ptSymptomatology').value,
+                methods: document.getElementById('ptMethods').value,
+                notes: document.getElementById('ptNotes').value
+            };
+        }
+
+        // Розшифрування Airtable API-ключа за паролем користувача
+        // (формат і параметри описані в .claude/skills/airtable-key-encryption/SKILL.md)
+        async function deriveAesKey(password, saltB64) {
+            const enc = new TextEncoder();
+            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+            const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+                baseKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['decrypt']
+            );
+        }
+
+        async function decryptAirtableKey(password) {
+            const key = await deriveAesKey(password, AIRTABLE_KEY_SALT);
+            const iv = Uint8Array.from(atob(AIRTABLE_KEY_IV), c => c.charCodeAt(0));
+            const ciphertext = Uint8Array.from(atob(AIRTABLE_KEY_CIPHERTEXT), c => c.charCodeAt(0));
+            const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+            return new TextDecoder().decode(plaintext);
+        }
+
+        // Пошук запису учасника в Airtable за Study ID
+        async function findRecordIdByNickname(apiKey, nickname) {
+            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
+            const response = await fetch(
+                `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                const message = errorBody?.error?.message || response.statusText;
+                throw new Error(`Airtable: ${message}`);
+            }
+
+            const data = await response.json();
+            return data.records.length > 0 ? data.records[0].id : null;
+        }
+
+        // Запис сесії психотерапії в Airtable. Кожна сесія — новий запис у таблиці "Сесії психотерапії",
+        // зв'язаний з учасником за Study ID.
+        async function savePsychotherapySession(apiKey, formData) {
+            const participantId = await findRecordIdByNickname(apiKey, formData.nickname);
+            if (!participantId) {
+                throw new Error(`Учасника зі Study ID "${formData.nickname}" не знайдено.`);
+            }
+
+            const fields = {
+                'Учасник': [participantId]
+            };
+
+            if (formData.date) fields['Дата'] = formData.date;
+            if (formData.requestCats.length) fields['Тип запиту'] = formData.requestCats;
+            if (formData.symptomatology) fields['Симптоматика'] = formData.symptomatology;
+            if (formData.methods) fields['Методи терапії'] = formData.methods;
+            if (formData.notes) fields['Нотатки'] = formData.notes;
+
+            const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PSYCHOTHERAPY_TABLE_ID}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fields })
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => null);
+                const message = errorBody?.error?.message || response.statusText;
+                throw new Error(`Airtable: ${message}`);
+            }
+        }
+
+        function openPasswordDialog() {
+            passwordInput.value = '';
+            passwordError.style.display = 'none';
+            passwordOverlay.classList.add('visible');
+            passwordInput.focus();
+        }
+
+        function closePasswordDialog() {
+            passwordOverlay.classList.remove('visible');
+            passwordInput.value = '';
+        }
+
+        passwordCancel.addEventListener('click', closePasswordDialog);
+
+        passwordConfirm.addEventListener('click', async function() {
+            const password = passwordInput.value;
+            if (!password) {
+                return;
+            }
+
+            passwordError.style.display = 'none';
+            passwordConfirm.disabled = true;
+
+            try {
+                const apiKey = await decryptAirtableKey(password);
+                await savePsychotherapySession(apiKey, getFormData());
+                closePasswordDialog();
+                showSuccess();
+                localStorage.removeItem('psychotherapySessionFormData');
+                form.reset();
+            } catch (err) {
+                console.error('Не вдалося зберегти сесію психотерапії в Airtable:', err);
+                passwordError.textContent = err.message && err.message.includes('не знайдено')
+                    ? err.message
+                    : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
+                passwordError.style.display = 'block';
+            } finally {
+                passwordConfirm.disabled = false;
+            }
+        });
+
+        // Обробка відправки форми
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!AIRTABLE_KEY_CIPHERTEXT) {
+                showError('Збереження в Airtable ще не налаштоване. Зверніться до адміністратора форми.');
+                return;
+            }
+
+            if (!document.getElementById('ptNickname').value) {
+                showError('Вкажіть Study ID учасника.');
+                return;
+            }
+
+            openPasswordDialog();
+        });
+
+        // Завантажити дані з localStorage (якщо були збережені)
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem('psychotherapySessionFormData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                document.getElementById('ptNickname').value = data.nickname || '';
+                document.getElementById('ptDate').value = data.date || '';
+                setCheckedValues('requestCatsChips', data.requestCats);
+                document.getElementById('ptSymptomatology').value = data.symptomatology || '';
+                document.getElementById('ptMethods').value = data.methods || '';
+                document.getElementById('ptNotes').value = data.notes || '';
+            }
+        });
+
+        // Зберегти дані в localStorage при змінах
+        form.addEventListener('change', function() {
+            localStorage.setItem('psychotherapySessionFormData', JSON.stringify(getFormData()));
+        });
+    </script>
+</body>
+</html>
