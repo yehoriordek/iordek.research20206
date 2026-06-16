@@ -108,12 +108,13 @@
                     <select id="assessmentStage" class="screen-only">
                         <option value="">—</option>
                         <option value="Первинне">Первинне</option>
-                        <option value="Всередині циклу">Всередині циклу</option>
+                        <option value="Контрольне">Контрольне</option>
                         <option value="Вихідне">Вихідне</option>
                     </select>
+                    <div id="stageInfo" style="font-size:13px;color:#666;margin-top:4px;"></div>
                     <div class="print-checkbox-group print-only">
                         <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Первинне</span></div>
-                        <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Всередині циклу</span></div>
+                        <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрольне</span></div>
                         <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Вихідне</span></div>
                     </div>
                 </div>
@@ -1049,6 +1050,42 @@
             return new TextDecoder().decode(plaintext);
         }
 
+        let cachedApiKey = null;
+
+        async function fetchCompletedStages(apiKey, nickname) {
+            const participantId = await findRecordIdByNickname(apiKey, nickname);
+            if (!participantId) return [];
+            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${ASSESSMENTS_TABLE_ID}?fields[]=${F.stage}&fields[]=${F.participant}`;
+            const r = await fetch(url, {headers: {Authorization: `Bearer ${apiKey}`}});
+            if (!r.ok) return [];
+            const data = await r.json();
+            return data.records
+                .filter(rec => Array.isArray(rec.fields[F.participant]) && rec.fields[F.participant].includes(participantId))
+                .map(rec => rec.fields[F.stage])
+                .filter(Boolean);
+        }
+
+        async function updateStageOptions(nickname) {
+            if (!cachedApiKey || !nickname) return;
+            const allStages = ['Первинне', 'Контрольне', 'Вихідне'];
+            try {
+                const done = await fetchCompletedStages(cachedApiKey, nickname);
+                const select = document.getElementById('assessmentStage');
+                const current = select.value;
+                select.innerHTML = '<option value="">—</option>';
+                allStages.forEach(stage => {
+                    if (!done.includes(stage)) {
+                        const opt = document.createElement('option');
+                        opt.value = stage; opt.textContent = stage;
+                        select.appendChild(opt);
+                    }
+                });
+                if (current && !done.includes(current)) select.value = current;
+                const info = document.getElementById('stageInfo');
+                info.textContent = done.length ? `Вже проведено: ${done.join(', ')}` : '';
+            } catch (_) {}
+        }
+
         async function findRecordIdByNickname(apiKey, nickname) {
             const formula=encodeURIComponent(`{Study ID}="${nickname}"`);
             const response=await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,{headers:{'Authorization':`Bearer ${apiKey}`}});
@@ -1314,6 +1351,7 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
   document.getElementById('passwordConfirm').textContent = 'Збереження…';
   try {
     const apiKey = await decryptAirtableKey(pw);
+    cachedApiKey = apiKey;
     await saveAssessment(apiKey, getFormData());
     closePasswordDialog();
     showSuccess('Запис збережено успішно.');
@@ -1326,6 +1364,11 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
 });
 document.getElementById('airtablePassword').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('passwordConfirm').click();
+});
+
+document.getElementById('assessmentNickname').addEventListener('blur', () => {
+  const nick = document.getElementById('assessmentNickname').value.trim();
+  updateStageOptions(nick);
 });
 
 // ── Form submit ───────────────────────────────────────────────────────────────
