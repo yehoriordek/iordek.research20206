@@ -1060,26 +1060,40 @@
         if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
         let _passwordCallback = null;
 
-        async function fetchNicknameSuggestions(apiKey, query) {
-            const safe = query.replace(/"/g, '');
-            const formula = encodeURIComponent(`OR(SEARCH(LOWER("${safe}"),LOWER({ПІБ})),SEARCH(LOWER("${safe}"),LOWER({Study ID})))`);
-            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=10`;
+        let _participantsCache = null;
+        async function loadAllParticipants(apiKey) {
+            if (_participantsCache) return _participantsCache;
+            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=500`;
             try {
                 const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
                 if (!r.ok) {
                     const errText = await r.text().catch(() => r.status);
-                    return [{ value: '', label: `⚠️ Помилка ${r.status}: ${String(errText).slice(0,80)}`, _error: true }];
+                    return { error: `⚠️ Помилка ${r.status}: ${String(errText).slice(0,80)}` };
                 }
                 const data = await r.json();
-                return data.records.map(rec => {
-                    const name = rec.fields['fldyUD3kFFZNJmbPF'] || rec.fields['fldc7W3fLYZxuBnDQ'] || '';
-                    const dob = rec.fields['fldhSmAshVfZmuC63'] || '';
-                    const dobFormatted = dob ? new Date(dob).toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'}) : '';
-                    return name ? { value: name, label: dobFormatted ? `${name} (${dobFormatted})` : name } : null;
-                }).filter(Boolean);
+                _participantsCache = data.records.map(rec => ({
+                    name: rec.fields['fldc7W3fLYZxuBnDQ'] || '',
+                    id: rec.fields['fldyUD3kFFZNJmbPF'] || '',
+                    dob: rec.fields['fldhSmAshVfZmuC63'] || ''
+                }));
+                return _participantsCache;
             } catch(e) {
-                return [{ value: '', label: `⚠️ Помилка з'єднання: ${String(e).slice(0,80)}`, _error: true }];
+                return { error: `⚠️ Помилка з'єднання: ${String(e).slice(0,80)}` };
             }
+        }
+        async function fetchNicknameSuggestions(apiKey, query) {
+            const result = await loadAllParticipants(apiKey);
+            if (result && result.error) return [{ value: '', label: result.error, _error: true }];
+            const q = query.toLowerCase();
+            return result
+                .filter(p => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q))
+                .slice(0, 10)
+                .map(p => {
+                    const label_val = p.id || p.name;
+                    const dobFormatted = p.dob ? new Date(p.dob).toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'}) : '';
+                    const display = dobFormatted ? `${p.name} (${dobFormatted})` : p.name;
+                    return { value: label_val, label: display };
+                });
         }
 
         async function fetchCompletedStages(apiKey, nickname) {
