@@ -1061,13 +1061,13 @@
 
         async function fetchNicknameSuggestions(apiKey, query) {
             const safe = query.replace(/"/g, '');
-            const formula = encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
-            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&maxRecords=10`;
+            const formula = encodeURIComponent(`OR(SEARCH(LOWER("${safe}"),LOWER({ПІБ})),SEARCH(LOWER("${safe}"),LOWER({Study ID})))`);
+            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&maxRecords=10`;
             try {
                 const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
                 if (!r.ok) return [];
                 const data = await r.json();
-                return data.records.map(rec => rec.fields['fldc7W3fLYZxuBnDQ'] || '').filter(Boolean);
+                return data.records.map(rec => rec.fields['fldyUD3kFFZNJmbPF'] || rec.fields['fldc7W3fLYZxuBnDQ'] || '').filter(Boolean);
             } catch { return []; }
         }
 
