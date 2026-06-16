@@ -1941,6 +1941,10 @@ Email: yehor.iordek@gmail.com
                 fields['Вік'] = formData.patient_age;
             }
 
+            if (formData.patient_birthdate) {
+                fields['Дата народження'] = formData.patient_birthdate;
+            }
+
             if (formData.person_type) {
                 fields['Тип учасника'] = formData.person_type;
             }
