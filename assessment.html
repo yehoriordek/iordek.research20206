@@ -78,6 +78,8 @@
         body.print-layout .print-checkbox-group.print-only { display: flex; }
         body.print-layout .section-tabs { display: none; }
         body.print-layout .section-panel { display: block; }
+        .section-panel.amputation-hidden { display: none !important; }
+        .section-tab.amputation-hidden { display: none !important; }
         body.print-layout input[type="text"], body.print-layout select { border: none; border-bottom: 2px solid #000; padding: 8px 0; background-color: transparent; margin-bottom: 15px; }
         body.print-layout input[type="text"]::placeholder { color: transparent; }
         body.print-layout .button-group { display: none; }
@@ -1411,18 +1413,19 @@ document.getElementById('assessmentNickname').addEventListener('blur', async () 
   const nick = document.getElementById('assessmentNickname').value.trim();
   updateStageOptions(nick);
   const dobEl = document.getElementById('participantDobInfo');
-  if (!nick) { dobEl.textContent='—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; return; }
+  if (!nick) { dobEl.textContent='—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; updateSectionsForAmputation(true); return; }
   dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; dobEl.textContent='Пошук…';
   try {
     const r = await fetch('https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?maxRecords=500', { headers: { Authorization: `Bearer ${READ_KEY}` } });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||rec.fields['ПІБ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||rec.fields['Study ID']||'', dob: rec.fields['fldhSmAshVfZmuC63']||rec.fields['Дата народження']||'' }));
+    const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||rec.fields['ПІБ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||rec.fields['Study ID']||'', dob: rec.fields['fldhSmAshVfZmuC63']||rec.fields['Дата народження']||'', hasAmputation: !!rec.fields['fldIUEp6Tfvi2gyjA'] }));
     const q = nick.toLowerCase();
     const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().startsWith(q)));
     if (matches.length===1) {
       const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
       dobEl.style.color='#27ae60'; dobEl.style.background='#eafaf1'; dobEl.style.borderColor='#27ae60'; dobEl.textContent=dob;
+      updateSectionsForAmputation(matches[0].hasAmputation);
     } else if (matches.length>1) {
       dobEl.style.color='#e67e22'; dobEl.style.background='#fef9e7'; dobEl.style.borderColor='#e67e22'; dobEl.textContent=`${matches.length} збіги — уточніть`;
     } else {
@@ -1446,10 +1449,31 @@ document.getElementById('assessmentForm').addEventListener('submit', e => {
 });
 
 // ── Section tabs ──────────────────────────────────────────────────────────────
-const SECTION_ORDER = ['dog', 'sleep', 'psi', 'sf'];
+let SECTION_ORDER = ['dog', 'sleep', 'psi', 'sf'];
+
+function updateSectionsForAmputation(hasAmputation) {
+  const ampSections = ['dog', 'sf'];
+  ampSections.forEach(sec => {
+    const tab = document.querySelector(`.section-tab[data-section="${sec}"]`);
+    const panel = document.getElementById('panel-' + sec);
+    if (hasAmputation) {
+      tab && tab.classList.remove('amputation-hidden');
+      panel && panel.classList.remove('amputation-hidden');
+    } else {
+      tab && tab.classList.add('amputation-hidden');
+      panel && panel.classList.add('amputation-hidden');
+    }
+  });
+  SECTION_ORDER = hasAmputation ? ['dog', 'sleep', 'psi', 'sf'] : ['sleep', 'psi'];
+  // If current active section is now hidden, switch to first visible
+  const activeTab = document.querySelector('.section-tab.active:not(.amputation-hidden)');
+  if (!activeTab) {
+    activateSection(SECTION_ORDER[0]);
+  }
+}
 
 function updateFormButtons(section) {
-  const isLast = section === 'sf';
+  const isLast = section === SECTION_ORDER[SECTION_ORDER.length - 1];
   document.getElementById('btnNext').style.display = isLast ? 'none' : '';
   document.getElementById('btnSubmit').style.display = isLast ? '' : 'none';
 }
