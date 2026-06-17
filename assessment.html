@@ -1187,7 +1187,7 @@
         }
 
         async function findExistingAssessmentId(apiKey, participantId, stage) {
-            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${ASSESSMENTS_TABLE_ID}?fields[]=${F.stage}&fields[]=${F.participant}&maxRecords=100`;
+            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${ASSESSMENTS_TABLE_ID}?fields[]=${F.stage}&fields[]=${F.participant}&maxRecords=100&returnFieldsByFieldId=true`;
             const r = await fetch(url, {headers: {Authorization: `Bearer ${apiKey}`}});
             if (!r.ok) return null;
             const data = await r.json();
