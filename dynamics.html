@@ -317,8 +317,7 @@
         }
 
         async function fetchParticipantDetails(participantId) {
-            const fieldsParam = PARTICIPANT_FIELDS.map(f => `fields[]=${f}`).join('&');
-            const url = `https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}/${participantId}?${fieldsParam}`;
+            const url = `https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}/${participantId}`;
             return apiFetch(url);
         }
 
@@ -484,7 +483,7 @@
                     </div>`;
 
             } catch (e) {
-                showError('Помилка завантаження даних. Перевірте з\'єднання з інтернетом.');
+                showError('Помилка: ' + (e.message || e));
                 document.getElementById('resultsArea').innerHTML = '';
                 console.error(e);
             } finally {
