@@ -136,6 +136,12 @@
                         <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Вихідне</span></div>
                     </div>
                 </div>
+                <div class="form-group screen-only" style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                    <label style="margin:0;font-weight:normal;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" id="manualHasAmputation" style="width:18px;height:18px;cursor:pointer;">
+                        Є ампутація (ДОГ + сексуальна функція)
+                    </label>
+                </div>
             </div>
 
             <div class="wizard-progress screen-only" id="wizardProgress">
@@ -1465,6 +1471,9 @@ document.getElementById('airtablePassword').addEventListener('keydown', e => {
 });
 
 const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
+document.getElementById('manualHasAmputation').addEventListener('change', function() {
+    updateSectionsForAmputation(this.checked);
+});
 document.getElementById('assessmentNickname').addEventListener('blur', async () => {
   const nick = document.getElementById('assessmentNickname').value.trim();
   updateStageOptions(nick);
@@ -1481,7 +1490,9 @@ document.getElementById('assessmentNickname').addEventListener('blur', async () 
     if (matches.length===1) {
       const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
       dobEl.style.color='#27ae60'; dobEl.style.background='#eafaf1'; dobEl.style.borderColor='#27ae60'; dobEl.textContent=dob;
-      updateSectionsForAmputation(matches[0].hasAmputation);
+      const hasAmp = matches[0].hasAmputation;
+      document.getElementById('manualHasAmputation').checked = hasAmp;
+      updateSectionsForAmputation(hasAmp);
     } else if (matches.length>1) {
       dobEl.style.color='#e67e22'; dobEl.style.background='#fef9e7'; dobEl.style.borderColor='#e67e22'; dobEl.textContent=`${matches.length} збіги — уточніть`;
     } else {
