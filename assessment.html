@@ -1180,7 +1180,7 @@
             const data = await r.json();
             const match = data.records.find(rec =>
                 Array.isArray(rec.fields[F.participant]) &&
-                rec.fields[F.participant].some(p => p.id === participantId) &&
+                rec.fields[F.participant].some(p => (typeof p === 'string' ? p : p.id) === participantId) &&
                 rec.fields[F.stage] === stage
             );
             return match ? match.id : null;
