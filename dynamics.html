@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Динаміка</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f0f4f8;
+            padding: 24px 20px;
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .back-link {
+            text-decoration: none;
+            color: #3498db;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+        h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .search-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .search-box label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .search-box input {
+            padding: 9px 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            width: 260px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,0.1); }
+        .btn-search {
+            padding: 9px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            height: 38px;
+        }
+        .btn-search:hover { background: #2980b9; }
+        .btn-search:disabled { background: #aaa; cursor: default; }
+        .search-hint {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 4px;
+        }
+        .error-msg {
+            display: none;
+            background: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .patient-label {
+            display: none;
+            background: #eef6ff;
+            border: 1px solid #b8d9f8;
+            color: #1a6fbf;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        .panels-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .panels-grid { grid-template-columns: 1fr; }
+        }
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+        .panel-header.primary   { background: #2980b9; }
+        .panel-header.control   { background: #27ae60; }
+        .panel-header.exit      { background: #8e44ad; }
+        .panel-date {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+        .panel-body {
+            padding: 16px 18px;
+            font-size: 13px;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        .panel-empty {
+            padding: 20px 18px;
+            font-size: 13px;
+            color: #95a5a6;
+            text-align: center;
+        }
+        .section-block {
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .section-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .section-name {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #95a5a6;
+            margin-bottom: 6px;
+        }
+        .kv-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+        .kv-label { color: #7f8c8d; flex-shrink: 0; }
+        .kv-value { font-weight: 500; text-align: right; }
+        .kv-value.highlight { color: #2980b9; }
+        .placeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 900px) { .placeholder-grid { grid-template-columns: 1fr; } }
+        .panel-placeholder {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .placeholder-header {
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            opacity: 0.5;
+        }
+        .placeholder-header.p1 { background: #2980b9; }
+        .placeholder-header.p2 { background: #27ae60; }
+        .placeholder-header.p3 { background: #8e44ad; }
+        .placeholder-body {
+            padding: 24px 18px;
+            font-size: 13px;
+            color: #bdc3c7;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-link">← Головне меню</a>
+        <h1>Динаміка</h1>
+    </div>
+
+    <div class="search-box">
+        <div>
+            <label for="searchInput">Study ID або прізвище учасника</label>
+            <input type="text" id="searchInput" placeholder="напр. P-001 або Шевченко" autocomplete="off">
+            <div class="search-hint">Введіть Study ID або прізвище й натисніть «Показати»</div>
+        </div>
+        <button class="btn-search" id="searchBtn">Показати</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="patient-label" id="patientLabel"></div>
+
+    <div id="resultsArea">
+        <div class="placeholder-grid">
+            <div class="panel-placeholder">
+                <div class="placeholder-header p1">Первинне опитування</div>
+                <div class="placeholder-body">Оберіть учасника вище</div>
+            </div>
+            <div class="panel-placeholder">
+                <div class="placeholder-header p2">Контрольне опитування</div>
+                <div class="placeholder-body">Оберіть учасника вище</div>
+            </div>
+            <div class="panel-placeholder">
+                <div class="placeholder-header p3">Вихідне опитування</div>
+                <div class="placeholder-body">Оберіть учасника вище</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_ID = 'appRtxXIvhSWdb6sJ';
+        const PARTICIPANTS_TABLE = 'tblMV2RrZGmcGAdqz';
+        const ASSESSMENTS_TABLE = 'tbl8rTohI4Gabljzj';
+        const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
+
+        const F = {
+            participant: 'fldOvnRMjumfqtukm',
+            date:        'fldaNRYQ40WdOUzND',
+            stage:       'fldMwwF3uRP0yFc3K',
+
+            dogDominant:       'fldAwJWK9aMeHLIY1',
+            dogJaccard:        'fldBT7JLCImxFruX5',
+            dogPeriphSum:      'fldoXBae198RL2TZl',
+            dogSpinalSum:      'fldlXy6j1WNcHH77u',
+            dogCerebralSum:    'flddhhhflpDhTwkBy',
+            dogPsychogenicSum: 'fld1ydy53Fg1Rwaxa',
+            dogPredictorSum:   'fldNsjI7dE65Gi8xN',
+            dogModulatorsSum:  'flddjnMemNFCVYYDz',
+
+            sleepDominant: 'fld3lHyPfSZ0kMh7A',
+            sleepPhase:    'fldadjkCHH4TXUqUQ',
+            sleepBidir:    'fldvO8dHj1b5doNTR',
+            sleepHours:    'fld3dAdPN9hp3IMzr',
+
+            pcl5Sum:    'fldRJYmYD24ZLAO4e',
+            pcl5Interp: 'fldZ3yP95DDLz8aFc',
+
+            hadsSumT:   'fld6djfVGUijkPMj7',
+            hadsSumD:   'fldEOMnovt7172jsb',
+            hadsInterpT:'fldZfxArFFVPx8mV6',
+            hadsInterpD:'fldhazjv6ccoc9fzu',
+
+            aisSum:    'fldLioK3UnHfOMMRe',
+            aisInterp: 'fldXRTeYqkpLefyAW',
+
+            dn4Sum:    'fldFHlOeMIiJuucIP',
+            dn4Interp: 'fldGkt35iwnrY1Pny',
+
+            cssrsRisk: 'fldgqTmwdvGwdmgXX',
+
+            destMean:   'fldIpCGFFH4bZD7AY',
+            destInterp: 'fldRhe2fR4tqpKT6i',
+
+            mocaScore:  'fldFuvVjzQuRO5LeH',
+            mocaInterp: 'fldSNBICDxl8XkO1r',
+        };
+
+        const DISPLAY_FIELDS = Object.values(F);
+
+        async function apiFetch(url) {
+            const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        }
+
+        async function findParticipant(query) {
+            const q = query.trim();
+            const byId = encodeURIComponent(`{fldyUD3kFFZNJmbPF}="${q}"`);
+            let data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byId}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ`);
+            if (data.records.length > 0) return data.records[0];
+            const byName = encodeURIComponent(`FIND(LOWER("${q}"),LOWER({fldc7W3fLYZxuBnDQ}))`);
+            data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byName}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ`);
+            if (data.records.length > 0) return data.records[0];
+            return null;
+        }
+
+        async function fetchAssessmentsForParticipant(participantId) {
+            const fieldsParam = DISPLAY_FIELDS.map(f => `fields[]=${f}`).join('&');
+            let allRecords = [];
+            let offset = null;
+            do {
+                const url = `https://api.airtable.com/v0/${BASE_ID}/${ASSESSMENTS_TABLE}?${fieldsParam}&maxRecords=100${offset ? `&offset=${offset}` : ''}`;
+                const data = await apiFetch(url);
+                const matching = data.records.filter(rec =>
+                    Array.isArray(rec.fields[F.participant]) && rec.fields[F.participant].includes(participantId)
+                );
+                allRecords = allRecords.concat(matching);
+                offset = data.offset || null;
+            } while (offset);
+            return allRecords;
+        }
+
+        function v(rec, key) {
+            const val = rec.fields[key];
+            if (val === undefined || val === null || val === '') return null;
+            if (Array.isArray(val)) return val.join(', ');
+            return String(val);
+        }
+
+        function kv(label, value) {
+            if (value === null || value === undefined) return '';
+            return `<div class="kv-row"><span class="kv-label">${label}</span><span class="kv-value">${value}</span></div>`;
+        }
+
+        function kvH(label, value) {
+            if (value === null || value === undefined) return '';
+            return `<div class="kv-row"><span class="kv-label">${label}</span><span class="kv-value highlight">${value}</span></div>`;
+        }
+
+        function section(name, html) {
+            if (!html) return '';
+            return `<div class="section-block"><div class="section-name">${name}</div>${html}</div>`;
+        }
+
+        function formatDate(raw) {
+            if (!raw) return null;
+            const d = new Date(raw);
+            if (isNaN(d)) return raw;
+            return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+        }
+
+        function renderRecord(rec) {
+            let html = '';
+
+            // ДОГ
+            let dogHtml = '';
+            dogHtml += kvH('Домінантний генез', v(rec, F.dogDominant));
+            dogHtml += kv('Периферичний', v(rec, F.dogPeriphSum));
+            dogHtml += kv('Спінальний', v(rec, F.dogSpinalSum));
+            dogHtml += kv('Церебральний', v(rec, F.dogCerebralSum));
+            dogHtml += kv('Психокогнітивний', v(rec, F.dogPsychogenicSum));
+            dogHtml += kv('Предиктор (куксa)', v(rec, F.dogPredictorSum));
+            dogHtml += kv('Модулятори', v(rec, F.dogModulatorsSum));
+            if (v(rec, F.dogJaccard) !== null)
+                dogHtml += kv('Узгодженість дескрипт.', v(rec, F.dogJaccard));
+            html += section('ДОГ ФБіФВ', dogHtml);
+
+            // Sleep
+            let sleepHtml = '';
+            sleepHtml += kvH('Генез порушень сну', v(rec, F.sleepDominant));
+            sleepHtml += kv('Фаза', v(rec, F.sleepPhase));
+            sleepHtml += kv('Біль↔сон', v(rec, F.sleepBidir));
+            sleepHtml += kv('Тривалість сну', v(rec, F.sleepHours));
+            html += section('Скринінг сну', sleepHtml);
+
+            // ПСІ
+            let psiHtml = '';
+            psiHtml += kvH('PCL-5 сума', v(rec, F.pcl5Sum));
+            psiHtml += kv('Інтерпретація', v(rec, F.pcl5Interp));
+            psiHtml += kv('HADS тривога', v(rec, F.hadsSumT));
+            psiHtml += kv('   інтерпретація', v(rec, F.hadsInterpT));
+            psiHtml += kv('HADS депресія', v(rec, F.hadsSumD));
+            psiHtml += kv('   інтерпретація', v(rec, F.hadsInterpD));
+            psiHtml += kv('AIS сума', v(rec, F.aisSum));
+            psiHtml += kv('   інтерпретація', v(rec, F.aisInterp));
+            psiHtml += kv('DN4 сума', v(rec, F.dn4Sum));
+            psiHtml += kv('   інтерпретація', v(rec, F.dn4Interp));
+            psiHtml += kv('DEST середнє', v(rec, F.destMean));
+            psiHtml += kv('   інтерпретація', v(rec, F.destInterp));
+            psiHtml += kv('MoCA бал', v(rec, F.mocaScore));
+            psiHtml += kv('   інтерпретація', v(rec, F.mocaInterp));
+            psiHtml += kvH('CSSRS ризик', v(rec, F.cssrsRisk));
+            html += section('ПСІ-батарея', psiHtml);
+
+            return html;
+        }
+
+        function renderPanel(title, colorClass, rec) {
+            const dateStr = rec ? formatDate(rec.fields[F.date]) : null;
+            const headerDate = dateStr ? `<div class="panel-date">${dateStr}</div>` : '';
+            if (!rec) {
+                return `
+                    <div class="panel">
+                        <div class="panel-header ${colorClass}">${title}${headerDate}</div>
+                        <div class="panel-empty">Даних немає</div>
+                    </div>`;
+            }
+            return `
+                <div class="panel">
+                    <div class="panel-header ${colorClass}">${title}${headerDate}</div>
+                    <div class="panel-body">${renderRecord(rec)}</div>
+                </div>`;
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        async function doSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = true;
+            btn.textContent = 'Завантаження…';
+            hideError();
+            document.getElementById('patientLabel').style.display = 'none';
+            document.getElementById('resultsArea').innerHTML = '<div style="color:#95a5a6;font-size:14px;text-align:center;padding:30px">Завантаження даних…</div>';
+
+            try {
+                const participant = await findParticipant(query);
+                if (!participant) {
+                    showError(`Учасника зі Study ID або прізвищем «${query}» не знайдено.`);
+                    document.getElementById('resultsArea').innerHTML = '';
+                    return;
+                }
+
+                const pf = participant.fields;
+                const studyId = pf['fldyUD3kFFZNJmbPF'] || '';
+                const fullName = pf['fldc7W3fLYZxuBnDQ'] || '';
+                const labelEl = document.getElementById('patientLabel');
+                labelEl.textContent = `Учасник: ${studyId}${fullName ? ' — ' + fullName : ''}`;
+                labelEl.style.display = 'block';
+
+                const records = await fetchAssessmentsForParticipant(participant.id);
+
+                const byStage = { 'Первинне': null, 'Контрольне': null, 'Вихідне': null };
+                records.forEach(rec => {
+                    const s = rec.fields[F.stage];
+                    if (s && byStage.hasOwnProperty(s)) {
+                        byStage[s] = rec;
+                    }
+                });
+
+                const html = `
+                    <div class="panels-grid">
+                        ${renderPanel('Первинне опитування', 'primary', byStage['Первинне'])}
+                        ${renderPanel('Контрольне опитування', 'control', byStage['Контрольне'])}
+                        ${renderPanel('Вихідне опитування', 'exit', byStage['Вихідне'])}
+                    </div>`;
+                document.getElementById('resultsArea').innerHTML = html;
+
+            } catch (e) {
+                showError('Помилка завантаження даних. Перевірте з\'єднання з інтернетом.');
+                document.getElementById('resultsArea').innerHTML = '';
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Показати';
+            }
+        }
+
+        document.getElementById('searchBtn').addEventListener('click', doSearch);
+        document.getElementById('searchInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doSearch();
+        });
+    </script>
+</body>
+</html>
