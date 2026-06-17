@@ -51,6 +51,11 @@
         .section-tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
         .section-tab { padding: 10px 18px; border: 1px solid #bdc3c7; border-radius: 4px; background: white; cursor: pointer; font-size: 14px; font-weight: 500; color: #555; transition: all 0.2s; }
         .section-tab.active { background-color: #3498db; color: white; border-color: #3498db; }
+        .wizard-progress { margin-bottom: 20px; padding: 12px 16px; background: white; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .wizard-step-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .wizard-progress-bar { height: 6px; background: #ecf0f1; border-radius: 3px; margin-bottom: 8px; }
+        .wizard-progress-fill { height: 100%; background: #3498db; border-radius: 3px; transition: width 0.3s; }
+        .wizard-step-name { font-size: 14px; font-weight: 600; color: #2c3e50; }
         .section-panel { display: none; }
         .section-panel.active { display: block; }
         .password-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; }
@@ -62,7 +67,7 @@
 
         @media print {
             body { background-color: white; padding: 0; }
-            .print-mode-toggle, .button-group, .success-message, .error-message, .section-tabs { display: none !important; }
+            .print-mode-toggle, .button-group, .success-message, .error-message, .section-tabs, .wizard-progress { display: none !important; }
             .container { box-shadow: none; padding: 20px 0; }
             .screen-only { display: none !important; }
             .print-only { display: block !important; }
@@ -77,9 +82,15 @@
         body.print-layout .print-only { display: block; }
         body.print-layout .print-checkbox-group.print-only { display: flex; }
         body.print-layout .section-tabs { display: none; }
+        body.print-layout .wizard-progress { display: none; }
         body.print-layout .section-panel { display: block; }
         .section-panel.amputation-hidden { display: none !important; }
         .section-tab.amputation-hidden { display: none !important; }
+        .wizard-progress { margin-bottom: 20px; padding: 14px 18px; background: white; border-radius: 6px; border: 1px solid #e0e0e0; }
+        .wizard-step-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .wizard-progress-bar { height: 6px; background: #ecf0f1; border-radius: 3px; margin-bottom: 10px; }
+        .wizard-progress-fill { height: 100%; background: #3498db; border-radius: 3px; transition: width 0.3s ease; }
+        .wizard-step-name { font-size: 15px; font-weight: 600; color: #2c3e50; }
         body.print-layout input[type="text"], body.print-layout select { border: none; border-bottom: 2px solid #000; padding: 8px 0; background-color: transparent; margin-bottom: 15px; }
         body.print-layout input[type="text"]::placeholder { color: transparent; }
         body.print-layout .button-group { display: none; }
@@ -127,15 +138,14 @@
                 </div>
             </div>
 
-            <div class="section-tabs screen-only">
-                <button type="button" class="section-tab active" data-section="dog">ДОГ ФБіФВ</button>
-                <button type="button" class="section-tab" data-section="sleep">Скринінг сну</button>
-                <button type="button" class="section-tab" data-section="psi">ПСІ-батарея</button>
-                <button type="button" class="section-tab" data-section="sf">Сексуальна функція</button>
+            <div class="wizard-progress screen-only" id="wizardProgress">
+              <div class="wizard-step-label" id="wizardStepLabel">Крок 1 з 11</div>
+              <div class="wizard-progress-bar"><div class="wizard-progress-fill" id="wizardProgressFill"></div></div>
+              <div class="wizard-step-name" id="wizardStepName">LEC-5 — перелік травматичних подій</div>
             </div>
 
             <!-- ДОГ section -->
-            <div class="section-panel active" id="panel-dog">
+            <div class="section-panel" id="panel-dog">
                 <h2 class="section-title">ДОГ ФБіФВ — мультифакторний діагностичний опитувальник</h2>
                 <div class="section-hint">Варіант А — скорочена версія (4 генези × 8 питань + предиктор + модулятори). Підрахунок балів: відповіді зліва направо від 0 до 4 балів.</div>
                 <div id="dogBlocksContainer"></div>
@@ -162,8 +172,8 @@
                 </div>
             </div>
 
-            <!-- PSI section -->
-            <div class="section-panel" id="panel-psi">
+            <!-- PSI: LEC-5 -->
+            <div class="section-panel" id="panel-lec5">
                 <h2 class="section-title">ПСІ-батарея — LEC-5 (перелік травматичних подій)</h2>
                 <div class="section-hint">Для кожної події позначте, як вона стосується вас (можна декілька варіантів).</div>
                 <div id="psiLec5Container"></div>
@@ -173,7 +183,11 @@
                     <label>Прямих травматичних подій (зі мною)</label><input type="text" class="print-only">
                     <label>Подій як свідок</label><input type="text" class="print-only">
                 </div>
-                <h3 class="section-title">PCL-5 — опитувальник симптомів ПТСР</h3>
+            </div>
+
+            <!-- PSI: PCL-5 -->
+            <div class="section-panel" id="panel-pcl5">
+                <h2 class="section-title">PCL-5 — опитувальник симптомів ПТСР</h2>
                 <div class="section-hint">Протягом останнього місяця, наскільки вас турбували наступні симптоми?</div>
                 <div id="psiPcl5Container"></div>
                 <h3 class="section-title">Підсумок PCL-5</h3>
@@ -182,7 +196,11 @@
                     <label>Сума балів (0-80)</label><input type="text" class="print-only">
                     <label>Інтерпретація</label><input type="text" class="print-only">
                 </div>
-                <h3 class="section-title">HADS — шкала тривоги та депресії</h3>
+            </div>
+
+            <!-- PSI: HADS -->
+            <div class="section-panel" id="panel-hads">
+                <h2 class="section-title">HADS — шкала тривоги та депресії</h2>
                 <div class="section-hint">Позначте варіант, що найкраще відповідає вашому стану протягом останнього тижня.</div>
                 <div id="psiHadsContainer"></div>
                 <h3 class="section-title">Підсумок HADS</h3>
@@ -193,7 +211,11 @@
                     <label>Сума Д — депресія (0-21)</label><input type="text" class="print-only">
                     <label>Інтерпретація Д</label><input type="text" class="print-only">
                 </div>
-                <h3 class="section-title">AIS — Афінська шкала інсомнії</h3>
+            </div>
+
+            <!-- PSI: AIS -->
+            <div class="section-panel" id="panel-ais">
+                <h2 class="section-title">AIS — Афінська шкала інсомнії</h2>
                 <div class="section-hint">Якщо протягом останнього місяця ви мали проблеми хоча б тричі на тиждень, позначте варіант.</div>
                 <div id="psiAisContainer"></div>
                 <h3 class="section-title">Підсумок AIS</h3>
@@ -202,24 +224,11 @@
                     <label>Сума балів (0-24)</label><input type="text" class="print-only">
                     <label>Інтерпретація</label><input type="text" class="print-only">
                 </div>
-                <h3 class="section-title">DN-4 — опитувальник нейропатичного болю</h3>
-                <div class="section-hint">Для кожної ознаки позначте, чи присутня вона у ділянці болю.</div>
-                <div id="psiDn4Container"></div>
-                <h3 class="section-title">Підсумок DN-4</h3>
-                <div class="form-group screen-only" id="psiDn4Summary"></div>
-                <div class="form-group print-only">
-                    <label>Сума балів (0-10)</label><input type="text" class="print-only">
-                    <label>Інтерпретація</label><input type="text" class="print-only">
-                </div>
-                <h3 class="section-title">C-SSRS — оцінка суїцидального ризику</h3>
-                <div class="section-hint">Дайте відповідь "Так" або "Ні" на кожне питання.</div>
-                <div id="psiCssrsContainer"></div>
-                <h3 class="section-title">Підсумок C-SSRS</h3>
-                <div class="form-group screen-only" id="psiCssrsSummary"></div>
-                <div class="form-group print-only">
-                    <label>Рівень ризику</label><input type="text" class="print-only">
-                </div>
-                <h3 class="section-title">DES-T — шкала дисоціативних переживань</h3>
+            </div>
+
+            <!-- PSI: DES-T -->
+            <div class="section-panel" id="panel-dest">
+                <h2 class="section-title">DES-T — шкала дисоціативних переживань</h2>
                 <div class="section-hint">Оцініть, який відсоток часу (0-100%, з кроком 10%) відбувається кожне переживання.</div>
                 <div id="psiDestContainer"></div>
                 <h3 class="section-title">Підсумок DES-T</h3>
@@ -228,7 +237,36 @@
                     <label>Середній відсоток (M)</label><input type="text" class="print-only">
                     <label>Інтерпретація</label><input type="text" class="print-only">
                 </div>
-                <h3 class="section-title">MoCA — Монреальська шкала оцінки когнітивних функцій</h3>
+            </div>
+
+            <!-- PSI: C-SSRS -->
+            <div class="section-panel" id="panel-cssrs">
+                <h2 class="section-title">C-SSRS — оцінка суїцидального ризику</h2>
+                <div class="section-hint">Дайте відповідь "Так" або "Ні" на кожне питання.</div>
+                <div id="psiCssrsContainer"></div>
+                <h3 class="section-title">Підсумок C-SSRS</h3>
+                <div class="form-group screen-only" id="psiCssrsSummary"></div>
+                <div class="form-group print-only">
+                    <label>Рівень ризику</label><input type="text" class="print-only">
+                </div>
+            </div>
+
+            <!-- PSI: DN-4 -->
+            <div class="section-panel" id="panel-dn4">
+                <h2 class="section-title">DN-4 — опитувальник нейропатичного болю</h2>
+                <div class="section-hint">Для кожної ознаки позначте, чи присутня вона у ділянці болю.</div>
+                <div id="psiDn4Container"></div>
+                <h3 class="section-title">Підсумок DN-4</h3>
+                <div class="form-group screen-only" id="psiDn4Summary"></div>
+                <div class="form-group print-only">
+                    <label>Сума балів (0-10)</label><input type="text" class="print-only">
+                    <label>Інтерпретація</label><input type="text" class="print-only">
+                </div>
+            </div>
+
+            <!-- PSI: MoCA -->
+            <div class="section-panel" id="panel-moca">
+                <h2 class="section-title">MoCA — Монреальська шкала оцінки когнітивних функцій</h2>
                 <div class="section-hint">Введіть загальний бал після проведення тесту (0-30, норма ≥ 26).</div>
                 <div class="form-group">
                     <label for="psi_moca">Загальний бал MoCA (0-30)</label>
@@ -365,9 +403,10 @@
             </div>
 
             <div class="button-group screen-only">
-                <button type="button" id="btnNext" class="btn-next">Продовжити →</button>
-                <button type="submit" class="btn-submit" id="btnSubmit" style="display:none;">Зберегти</button>
-                <button type="reset" class="btn-reset">Очистити</button>
+              <button type="button" id="btnBack" class="btn-next" style="display:none;">← Назад</button>
+              <button type="button" id="btnNext" class="btn-next">Далі →</button>
+              <button type="submit" class="btn-submit" id="btnSubmit" style="display:none;">Зберегти</button>
+              <button type="reset" class="btn-reset">Очистити</button>
             </div>
         </form>
     </div>
@@ -1448,65 +1487,70 @@ document.getElementById('assessmentForm').addEventListener('submit', e => {
   openPasswordDialog();
 });
 
-// ── Section tabs ──────────────────────────────────────────────────────────────
-let SECTION_ORDER = ['dog', 'sleep', 'psi', 'sf'];
+// ── Wizard navigation ─────────────────────────────────────────────────────────
+const STEP_NAMES = {
+  lec5: 'LEC-5 — перелік травматичних подій',
+  pcl5: 'PCL-5 — симптоми ПТСР',
+  hads: 'HADS — тривога та депресія',
+  ais: 'AIS — Афінська шкала інсомнії',
+  dest: 'DES-T — дисоціативні переживання',
+  cssrs: 'C-SSRS — суїцидальний ризик',
+  dn4: 'DN-4 — нейропатичний біль',
+  moca: 'MoCA — когнітивні функції',
+  dog: 'ДОГ ФБіФВ — генез фантомного болю',
+  sf: 'Сексуальна функція',
+  sleep: 'Скринінг сну'
+};
+
+const ALL_STEPS = ['lec5', 'pcl5', 'hads', 'ais', 'dest', 'cssrs', 'dn4', 'moca', 'dog', 'sf', 'sleep'];
+let STEP_ORDER = [...ALL_STEPS];
+let currentStepIndex = 0;
 
 function updateSectionsForAmputation(hasAmputation) {
-  const ampSections = ['dog', 'sf'];
-  ampSections.forEach(sec => {
-    const tab = document.querySelector(`.section-tab[data-section="${sec}"]`);
-    const panel = document.getElementById('panel-' + sec);
-    if (hasAmputation) {
-      tab && tab.classList.remove('amputation-hidden');
-      panel && panel.classList.remove('amputation-hidden');
-    } else {
-      tab && tab.classList.add('amputation-hidden');
-      panel && panel.classList.add('amputation-hidden');
-    }
-  });
-  SECTION_ORDER = hasAmputation ? ['dog', 'sleep', 'psi', 'sf'] : ['sleep', 'psi'];
-  // If current active section is now hidden, switch to first visible
-  const activeTab = document.querySelector('.section-tab.active:not(.amputation-hidden)');
-  if (!activeTab) {
-    activateSection(SECTION_ORDER[0]);
+  STEP_ORDER = hasAmputation
+    ? [...ALL_STEPS]
+    : ALL_STEPS.filter(s => s !== 'dog' && s !== 'sf');
+  if (currentStepIndex >= STEP_ORDER.length) {
+    currentStepIndex = 0;
   }
+  activateStep(currentStepIndex);
 }
 
-function updateFormButtons(section) {
-  const isLast = section === SECTION_ORDER[SECTION_ORDER.length - 1];
-  document.getElementById('btnNext').style.display = isLast ? 'none' : '';
-  document.getElementById('btnSubmit').style.display = isLast ? '' : 'none';
-}
-
-function activateSection(sec) {
-  document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+function activateStep(idx) {
+  currentStepIndex = idx;
+  const sec = STEP_ORDER[idx];
   document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-  const tab = document.querySelector(`.section-tab[data-section="${sec}"]`);
-  if (tab) tab.classList.add('active');
   const panel = document.getElementById('panel-' + sec);
   if (panel) panel.classList.add('active');
-  updateFormButtons(sec);
+
+  // Progress bar
+  const total = STEP_ORDER.length;
+  const pct = ((idx + 1) / total * 100).toFixed(0);
+  const fillEl = document.getElementById('wizardProgressFill');
+  if (fillEl) fillEl.style.width = pct + '%';
+  const labelEl = document.getElementById('wizardStepLabel');
+  if (labelEl) labelEl.textContent = `Крок ${idx + 1} з ${total}`;
+  const nameEl = document.getElementById('wizardStepName');
+  if (nameEl) nameEl.textContent = STEP_NAMES[sec] || sec;
+
+  // Buttons
+  const isLast = idx === STEP_ORDER.length - 1;
+  const btnBack = document.getElementById('btnBack');
+  const btnNext = document.getElementById('btnNext');
+  const btnSubmit = document.getElementById('btnSubmit');
+  if (btnBack) btnBack.style.display = idx === 0 ? 'none' : '';
+  if (btnNext) btnNext.style.display = isLast ? 'none' : '';
+  if (btnSubmit) btnSubmit.style.display = isLast ? '' : 'none';
+
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 document.getElementById('btnNext').addEventListener('click', () => {
-  const activeTab = document.querySelector('.section-tab.active');
-  const current = activeTab?.dataset.section;
-  const idx = SECTION_ORDER.indexOf(current);
-  if (idx >= 0 && idx < SECTION_ORDER.length - 1) {
-    activateSection(SECTION_ORDER[idx + 1]);
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  }
+  if (currentStepIndex < STEP_ORDER.length - 1) activateStep(currentStepIndex + 1);
 });
 
-document.querySelectorAll('.section-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const sec = btn.dataset.section;
-    document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + sec).classList.add('active');
-    updateFormButtons(sec);
-  });
+document.getElementById('btnBack').addEventListener('click', () => {
+  if (currentStepIndex > 0) activateStep(currentStepIndex - 1);
 });
 
 // ── Print mode ────────────────────────────────────────────────────────────────
@@ -1733,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSexFunctionVisibility();
 
   // activate first tab
-  activateSection('dog');
+  activateStep(0);
 
   // load saved data
   loadFromLocalStorage();
