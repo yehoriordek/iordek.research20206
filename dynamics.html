@@ -231,11 +231,42 @@
         const ASSESSMENTS_TABLE = 'tbl8rTohI4Gabljzj';
         const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
 
+        // Поля таблиці Учасники (patient.html — первинна анкета)
+        const P = {
+            date:              'fldk5eZiycpOBPMvU',
+            dogDominant:       'fldPpUUxOge8C5rjE',
+            dogJaccard:        'fldlAtxqmkUF52aWu',
+            dogPeriphSum:      'fldahY0E97sno8VO9',
+            dogSpinalSum:      'fld54A9CczgRYTOsz',
+            dogCerebralSum:    'fldn3WKEqPmvsahAM',
+            dogPsychogenicSum: 'fldJHhPIcZA8ws11s',
+            dogPredictorSum:   'fldVEStQvX93QmvAG',
+            dogModulatorsSum:  'fldU020WClYUqTbl1',
+            sleepDominant:     'fldkNd8zT05g7o10e',
+            sleepPhase:        'fld9r1wqec6YZNz9j',
+            sleepBidir:        'fldPhZvj6L1fDMlYq',
+            sleepHours:        'fldlWfc71ZYk75uQj',
+            pcl5Sum:           'fldns7UwRsI0ueRR3',
+            pcl5Interp:        'fldMoIHXgRIehSLMa',
+            hadsSumT:          'fldx8myIn3sMeAWzn',
+            hadsSumD:          'fldjv9BoZ2ustBviB',
+            hadsInterpT:       'fld3L42MnnUKJmXmV',
+            hadsInterpD:       'fldfOJOcZccc3FgM9',
+            aisSum:            'fldPYZomizOEqXHL4',
+            aisInterp:         'fldr2hydPbrpfyzwS',
+            dn4Sum:            'fldCU9BZu2FS8CWGy',
+            dn4Interp:         'fldDSHAxQtCEqDY4O',
+            cssrsRisk:         'fldGISGdiNJ8y3Ymr',
+            destInterp:        'flddpqGeemf1QAE49',
+            mocaScore:         'fld1yOJxVHYQNrXMu',
+            mocaInterp:        'fld6uPCO1xZS5YeeM',
+        };
+
+        // Поля таблиці Опитування (assessment.html — контрольне/вихідне)
         const F = {
             participant:       'fldOvnRMjumfqtukm',
             date:              'fldaNRYQ40WdOUzND',
             stage:             'fldMwwF3uRP0yFc3K',
-
             dogDominant:       'fldAwJWK9aMeHLIY1',
             dogJaccard:        'fldBT7JLCImxFruX5',
             dogPeriphSum:      'fldoXBae198RL2TZl',
@@ -244,33 +275,28 @@
             dogPsychogenicSum: 'fld1ydy53Fg1Rwaxa',
             dogPredictorSum:   'fldNsjI7dE65Gi8xN',
             dogModulatorsSum:  'flddjnMemNFCVYYDz',
-
-            sleepDominant: 'fld3lHyPfSZ0kMh7A',
-            sleepPhase:    'fldadjkCHH4TXUqUQ',
-            sleepBidir:    'fldvO8dHj1b5doNTR',
-            sleepHours:    'fld3dAdPN9hp3IMzr',
-
-            pcl5Sum:    'fldRJYmYD24ZLAO4e',
-            pcl5Interp: 'fldZ3yP95DDLz8aFc',
-
-            hadsSumT:    'fld6djfVGUijkPMj7',
-            hadsSumD:    'fldEOMnovt7172jsb',
-            hadsInterpT: 'fldZfxArFFVPx8mV6',
-            hadsInterpD: 'fldhazjv6ccoc9fzu',
-
-            aisSum:    'fldLioK3UnHfOMMRe',
-            aisInterp: 'fldXRTeYqkpLefyAW',
-
-            dn4Sum:    'fldFHlOeMIiJuucIP',
-            dn4Interp: 'fldGkt35iwnrY1Pny',
-
-            cssrsRisk:  'fldgqTmwdvGwdmgXX',
-            destInterp: 'fldRhe2fR4tqpKT6i',
-            mocaScore:  'fldFuvVjzQuRO5LeH',
-            mocaInterp: 'fldSNBICDxl8XkO1r',
+            sleepDominant:     'fld3lHyPfSZ0kMh7A',
+            sleepPhase:        'fldadjkCHH4TXUqUQ',
+            sleepBidir:        'fldvO8dHj1b5doNTR',
+            sleepHours:        'fld3dAdPN9hp3IMzr',
+            pcl5Sum:           'fldRJYmYD24ZLAO4e',
+            pcl5Interp:        'fldZ3yP95DDLz8aFc',
+            hadsSumT:          'fld6djfVGUijkPMj7',
+            hadsSumD:          'fldEOMnovt7172jsb',
+            hadsInterpT:       'fldZfxArFFVPx8mV6',
+            hadsInterpD:       'fldhazjv6ccoc9fzu',
+            aisSum:            'fldLioK3UnHfOMMRe',
+            aisInterp:         'fldXRTeYqkpLefyAW',
+            dn4Sum:            'fldFHlOeMIiJuucIP',
+            dn4Interp:         'fldGkt35iwnrY1Pny',
+            cssrsRisk:         'fldgqTmwdvGwdmgXX',
+            destInterp:        'fldRhe2fR4tqpKT6i',
+            mocaScore:         'fldFuvVjzQuRO5LeH',
+            mocaInterp:        'fldSNBICDxl8XkO1r',
         };
 
-        const ASSESSMENT_FIELDS = Object.values(F);
+        const ASSESSMENT_FIELDS = Object.values(F).filter(id => id !== F.participant && id !== F.stage);
+        const PARTICIPANT_FIELDS = Object.values(P);
 
         async function apiFetch(url) {
             const sep = url.includes('?') ? '&' : '?';
@@ -290,8 +316,14 @@
             return null;
         }
 
+        async function fetchParticipantDetails(participantId) {
+            const fieldsParam = PARTICIPANT_FIELDS.map(f => `fields[]=${f}`).join('&');
+            const url = `https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}/${participantId}?${fieldsParam}`;
+            return apiFetch(url);
+        }
+
         async function fetchAssessmentsForParticipant(participantId) {
-            const fieldsParam = ASSESSMENT_FIELDS.map(f => `fields[]=${f}`).join('&');
+            const fieldsParam = [F.participant, F.date, F.stage, ...ASSESSMENT_FIELDS].map(f => `fields[]=${f}`).join('&');
             let allRecords = [];
             let offset = null;
             do {
@@ -336,8 +368,8 @@
             return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
         }
 
-        function renderSections(fields) {
-            const v = (key) => fval(fields, F[key]);
+        function renderSections(fields, fieldMap) {
+            const v = (key) => fval(fields, fieldMap[key]);
             let html = '';
 
             let dogHtml = '';
@@ -378,8 +410,9 @@
             return html;
         }
 
-        function renderPanel(title, colorClass, rec) {
-            const dateStr = rec ? formatDate(rec.fields[F.date]) : null;
+        function renderPanel(title, colorClass, rec, fieldMap) {
+            const dateField = fieldMap.date;
+            const dateStr = rec ? formatDate(rec.fields[dateField]) : null;
             const headerDate = dateStr ? `<div class="panel-date">${dateStr}</div>` : '';
             if (!rec) {
                 return `<div class="panel">
@@ -389,7 +422,7 @@
             }
             return `<div class="panel">
                 <div class="panel-header ${colorClass}">${title}${headerDate}</div>
-                <div class="panel-body">${renderSections(rec.fields)}</div>
+                <div class="panel-body">${renderSections(rec.fields, fieldMap)}</div>
             </div>`;
         }
 
@@ -429,10 +462,15 @@
                 labelEl.textContent = `Учасник: ${studyId}${fullName ? ' — ' + fullName : ''}`;
                 labelEl.style.display = 'block';
 
-                const records = await fetchAssessmentsForParticipant(participant.id);
+                const [participantDetails, assessmentRecords] = await Promise.all([
+                    fetchParticipantDetails(participant.id),
+                    fetchAssessmentsForParticipant(participant.id),
+                ]);
 
-                const byStage = { 'Первинне': null, 'Контрольне': null, 'Вихідне': null };
-                records.forEach(rec => {
+                const primaryRec = { fields: participantDetails.fields };
+
+                const byStage = { 'Контрольне': null, 'Вихідне': null };
+                assessmentRecords.forEach(rec => {
                     const stageObj = rec.fields[F.stage];
                     const s = stageObj && typeof stageObj === 'object' ? stageObj.name : stageObj;
                     if (s && byStage.hasOwnProperty(s)) byStage[s] = rec;
@@ -440,9 +478,9 @@
 
                 document.getElementById('resultsArea').innerHTML = `
                     <div class="panels-grid">
-                        ${renderPanel('Первинне опитування', 'primary', byStage['Первинне'])}
-                        ${renderPanel('Контрольне опитування', 'control', byStage['Контрольне'])}
-                        ${renderPanel('Вихідне опитування', 'exit', byStage['Вихідне'])}
+                        ${renderPanel('Первинне опитування', 'primary', primaryRec, P)}
+                        ${renderPanel('Контрольне опитування', 'control', byStage['Контрольне'], F)}
+                        ${renderPanel('Вихідне опитування', 'exit', byStage['Вихідне'], F)}
                     </div>`;
 
             } catch (e) {
@@ -460,5 +498,6 @@
             if (e.key === 'Enter') doSearch();
         });
     </script>
+
 </body>
 </html>
