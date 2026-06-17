@@ -466,9 +466,7 @@
                     fetchAssessmentsForParticipant(participant.id),
                 ]);
 
-                const primaryRec = { fields: participantDetails.fields };
-
-                const byStage = { 'Контрольне': null, 'Вихідне': null };
+                const byStage = { 'Первинне': null, 'Контрольне': null, 'Вихідне': null };
                 assessmentRecords.forEach(rec => {
                     const stageObj = rec.fields[F.stage];
                     const s = stageObj && typeof stageObj === 'object' ? stageObj.name : stageObj;
@@ -477,7 +475,7 @@
 
                 document.getElementById('resultsArea').innerHTML = `
                     <div class="panels-grid">
-                        ${renderPanel('Первинне опитування', 'primary', primaryRec, P)}
+                        ${renderPanel('Первинне опитування', 'primary', byStage['Первинне'], F)}
                         ${renderPanel('Контрольне опитування', 'control', byStage['Контрольне'], F)}
                         ${renderPanel('Вихідне опитування', 'exit', byStage['Вихідне'], F)}
                     </div>`;
