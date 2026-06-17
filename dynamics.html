@@ -273,7 +273,8 @@
         const ASSESSMENT_FIELDS = Object.values(F);
 
         async function apiFetch(url) {
-            const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
+            const sep = url.includes('?') ? '&' : '?';
+            const r = await fetch(url + sep + 'returnFieldsByFieldId=true', { headers: { Authorization: `Bearer ${READ_KEY}` } });
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.json();
         }
