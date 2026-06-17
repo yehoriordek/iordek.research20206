@@ -656,7 +656,7 @@
         }
 
 
-        const SLEEP_PROBLEM_AIRTABLE_MAP = {'Жахіття будять':'Ахиття будять'};
+        const SLEEP_PROBLEM_AIRTABLE_MAP = {};
         const SLEEP_QUESTIONS_A = [
             {key:'sleepHours',airtable:'Сон — тривалість сну',label:'Скільки годин зазвичай спите за ніч?',options:['<4','4–5','5–6','6–7','7–8','8–9','>9'].map(o=>({label:o,scores:{}}))},
             {key:'sleepProblem',airtable:'Сон — основна проблема',label:'Основна проблема зі сном (можна кілька)',multi:true,airtableMap:SLEEP_PROBLEM_AIRTABLE_MAP,options:[{label:'Довго не можу заснути',scores:{anx:2}},{label:'Часті прокидання серед ночі',scores:{anx:1,ptsd:1}},{label:'Прокидаюсь занадто рано',scores:{dep:2}},{label:'Сон не відновлює',scores:{dep:1,pain:1}},{label:'Жахіття будять',scores:{ptsd:2}},{label:'Біль будить',scores:{pain:2}}]},
