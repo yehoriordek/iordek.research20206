@@ -231,6 +231,235 @@
         const ASSESSMENTS_TABLE = 'tbl8rTohI4Gabljzj';
         const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
 
+        const F = {
+            participant:       'fldOvnRMjumfqtukm',
+            date:              'fldaNRYQ40WdOUzND',
+            stage:             'fldMwwF3uRP0yFc3K',
+
+            dogDominant:       'fldAwJWK9aMeHLIY1',
+            dogJaccard:        'fldBT7JLCImxFruX5',
+            dogPeriphSum:      'fldoXBae198RL2TZl',
+            dogSpinalSum:      'fldlXy6j1WNcHH77u',
+            dogCerebralSum:    'flddhhhflpDhTwkBy',
+            dogPsychogenicSum: 'fld1ydy53Fg1Rwaxa',
+            dogPredictorSum:   'fldNsjI7dE65Gi8xN',
+            dogModulatorsSum:  'flddjnMemNFCVYYDz',
+
+            sleepDominant: 'fld3lHyPfSZ0kMh7A',
+            sleepPhase:    'fldadjkCHH4TXUqUQ',
+            sleepBidir:    'fldvO8dHj1b5doNTR',
+            sleepHours:    'fld3dAdPN9hp3IMzr',
+
+            pcl5Sum:    'fldRJYmYD24ZLAO4e',
+            pcl5Interp: 'fldZ3yP95DDLz8aFc',
+
+            hadsSumT:    'fld6djfVGUijkPMj7',
+            hadsSumD:    'fldEOMnovt7172jsb',
+            hadsInterpT: 'fldZfxArFFVPx8mV6',
+            hadsInterpD: 'fldhazjv6ccoc9fzu',
+
+            aisSum:    'fldLioK3UnHfOMMRe',
+            aisInterp: 'fldXRTeYqkpLefyAW',
+
+            dn4Sum:    'fldFHlOeMIiJuucIP',
+            dn4Interp: 'fldGkt35iwnrY1Pny',
+
+            cssrsRisk:  'fldgqTmwdvGwdmgXX',
+            destInterp: 'fldRhe2fR4tqpKT6i',
+            mocaScore:  'fldFuvVjzQuRO5LeH',
+            mocaInterp: 'fldSNBICDxl8XkO1r',
+        };
+
+        const ASSESSMENT_FIELDS = Object.values(F);
+
+        async function apiFetch(url) {
+            const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        }
+
+        async function findParticipant(query) {
+            const q = query.trim();
+            const byId = encodeURIComponent(`{Study ID}="${q}"`);
+            let data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byId}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ`);
+            if (data.records.length > 0) return data.records[0];
+            const byName = encodeURIComponent(`FIND(LOWER("${q}"),LOWER({ПІБ}))`);
+            data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byName}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ`);
+            if (data.records.length > 0) return data.records[0];
+            return null;
+        }
+
+        async function fetchAssessmentsForParticipant(participantId) {
+            const fieldsParam = ASSESSMENT_FIELDS.map(f => `fields[]=${f}`).join('&');
+            let allRecords = [];
+            let offset = null;
+            do {
+                const url = `https://api.airtable.com/v0/${BASE_ID}/${ASSESSMENTS_TABLE}?${fieldsParam}&maxRecords=100${offset ? `&offset=${offset}` : ''}`;
+                const data = await apiFetch(url);
+                const matching = data.records.filter(rec =>
+                    Array.isArray(rec.fields[F.participant]) && rec.fields[F.participant].includes(participantId)
+                );
+                allRecords = allRecords.concat(matching);
+                offset = data.offset || null;
+            } while (offset);
+            return allRecords;
+        }
+
+        function fval(fields, key) {
+            const v = fields[key];
+            if (v === undefined || v === null || v === '') return null;
+            if (typeof v === 'object' && !Array.isArray(v) && v.name) return v.name;
+            if (Array.isArray(v)) return v.map(i => (i && i.name) ? i.name : i).join(', ');
+            return String(v);
+        }
+
+        function kv(label, value) {
+            if (value === null || value === undefined) return '';
+            return `<div class="kv-row"><span class="kv-label">${label}</span><span class="kv-value">${value}</span></div>`;
+        }
+
+        function kvH(label, value) {
+            if (value === null || value === undefined) return '';
+            return `<div class="kv-row"><span class="kv-label">${label}</span><span class="kv-value highlight">${value}</span></div>`;
+        }
+
+        function section(name, html) {
+            if (!html) return '';
+            return `<div class="section-block"><div class="section-name">${name}</div>${html}</div>`;
+        }
+
+        function formatDate(raw) {
+            if (!raw) return null;
+            const d = new Date(raw);
+            if (isNaN(d)) return raw;
+            return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+        }
+
+        function renderSections(fields) {
+            const v = (key) => fval(fields, F[key]);
+            let html = '';
+
+            let dogHtml = '';
+            dogHtml += kvH('Домінантний генез', v('dogDominant'));
+            dogHtml += kv('Периферичний', v('dogPeriphSum'));
+            dogHtml += kv('Спінальний', v('dogSpinalSum'));
+            dogHtml += kv('Церебральний', v('dogCerebralSum'));
+            dogHtml += kv('Психокогнітивний', v('dogPsychogenicSum'));
+            dogHtml += kv('Предиктор (кукса)', v('dogPredictorSum'));
+            dogHtml += kv('Модулятори', v('dogModulatorsSum'));
+            if (v('dogJaccard') !== null) dogHtml += kv('Узгодженість дескрипт.', v('dogJaccard'));
+            html += section('ДОГ ФБіФВ', dogHtml);
+
+            let sleepHtml = '';
+            sleepHtml += kvH('Генез порушень сну', v('sleepDominant'));
+            sleepHtml += kv('Фаза', v('sleepPhase'));
+            sleepHtml += kv('Біль↔сон', v('sleepBidir'));
+            sleepHtml += kv('Тривалість сну', v('sleepHours'));
+            html += section('Скринінг сну', sleepHtml);
+
+            let psiHtml = '';
+            psiHtml += kvH('PCL-5 сума', v('pcl5Sum'));
+            psiHtml += kv('Інтерпретація', v('pcl5Interp'));
+            psiHtml += kv('HADS тривога', v('hadsSumT'));
+            psiHtml += kv('   інтерпретація', v('hadsInterpT'));
+            psiHtml += kv('HADS депресія', v('hadsSumD'));
+            psiHtml += kv('   інтерпретація', v('hadsInterpD'));
+            psiHtml += kv('AIS сума', v('aisSum'));
+            psiHtml += kv('   інтерпретація', v('aisInterp'));
+            psiHtml += kv('DN4 сума', v('dn4Sum'));
+            psiHtml += kv('   інтерпретація', v('dn4Interp'));
+            psiHtml += kv('DES-T інтерпретація', v('destInterp'));
+            psiHtml += kv('MoCA бал', v('mocaScore'));
+            psiHtml += kv('   інтерпретація', v('mocaInterp'));
+            psiHtml += kvH('CSSRS ризик', v('cssrsRisk'));
+            html += section('ПСІ-батарея', psiHtml);
+
+            return html;
+        }
+
+        function renderPanel(title, colorClass, rec) {
+            const dateStr = rec ? formatDate(rec.fields[F.date]) : null;
+            const headerDate = dateStr ? `<div class="panel-date">${dateStr}</div>` : '';
+            if (!rec) {
+                return `<div class="panel">
+                    <div class="panel-header ${colorClass}">${title}</div>
+                    <div class="panel-empty">Даних немає</div>
+                </div>`;
+            }
+            return `<div class="panel">
+                <div class="panel-header ${colorClass}">${title}${headerDate}</div>
+                <div class="panel-body">${renderSections(rec.fields)}</div>
+            </div>`;
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        async function doSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = true;
+            btn.textContent = 'Завантаження…';
+            hideError();
+            document.getElementById('patientLabel').style.display = 'none';
+            document.getElementById('resultsArea').innerHTML = '<div style="color:#95a5a6;font-size:14px;text-align:center;padding:30px">Завантаження даних…</div>';
+
+            try {
+                const participant = await findParticipant(query);
+                if (!participant) {
+                    showError(`Учасника зі Study ID або прізвищем «${query}» не знайдено.`);
+                    document.getElementById('resultsArea').innerHTML = '';
+                    return;
+                }
+
+                const pf = participant.fields;
+                const studyId = pf['fldyUD3kFFZNJmbPF'] || '';
+                const fullName = pf['fldc7W3fLYZxuBnDQ'] || '';
+                const labelEl = document.getElementById('patientLabel');
+                labelEl.textContent = `Учасник: ${studyId}${fullName ? ' — ' + fullName : ''}`;
+                labelEl.style.display = 'block';
+
+                const records = await fetchAssessmentsForParticipant(participant.id);
+
+                const byStage = { 'Первинне': null, 'Контрольне': null, 'Вихідне': null };
+                records.forEach(rec => {
+                    const stageObj = rec.fields[F.stage];
+                    const s = stageObj && typeof stageObj === 'object' ? stageObj.name : stageObj;
+                    if (s && byStage.hasOwnProperty(s)) byStage[s] = rec;
+                });
+
+                document.getElementById('resultsArea').innerHTML = `
+                    <div class="panels-grid">
+                        ${renderPanel('Первинне опитування', 'primary', byStage['Первинне'])}
+                        ${renderPanel('Контрольне опитування', 'control', byStage['Контрольне'])}
+                        ${renderPanel('Вихідне опитування', 'exit', byStage['Вихідне'])}
+                    </div>`;
+
+            } catch (e) {
+                showError('Помилка завантаження даних. Перевірте з\'єднання з інтернетом.');
+                document.getElementById('resultsArea').innerHTML = '';
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Показати';
+            }
+        }
+
+        document.getElementById('searchBtn').addEventListener('click', doSearch);
+        document.getElementById('searchInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doSearch();
+        });
+    </script>
+
         // Поля таблиці Учасники (patient.html — первинна анкета)
         const P = {
             dogDominant:       'fldPpUUxOge8C5rjE',
