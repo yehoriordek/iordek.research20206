@@ -231,10 +231,47 @@
         const ASSESSMENTS_TABLE = 'tbl8rTohI4Gabljzj';
         const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
 
+        // Поля таблиці Учасники (patient.html — первинна анкета)
+        const P = {
+            dogDominant:       'fldPpUUxOge8C5rjE',
+            dogJaccard:        'fldlAtxqmkUF52aWu',
+            dogPeriphSum:      'fldahY0E97sno8VO9',
+            dogSpinalSum:      'fld54A9CczgRYTOsz',
+            dogCerebralSum:    'fldn3WKEqPmvsahAM',
+            dogPsychogenicSum: 'fldJHhPIcZA8ws11s',
+            dogPredictorSum:   'fldVEStQvX93QmvAG',
+            dogModulatorsSum:  'fldU020WClYUqTbl1',
+
+            sleepDominant: 'fldkNd8zT05g7o10e',
+            sleepPhase:    'fld9r1wqec6YZNz9j',
+            sleepBidir:    'fldPhZvj6L1fDMlYq',
+            sleepHours:    'fldlWfc71ZYk75uQj',
+
+            pcl5Sum:    'fldns7UwRsI0ueRR3',
+            pcl5Interp: 'fldMoIHXgRIehSLMa',
+
+            hadsSumT:    'fldx8myIn3sMeAWzn',
+            hadsSumD:    'fldjv9BoZ2ustBviB',
+            hadsInterpT: 'fld3L42MnnUKJmXmV',
+            hadsInterpD: 'fldfOJOcZccc3FgM9',
+
+            aisSum:    'fldPYZomizOEqXHL4',
+            aisInterp: 'fldr2hydPbrpfyzwS',
+
+            dn4Sum:    'fldCU9BZu2FS8CWGy',
+            dn4Interp: 'fldDSHAxQtCEqDY4O',
+
+            cssrsRisk:  'fldGISGdiNJ8y3Ymr',
+            destInterp: 'flddpqGeemf1QAE49',
+            mocaScore:  'fld1yOJxVHYQNrXMu',
+            mocaInterp: 'fld6uPCO1xZS5YeeM',
+        };
+
+        // Поля таблиці Опитування (assessment.html — контрольне/вихідне)
         const F = {
-            participant: 'fldOvnRMjumfqtukm',
-            date:        'fldaNRYQ40WdOUzND',
-            stage:       'fldMwwF3uRP0yFc3K',
+            participant:       'fldOvnRMjumfqtukm',
+            date:              'fldaNRYQ40WdOUzND',
+            stage:             'fldMwwF3uRP0yFc3K',
 
             dogDominant:       'fldAwJWK9aMeHLIY1',
             dogJaccard:        'fldBT7JLCImxFruX5',
@@ -253,10 +290,10 @@
             pcl5Sum:    'fldRJYmYD24ZLAO4e',
             pcl5Interp: 'fldZ3yP95DDLz8aFc',
 
-            hadsSumT:   'fld6djfVGUijkPMj7',
-            hadsSumD:   'fldEOMnovt7172jsb',
-            hadsInterpT:'fldZfxArFFVPx8mV6',
-            hadsInterpD:'fldhazjv6ccoc9fzu',
+            hadsSumT:    'fld6djfVGUijkPMj7',
+            hadsSumD:    'fldEOMnovt7172jsb',
+            hadsInterpT: 'fldZfxArFFVPx8mV6',
+            hadsInterpD: 'fldhazjv6ccoc9fzu',
 
             aisSum:    'fldLioK3UnHfOMMRe',
             aisInterp: 'fldXRTeYqkpLefyAW',
@@ -264,16 +301,14 @@
             dn4Sum:    'fldFHlOeMIiJuucIP',
             dn4Interp: 'fldGkt35iwnrY1Pny',
 
-            cssrsRisk: 'fldgqTmwdvGwdmgXX',
-
-            destMean:   'fldIpCGFFH4bZD7AY',
+            cssrsRisk:  'fldgqTmwdvGwdmgXX',
             destInterp: 'fldRhe2fR4tqpKT6i',
-
             mocaScore:  'fldFuvVjzQuRO5LeH',
             mocaInterp: 'fldSNBICDxl8XkO1r',
         };
 
-        const DISPLAY_FIELDS = Object.values(F);
+        const ASSESSMENT_FIELDS = Object.values(F);
+        const PARTICIPANT_FIELDS = Object.values(P);
 
         async function apiFetch(url) {
             const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
@@ -283,17 +318,23 @@
 
         async function findParticipant(query) {
             const q = query.trim();
-            const byId = encodeURIComponent(`{fldyUD3kFFZNJmbPF}="${q}"`);
-            let data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byId}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ`);
+            const byId = encodeURIComponent(`{Study ID}="${q}"`);
+            let data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byId}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldhSmAshVfZmuC63`);
             if (data.records.length > 0) return data.records[0];
-            const byName = encodeURIComponent(`FIND(LOWER("${q}"),LOWER({fldc7W3fLYZxuBnDQ}))`);
-            data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byName}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ`);
+            const byName = encodeURIComponent(`FIND(LOWER("${q}"),LOWER({ПІБ}))`);
+            data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${byName}&maxRecords=1&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldhSmAshVfZmuC63`);
             if (data.records.length > 0) return data.records[0];
             return null;
         }
 
+        async function fetchParticipantData(participantId) {
+            const fieldsParam = PARTICIPANT_FIELDS.map(f => `fields[]=${f}`).join('&');
+            const data = await apiFetch(`https://api.airtable.com/v0/${BASE_ID}/${PARTICIPANTS_TABLE}/${participantId}?${fieldsParam}`);
+            return data;
+        }
+
         async function fetchAssessmentsForParticipant(participantId) {
-            const fieldsParam = DISPLAY_FIELDS.map(f => `fields[]=${f}`).join('&');
+            const fieldsParam = ASSESSMENT_FIELDS.map(f => `fields[]=${f}`).join('&');
             let allRecords = [];
             let offset = null;
             do {
@@ -308,11 +349,12 @@
             return allRecords;
         }
 
-        function v(rec, key) {
-            const val = rec.fields[key];
-            if (val === undefined || val === null || val === '') return null;
-            if (Array.isArray(val)) return val.join(', ');
-            return String(val);
+        function val(fields, key) {
+            const v = fields[key];
+            if (v === undefined || v === null || v === '') return null;
+            if (typeof v === 'object' && v.name) return v.name;
+            if (Array.isArray(v)) return v.map(i => (i && i.name) ? i.name : i).join(', ');
+            return String(v);
         }
 
         function kv(label, value) {
@@ -337,56 +379,51 @@
             return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
         }
 
-        function renderRecord(rec) {
+        function renderSections(fields, fieldMap) {
+            const v = (key) => val(fields, fieldMap[key]);
             let html = '';
 
-            // ДОГ
             let dogHtml = '';
-            dogHtml += kvH('Домінантний генез', v(rec, F.dogDominant));
-            dogHtml += kv('Периферичний', v(rec, F.dogPeriphSum));
-            dogHtml += kv('Спінальний', v(rec, F.dogSpinalSum));
-            dogHtml += kv('Церебральний', v(rec, F.dogCerebralSum));
-            dogHtml += kv('Психокогнітивний', v(rec, F.dogPsychogenicSum));
-            dogHtml += kv('Предиктор (куксa)', v(rec, F.dogPredictorSum));
-            dogHtml += kv('Модулятори', v(rec, F.dogModulatorsSum));
-            if (v(rec, F.dogJaccard) !== null)
-                dogHtml += kv('Узгодженість дескрипт.', v(rec, F.dogJaccard));
+            dogHtml += kvH('Домінантний генез', v('dogDominant'));
+            dogHtml += kv('Периферичний', v('dogPeriphSum'));
+            dogHtml += kv('Спінальний', v('dogSpinalSum'));
+            dogHtml += kv('Церебральний', v('dogCerebralSum'));
+            dogHtml += kv('Психокогнітивний', v('dogPsychogenicSum'));
+            dogHtml += kv('Предиктор (куксa)', v('dogPredictorSum'));
+            dogHtml += kv('Модулятори', v('dogModulatorsSum'));
+            if (v('dogJaccard') !== null) dogHtml += kv('Узгодженість дескрипт.', v('dogJaccard'));
             html += section('ДОГ ФБіФВ', dogHtml);
 
-            // Sleep
             let sleepHtml = '';
-            sleepHtml += kvH('Генез порушень сну', v(rec, F.sleepDominant));
-            sleepHtml += kv('Фаза', v(rec, F.sleepPhase));
-            sleepHtml += kv('Біль↔сон', v(rec, F.sleepBidir));
-            sleepHtml += kv('Тривалість сну', v(rec, F.sleepHours));
+            sleepHtml += kvH('Генез порушень сну', v('sleepDominant'));
+            sleepHtml += kv('Фаза', v('sleepPhase'));
+            sleepHtml += kv('Біль↔сон', v('sleepBidir'));
+            sleepHtml += kv('Тривалість сну', v('sleepHours'));
             html += section('Скринінг сну', sleepHtml);
 
-            // ПСІ
             let psiHtml = '';
-            psiHtml += kvH('PCL-5 сума', v(rec, F.pcl5Sum));
-            psiHtml += kv('Інтерпретація', v(rec, F.pcl5Interp));
-            psiHtml += kv('HADS тривога', v(rec, F.hadsSumT));
-            psiHtml += kv('   інтерпретація', v(rec, F.hadsInterpT));
-            psiHtml += kv('HADS депресія', v(rec, F.hadsSumD));
-            psiHtml += kv('   інтерпретація', v(rec, F.hadsInterpD));
-            psiHtml += kv('AIS сума', v(rec, F.aisSum));
-            psiHtml += kv('   інтерпретація', v(rec, F.aisInterp));
-            psiHtml += kv('DN4 сума', v(rec, F.dn4Sum));
-            psiHtml += kv('   інтерпретація', v(rec, F.dn4Interp));
-            psiHtml += kv('DEST середнє', v(rec, F.destMean));
-            psiHtml += kv('   інтерпретація', v(rec, F.destInterp));
-            psiHtml += kv('MoCA бал', v(rec, F.mocaScore));
-            psiHtml += kv('   інтерпретація', v(rec, F.mocaInterp));
-            psiHtml += kvH('CSSRS ризик', v(rec, F.cssrsRisk));
+            psiHtml += kvH('PCL-5 сума', v('pcl5Sum'));
+            psiHtml += kv('Інтерпретація', v('pcl5Interp'));
+            psiHtml += kv('HADS тривога', v('hadsSumT'));
+            psiHtml += kv('   інтерпретація', v('hadsInterpT'));
+            psiHtml += kv('HADS депресія', v('hadsSumD'));
+            psiHtml += kv('   інтерпретація', v('hadsInterpD'));
+            psiHtml += kv('AIS сума', v('aisSum'));
+            psiHtml += kv('   інтерпретація', v('aisInterp'));
+            psiHtml += kv('DN4 сума', v('dn4Sum'));
+            psiHtml += kv('   інтерпретація', v('dn4Interp'));
+            psiHtml += kv('DES-T інтерпретація', v('destInterp'));
+            psiHtml += kv('MoCA бал', v('mocaScore'));
+            psiHtml += kv('   інтерпретація', v('mocaInterp'));
+            psiHtml += kvH('CSSRS ризик', v('cssrsRisk'));
             html += section('ПСІ-батарея', psiHtml);
 
             return html;
         }
 
-        function renderPanel(title, colorClass, rec) {
-            const dateStr = rec ? formatDate(rec.fields[F.date]) : null;
+        function renderPanel(title, colorClass, fields, fieldMap, dateStr) {
             const headerDate = dateStr ? `<div class="panel-date">${dateStr}</div>` : '';
-            if (!rec) {
+            if (!fields) {
                 return `
                     <div class="panel">
                         <div class="panel-header ${colorClass}">${title}${headerDate}</div>
@@ -396,7 +433,7 @@
             return `
                 <div class="panel">
                     <div class="panel-header ${colorClass}">${title}${headerDate}</div>
-                    <div class="panel-body">${renderRecord(rec)}</div>
+                    <div class="panel-body">${renderSections(fields, fieldMap)}</div>
                 </div>`;
         }
 
@@ -436,21 +473,31 @@
                 labelEl.textContent = `Учасник: ${studyId}${fullName ? ' — ' + fullName : ''}`;
                 labelEl.style.display = 'block';
 
-                const records = await fetchAssessmentsForParticipant(participant.id);
+                // Паралельно завантажуємо дані первинної анкети та контрольних опитувань
+                const [participantData, assessmentRecords] = await Promise.all([
+                    fetchParticipantData(participant.id),
+                    fetchAssessmentsForParticipant(participant.id)
+                ]);
 
-                const byStage = { 'Первинне': null, 'Контрольне': null, 'Вихідне': null };
-                records.forEach(rec => {
-                    const s = rec.fields[F.stage];
+                const byStage = { 'Контрольне': null, 'Вихідне': null };
+                assessmentRecords.forEach(rec => {
+                    const stageObj = rec.fields[F.stage];
+                    const s = stageObj && stageObj.name ? stageObj.name : stageObj;
                     if (s && byStage.hasOwnProperty(s)) {
                         byStage[s] = rec;
                     }
                 });
 
+                const controlFields = byStage['Контрольне'] ? byStage['Контрольне'].fields : null;
+                const exitFields    = byStage['Вихідне']    ? byStage['Вихідне'].fields    : null;
+                const controlDate   = controlFields ? formatDate(controlFields[F.date]) : null;
+                const exitDate      = exitFields    ? formatDate(exitFields[F.date])    : null;
+
                 const html = `
                     <div class="panels-grid">
-                        ${renderPanel('Первинне опитування', 'primary', byStage['Первинне'])}
-                        ${renderPanel('Контрольне опитування', 'control', byStage['Контрольне'])}
-                        ${renderPanel('Вихідне опитування', 'exit', byStage['Вихідне'])}
+                        ${renderPanel('Первинна анкета', 'primary', participantData.fields, P, null)}
+                        ${renderPanel('Контрольне опитування', 'control', controlFields, F, controlDate)}
+                        ${renderPanel('Вихідне опитування', 'exit', exitFields, F, exitDate)}
                     </div>`;
                 document.getElementById('resultsArea').innerHTML = html;
 
