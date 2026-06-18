@@ -625,6 +625,7 @@
                 <button type="button" class="step-tab" data-step-tab="1">ID</button>
                 <button type="button" class="step-tab" data-step-tab="2">Ампутація</button>
                 <button type="button" class="step-tab" data-step-tab="3">Біль/Генез</button>
+                <button type="button" class="step-tab" data-step-tab="4">Психст.</button>
 
             </div>
 
@@ -703,6 +704,11 @@
                     <label for="patientWard">№ палати</label>
                     <input type="text" id="patientWard" name="patient_ward" placeholder="Напр., 12">
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label>Військова частина / підрозділ</label>
+                <input type="text" id="milUnit" name="mil_unit" placeholder="Номер частини або назва підрозділу">
             </div>
 
             <div class="form-group">
@@ -1111,8 +1117,280 @@ Email: yehor.iordek@gmail.com
             </div>
 
 
-            <div class="form-step-nav screen-only">
-                <button type="button" class="btn-step-prev" data-action="prev">← Назад</button>
+            <div class="form-step" data-step="4">
+              <h2>Психічний статус</h2>
+
+              <div class="form-group">
+                <label>Орієнтація</label>
+                <select id="msOrientation" name="ms_orientation">
+                  <option value="">—</option>
+                  <option>Вірно</option>
+                  <option>Частково порушена</option>
+                  <option>Порушена</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Вірно</label>
+                  <label><input type="checkbox"> Частково порушена</label>
+                  <label><input type="checkbox"> Порушена</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Зовнішній вигляд</label>
+                <select id="msAppearance" name="ms_appearance">
+                  <option value="">—</option>
+                  <option>Охайний</option>
+                  <option>Неохайний</option>
+                  <option>Неохайний, занедбаний</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Охайний</label>
+                  <label><input type="checkbox"> Неохайний</label>
+                  <label><input type="checkbox"> Неохайний, занедбаний</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Вираз обличчя</label>
+                <select id="msFace" name="ms_face">
+                  <option value="">—</option>
+                  <option>Спокійний</option>
+                  <option>Тривожний</option>
+                  <option>Напружений</option>
+                  <option>Сумний</option>
+                  <option>Гримаси болю</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Спокійний</label>
+                  <label><input type="checkbox"> Тривожний</label>
+                  <label><input type="checkbox"> Напружений</label>
+                  <label><input type="checkbox"> Сумний</label>
+                  <label><input type="checkbox"> Гримаси болю</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Поведінка</label>
+                <select id="msBehavior" name="ms_behavior">
+                  <option value="">—</option>
+                  <option>Спокійна, впорядкована</option>
+                  <option>Тривожна</option>
+                  <option>Загальмована</option>
+                  <option>Збуджена</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Спокійна, впорядкована</label>
+                  <label><input type="checkbox"> Тривожна</label>
+                  <label><input type="checkbox"> Загальмована</label>
+                  <label><input type="checkbox"> Збуджена</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Критика до стану</label>
+                <select id="msCritique" name="ms_critique">
+                  <option value="">—</option>
+                  <option>Відповідна</option>
+                  <option>Частково збережена</option>
+                  <option>Відсутня</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Відповідна</label>
+                  <label><input type="checkbox"> Частково збережена</label>
+                  <label><input type="checkbox"> Відсутня</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Увага</label>
+                <select id="msAttention" name="ms_attention">
+                  <option value="">—</option>
+                  <option>Стійка</option>
+                  <option>Знижена</option>
+                  <option>Нестійка</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Стійка</label>
+                  <label><input type="checkbox"> Знижена</label>
+                  <label><input type="checkbox"> Нестійка</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Увага: концентрована довкола</label>
+                <div class="checkbox-group" id="msAttentionFocusGroup">
+                  <label><input type="checkbox" name="ms_attention_focus" value="болю"> Болю</label>
+                  <label><input type="checkbox" name="ms_attention_focus" value="стану здоров'я"> Стану здоров'я</label>
+                  <label><input type="checkbox" name="ms_attention_focus" value="побутових питань"> Побутових питань</label>
+                  <label><input type="checkbox" name="ms_attention_focus" value="сімейних питань"> Сімейних питань</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Пам'ять</label>
+                <select id="msMemory" name="ms_memory">
+                  <option value="">—</option>
+                  <option>В межах вікової норми</option>
+                  <option>Незначне зниження</option>
+                  <option>Суттєве зниження</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> В межах вікової норми</label>
+                  <label><input type="checkbox"> Незначне зниження</label>
+                  <label><input type="checkbox"> Суттєве зниження</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Мислення</label>
+                <select id="msThinking" name="ms_thinking">
+                  <option value="">—</option>
+                  <option>Послідовне</option>
+                  <option>Непослідовне</option>
+                  <option>Фрагментарне</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Послідовне</label>
+                  <label><input type="checkbox"> Непослідовне</label>
+                  <label><input type="checkbox"> Фрагментарне</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Темп мислення</label>
+                <select id="msThinkingPace" name="ms_thinking_pace">
+                  <option value="">—</option>
+                  <option>Помірний</option>
+                  <option>Прискорений</option>
+                  <option>Сповільнений</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Помірний</label>
+                  <label><input type="checkbox"> Прискорений</label>
+                  <label><input type="checkbox"> Сповільнений</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Мова і мовлення</label>
+                <select id="msSpeech" name="ms_speech">
+                  <option value="">—</option>
+                  <option>Без особливостей</option>
+                  <option>Сповільнена</option>
+                  <option>Прискорена</option>
+                  <option>Збіднена</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Без особливостей</label>
+                  <label><input type="checkbox"> Сповільнена</label>
+                  <label><input type="checkbox"> Прискорена</label>
+                  <label><input type="checkbox"> Збіднена</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Психомоторика</label>
+                <select id="msPsychomotor" name="ms_psychomotor">
+                  <option value="">—</option>
+                  <option>В нормі</option>
+                  <option>Загальмована</option>
+                  <option>Збуджена</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> В нормі</label>
+                  <label><input type="checkbox"> Загальмована</label>
+                  <label><input type="checkbox"> Збуджена</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Контакт</label>
+                <select id="msContact" name="ms_contact">
+                  <option value="">—</option>
+                  <option>Доступний продуктивному</option>
+                  <option>Формальний</option>
+                  <option>Недоступний</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Доступний продуктивному</label>
+                  <label><input type="checkbox"> Формальний</label>
+                  <label><input type="checkbox"> Недоступний</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Емоційний фон</label>
+                <select id="msEmotion" name="ms_emotion">
+                  <option value="">—</option>
+                  <option>Рівний, стабільний</option>
+                  <option>Тривожний</option>
+                  <option>Знижений</option>
+                  <option>Лабільний</option>
+                  <option>Дисфоричний</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Рівний, стабільний</label>
+                  <label><input type="checkbox"> Тривожний</label>
+                  <label><input type="checkbox"> Знижений</label>
+                  <label><input type="checkbox"> Лабільний</label>
+                  <label><input type="checkbox"> Дисфоричний</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Інсайт (психологічний)</label>
+                <select id="msInsightPsychol" name="ms_insight_psychol">
+                  <option value="">—</option>
+                  <option>Повний</option>
+                  <option>Частковий</option>
+                  <option>Відсутній</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Повний</label>
+                  <label><input type="checkbox"> Частковий</label>
+                  <label><input type="checkbox"> Відсутній</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Інсайт (психіатричний)</label>
+                <select id="msInsightPsychiatr" name="ms_insight_psychiatr">
+                  <option value="">—</option>
+                  <option>Повний</option>
+                  <option>Частковий</option>
+                  <option>Відсутній</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Повний</label>
+                  <label><input type="checkbox"> Частковий</label>
+                  <label><input type="checkbox"> Відсутній</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Інсайт (реабілітація)</label>
+                <select id="msInsightRehab" name="ms_insight_rehab">
+                  <option value="">—</option>
+                  <option>Повний</option>
+                  <option>Частковий</option>
+                  <option>Відсутній</option>
+                </select>
+                <div class="print-checkbox-group">
+                  <label><input type="checkbox"> Повний</label>
+                  <label><input type="checkbox"> Частковий</label>
+                  <label><input type="checkbox"> Відсутній</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Скарги (момент огляду)</label>
+                <textarea id="msComplaints" name="ms_complaints" rows="3" placeholder="Вільний текст скарг пацієнта на момент огляду"></textarea>
+              </div>
+
+              <div class="form-nav">
+                <button type="button" class="btn-prev" onclick="goToStep(3)">← Назад</button>
+                <button type="button" id="submitBtn" onclick="submitForm()">Зберегти в базу</button>
+              </div>
             </div>
 
             <div class="button-group">
@@ -1728,7 +2006,26 @@ Email: yehor.iordek@gmail.com
                 stump_path_source: getCheckedValues('stumpPathSourceChips'),
                 som_react: getCheckedValues('somReactChips'),
                 ...getGenesisData(),
-                consent: getConsentData()
+                consent: getConsentData(),
+                milUnit: document.getElementById('milUnit')?.value || '',
+                msOrientation: document.getElementById('msOrientation')?.value || '',
+                msAppearance: document.getElementById('msAppearance')?.value || '',
+                msFace: document.getElementById('msFace')?.value || '',
+                msBehavior: document.getElementById('msBehavior')?.value || '',
+                msCritique: document.getElementById('msCritique')?.value || '',
+                msAttention: document.getElementById('msAttention')?.value || '',
+                msAttentionFocus: Array.from(document.querySelectorAll('input[name="ms_attention_focus"]:checked')).map(cb => cb.value),
+                msMemory: document.getElementById('msMemory')?.value || '',
+                msThinking: document.getElementById('msThinking')?.value || '',
+                msThinkingPace: document.getElementById('msThinkingPace')?.value || '',
+                msSpeech: document.getElementById('msSpeech')?.value || '',
+                msPsychomotor: document.getElementById('msPsychomotor')?.value || '',
+                msContact: document.getElementById('msContact')?.value || '',
+                msEmotion: document.getElementById('msEmotion')?.value || '',
+                msInsightPsychol: document.getElementById('msInsightPsychol')?.value || '',
+                msInsightPsychiatr: document.getElementById('msInsightPsychiatr')?.value || '',
+                msInsightRehab: document.getElementById('msInsightRehab')?.value || '',
+                msComplaints: document.getElementById('msComplaints')?.value || '',
             };
         }
 
@@ -1806,6 +2103,28 @@ Email: yehor.iordek@gmail.com
                 date: fields['Згода — дата'] || '',
                 researchItems: fields['Згода — дослідницькі дозволи'] || []
             };
+
+            // Психічний статус та Військова частина (з ID полів Airtable)
+            data.milUnit = fields['fldX0lZ79QuYUf4WP'] || '';
+            data.msOrientation = fields['fldHShsfYhuNXlTZN'] || '';
+            data.msAppearance = fields['fldTZEbN8X3ZkCCw3'] || '';
+            data.msFace = fields['fld5S4D94i04tqCuI'] || '';
+            data.msBehavior = fields['fldcnSXbMuwYYHoLh'] || '';
+            data.msCritique = fields['fld5Jk8fO68ZjkRgr'] || '';
+            data.msAttention = fields['fld0uMGfGnIwj4jWm'] || '';
+            const msAF = fields['fldgIFDGeGxhp9zW5'];
+            data.msAttentionFocus = Array.isArray(msAF) ? msAF.map(v => typeof v === 'object' ? v.name : v) : [];
+            data.msMemory = fields['fldpi9ASFtxAvzaSa'] || '';
+            data.msThinking = fields['fldI6zKQaIa9WeABw'] || '';
+            data.msThinkingPace = fields['fldLQd7DNUSbBc5Sb'] || '';
+            data.msSpeech = fields['fldDXiwvOqGdYq00r'] || '';
+            data.msPsychomotor = fields['fldS5PfoTZA16vsUd'] || '';
+            data.msContact = fields['fldHkhoDAl3Tnatc6'] || '';
+            data.msEmotion = fields['fld7n2QQ3dDbaPIGW'] || '';
+            data.msInsightPsychol = fields['fldA5NMNUE01UM7ao'] || '';
+            data.msInsightPsychiatr = fields['fldijaCG0E6H6Bcm5'] || '';
+            data.msInsightRehab = fields['fldWNlqLDBSgU7RHG'] || '';
+            data.msComplaints = fields['fldTFK59cvBXUllko'] || '';
 
             return data;
         }
@@ -1965,6 +2284,26 @@ Email: yehor.iordek@gmail.com
             if (consent.given) fields['Згода — надана'] = consent.given;
             if (consent.date) fields['Згода — дата'] = consent.date;
             if (consent.researchItems.length) fields['Згода — дослідницькі дозволи'] = consent.researchItems;
+
+            if (formData.milUnit) fields['Військова частина (підрозділ)'] = formData.milUnit;
+            if (formData.msOrientation) fields['Орієнтація'] = formData.msOrientation;
+            if (formData.msAppearance) fields['Зовнішній вигляд'] = formData.msAppearance;
+            if (formData.msFace) fields['Вираз обличчя'] = formData.msFace;
+            if (formData.msBehavior) fields['Поведінка (психостатус)'] = formData.msBehavior;
+            if (formData.msCritique) fields['Критика до стану'] = formData.msCritique;
+            if (formData.msAttention) fields['Увага'] = formData.msAttention;
+            if (formData.msAttentionFocus && formData.msAttentionFocus.length) fields['Увага (фокус)'] = formData.msAttentionFocus;
+            if (formData.msMemory) fields['Пам\'ять'] = formData.msMemory;
+            if (formData.msThinking) fields['Мислення'] = formData.msThinking;
+            if (formData.msThinkingPace) fields['Темп мислення'] = formData.msThinkingPace;
+            if (formData.msSpeech) fields['Мова і мовлення'] = formData.msSpeech;
+            if (formData.msPsychomotor) fields['Психомоторика'] = formData.msPsychomotor;
+            if (formData.msContact) fields['Контакт'] = formData.msContact;
+            if (formData.msEmotion) fields['Емоційний фон'] = formData.msEmotion;
+            if (formData.msInsightPsychol) fields['Інсайт (психол.)'] = formData.msInsightPsychol;
+            if (formData.msInsightPsychiatr) fields['Інсайт (психіатр.)'] = formData.msInsightPsychiatr;
+            if (formData.msInsightRehab) fields['Інсайт (реабілітація)'] = formData.msInsightRehab;
+            if (formData.msComplaints) fields['Скарги (момент огляду)'] = formData.msComplaints;
 
             const existingId = await findRecordIdByNickname(apiKey, formData.patient_nickname);
             const url = existingId
@@ -2145,6 +2484,29 @@ Email: yehor.iordek@gmail.com
             }
             updatePainSectionVisibility();
             updateAgeDisplay();
+            let el;
+            if (el = document.getElementById('milUnit')) el.value = data.milUnit || '';
+            if (el = document.getElementById('msOrientation')) el.value = data.msOrientation || '';
+            if (el = document.getElementById('msAppearance')) el.value = data.msAppearance || '';
+            if (el = document.getElementById('msFace')) el.value = data.msFace || '';
+            if (el = document.getElementById('msBehavior')) el.value = data.msBehavior || '';
+            if (el = document.getElementById('msCritique')) el.value = data.msCritique || '';
+            if (el = document.getElementById('msAttention')) el.value = data.msAttention || '';
+            (data.msAttentionFocus || []).forEach(v => {
+                const cb = document.querySelector(`input[name="ms_attention_focus"][value="${v}"]`);
+                if (cb) cb.checked = true;
+            });
+            if (el = document.getElementById('msMemory')) el.value = data.msMemory || '';
+            if (el = document.getElementById('msThinking')) el.value = data.msThinking || '';
+            if (el = document.getElementById('msThinkingPace')) el.value = data.msThinkingPace || '';
+            if (el = document.getElementById('msSpeech')) el.value = data.msSpeech || '';
+            if (el = document.getElementById('msPsychomotor')) el.value = data.msPsychomotor || '';
+            if (el = document.getElementById('msContact')) el.value = data.msContact || '';
+            if (el = document.getElementById('msEmotion')) el.value = data.msEmotion || '';
+            if (el = document.getElementById('msInsightPsychol')) el.value = data.msInsightPsychol || '';
+            if (el = document.getElementById('msInsightPsychiatr')) el.value = data.msInsightPsychiatr || '';
+            if (el = document.getElementById('msInsightRehab')) el.value = data.msInsightRehab || '';
+            if (el = document.getElementById('msComplaints')) el.value = data.msComplaints || '';
         }
 
         // Завантажити дані з localStorage (якщо були збережені)

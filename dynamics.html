@@ -188,6 +188,13 @@
             color: #bdc3c7;
             text-align: center;
         }
+        .view-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .view-tab { padding: 8px 18px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: #f5f5f5; font-size: 14px; }
+        .view-tab.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+        .card-area { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 20px; display: none; }
+        .card-text { white-space: pre-wrap; font-family: monospace; font-size: 13px; line-height: 1.6; margin-top: 12px; }
+        .btn-copy { padding: 8px 20px; background: #1a73e8; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-copy:hover { background: #1557b0; }
     </style>
 </head>
 <body>
@@ -207,6 +214,14 @@
 
     <div class="error-msg" id="errorMsg"></div>
     <div class="patient-label" id="patientLabel"></div>
+
+    <div class="view-tabs" id="viewTabs" style="display:none">
+        <button class="view-tab active" onclick="switchView('dynamics')">Динаміка</button>
+        <button class="view-tab" onclick="switchView('card')">Психологічна картка</button>
+    </div>
+    <div class="card-area" id="cardArea">
+        <div id="cardContent"><p style="color:#888">Завантажте пацієнта для перегляду картки.</p></div>
+    </div>
 
     <div id="resultsArea">
         <div class="placeholder-grid">
@@ -297,6 +312,68 @@
 
         const ASSESSMENT_FIELDS = Object.values(F).filter(id => id !== F.participant && id !== F.stage);
         const PARTICIPANT_FIELDS = Object.values(P);
+
+        window.ASSESSMENT_FIELD_IDS = F;
+
+        let lastPatientData = null;
+        let lastAssessmentData = [];
+
+        const PAT = {
+            lastName: 'fldKE3lDRTmT4kJAI',
+            firstName: 'fldnXqwfpgd0aLNyV',
+            middleName: 'fldY6GpT5I6T9UAQE',
+            birthdate: 'fld5RUJ9p7ZNS6kA1',
+            gender: 'fldvJBF74VeKCX0QP',
+            ward: 'fldJEPzq38K7XifFW',
+            milUnit: 'fldX0lZ79QuYUf4WP',
+            injDate: 'fldEqnOQfBRsqdlH7',
+            ampDate: 'fldF9mBEjDGRgpT6n',
+            admDate: 'fldcVXEZMGcDFoJqg',
+            ampType: 'fldaMPgLb0JK5j6OL',
+            rpni: 'fldRPNI',
+            ampRight: 'fldaIwEVHJOBc2XFB',
+            ampLeft: 'fldZFfCzqJ72VJbKL',
+            ampBilateral: 'fldBilateral',
+            fbRight: 'fldfantomRightBool',
+            fbLeft: 'fldfantomLeftBool',
+            fbBilateral: 'fldfantomBilBool',
+            fvRight: 'fldfantomVizRightBool',
+            fvLeft: 'fldfantomVizLeftBool',
+            painFlow: 'fldPainFlow',
+            traumMem: 'fldTraumMem',
+            dogDominant: 'fldDogDominant',
+            genCerebral: 'fldGenCerebral',
+            genCerebralOther: 'fldGenCerebralOther',
+            genPeripheral: 'fldGenPeripheral',
+            genPeriphOther: 'fldGenPeriphOther',
+            genSpinal: 'fldGenSpinal',
+            genPsychogenic: 'fldGenPsychogenic',
+            cerebralTests: 'fldCerebralTests',
+            cerebralReactions: 'fldCerebralReactions',
+            periphTests: 'fldPeriphTests',
+            periphReactions: 'fldPeriphReactions',
+            psychTests: 'fldPsychTests',
+            psychReactions: 'fldPsychReactions',
+            msOrientation: 'fldHShsfYhuNXlTZN',
+            msAppearance: 'fldTZEbN8X3ZkCCw3',
+            msFace: 'fld5S4D94i04tqCuI',
+            msBehavior: 'fldcnSXbMuwYYHoLh',
+            msCritique: 'fld5Jk8fO68ZjkRgr',
+            msAttention: 'fld0uMGfGnIwj4jWm',
+            msAttentionFocus: 'fldgIFDGeGxhp9zW5',
+            msMemory: 'fldpi9ASFtxAvzaSa',
+            msThinking: 'fldI6zKQaIa9WeABw',
+            msThinkingPace: 'fldLQd7DNUSbBc5Sb',
+            msSpeech: 'fldDXiwvOqGdYq00r',
+            msPsychomotor: 'fldS5PfoTZA16vsUd',
+            msContact: 'fldHkhoDAl3Tnatc6',
+            msEmotion: 'fld7n2QQ3dDbaPIGW',
+            msInsightPsychol: 'fldA5NMNUE01UM7ao',
+            msInsightPsychiatr: 'fldijaCG0E6H6Bcm5',
+            msInsightRehab: 'fldWNlqLDBSgU7RHG',
+            msComplaints: 'fldTFK59cvBXUllko',
+            sleepHours: 'fldSleepHours',
+        };
 
         async function apiFetch(url) {
             const sep = url.includes('?') ? '&' : '?';
@@ -473,6 +550,11 @@
                     if (s && byStage.hasOwnProperty(s)) byStage[s] = rec;
                 });
 
+                lastPatientData = participantDetails.fields;
+                lastAssessmentData = assessmentRecords;
+                document.getElementById('viewTabs').style.display = 'flex';
+                switchView('dynamics');
+
                 document.getElementById('resultsArea').innerHTML = `
                     <div class="panels-grid">
                         ${renderPanel('Первинне опитування', 'primary', byStage['Первинне'], F)}
@@ -494,6 +576,357 @@
         document.getElementById('searchInput').addEventListener('keydown', e => {
             if (e.key === 'Enter') doSearch();
         });
+
+        function switchView(view) {
+            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+            if (view === 'dynamics') {
+                document.querySelector('.view-tab:first-child').classList.add('active');
+                document.getElementById('resultsArea').style.display = '';
+                document.getElementById('cardArea').style.display = 'none';
+            } else {
+                document.querySelector('.view-tab:last-child').classList.add('active');
+                document.getElementById('resultsArea').style.display = 'none';
+                document.getElementById('cardArea').style.display = 'block';
+                if (lastPatientData) renderPsychCard(lastPatientData, lastAssessmentData);
+            }
+        }
+
+        function pf(fields, key) {
+            const v = fields[PAT[key]];
+            if (v === null || v === undefined) return '';
+            if (typeof v === 'object' && v.name) return v.name;
+            return String(v);
+        }
+
+        function pfArr(fields, key) {
+            const v = fields[PAT[key]];
+            if (!v || !Array.isArray(v)) return [];
+            return v.map(item => typeof item === 'object' && item.name ? item.name : String(item));
+        }
+
+        function calcAgeFromBirth(dateStr) {
+            if (!dateStr) return '';
+            const b = new Date(dateStr);
+            if (isNaN(b)) return '';
+            const today = new Date();
+            let age = today.getFullYear() - b.getFullYear();
+            const m = today.getMonth() - b.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+            return age;
+        }
+
+        function escapeHtml(t) {
+            return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        function copyCard() {
+            if (window._cardText) {
+                navigator.clipboard.writeText(window._cardText).then(() => {
+                    const btn = document.querySelector('.btn-copy');
+                    btn.textContent = 'Скопійовано!';
+                    setTimeout(() => btn.textContent = 'Копіювати текст', 2000);
+                });
+            }
+        }
+
+        function renderPsychCard(f, assessmentRecs) {
+            const today = new Date();
+            const todayStr = today.toLocaleDateString('uk-UA');
+
+            const lastName = pf(f, 'lastName');
+            const firstName = pf(f, 'firstName');
+            const middleName = pf(f, 'middleName');
+            const fullName = [lastName, firstName, middleName].filter(Boolean).join(' ');
+            const birthdate = pf(f, 'birthdate');
+            const birthdateDisplay = birthdate ? formatDate(birthdate) : '';
+            const age = calcAgeFromBirth(birthdate);
+            const ageStr = age ? ` (${age} р.)` : '';
+            const genderRaw = pf(f, 'gender');
+            const genderShort = genderRaw === 'Чоловіча' ? 'чол.' : genderRaw === 'Жіноча' ? 'жін.' : genderRaw;
+            const ward = pf(f, 'ward');
+            const milUnit = pf(f, 'milUnit');
+            const ampType = pf(f, 'ampType');
+            const rpni = pf(f, 'rpni');
+
+            const ampRight = pfArr(f, 'ampRight');
+            const ampLeft = pfArr(f, 'ampLeft');
+            const ampBilateral = pfArr(f, 'ampBilateral');
+            const ampLines = [];
+            if (ampRight.length) ampLines.push('Права: ' + ampRight.join(', '));
+            if (ampLeft.length) ampLines.push('Ліва: ' + ampLeft.join(', '));
+            if (ampBilateral.length) ampLines.push('Білатеральна: ' + ampBilateral.join(', '));
+
+            const hasFb = pf(f, 'fbRight') === 'true' || pf(f, 'fbLeft') === 'true' || pf(f, 'fbBilateral') === 'true';
+            const hasFv = pf(f, 'fvRight') === 'true' || pf(f, 'fvLeft') === 'true';
+            const painLines = [];
+            if (hasFb) painLines.push('Фантомний біль: є');
+            if (hasFv) painLines.push('Фантомні відчуття: є');
+            const painFlow = pf(f, 'painFlow');
+            const traumMem = pf(f, 'traumMem');
+
+            const dogDominant = pf(f, 'dogDominant');
+            const genCerebral = pfArr(f, 'genCerebral');
+            const genCerebralOther = pf(f, 'genCerebralOther');
+            const genPeripheral = pfArr(f, 'genPeripheral');
+            const genPeriphOther = pf(f, 'genPeriphOther');
+            const genSpinal = pfArr(f, 'genSpinal');
+            const genPsychogenic = pfArr(f, 'genPsychogenic');
+
+            const cerebralTests = pfArr(f, 'cerebralTests');
+            const cerebralReactions = pfArr(f, 'cerebralReactions');
+            const periphTests = pfArr(f, 'periphTests');
+            const periphReactions = pfArr(f, 'periphReactions');
+            const psychTests = pfArr(f, 'psychTests');
+            const psychReactions = pfArr(f, 'psychReactions');
+
+            function buildTestLines(tests, reactions) {
+                return tests.map((t, i) => t + (reactions[i] ? ' → ' + reactions[i] : '')).join('; ');
+            }
+
+            const msOrientation = pf(f, 'msOrientation');
+            const msAppearance = pf(f, 'msAppearance');
+            const msFace = pf(f, 'msFace');
+            const msBehavior = pf(f, 'msBehavior');
+            const msCritique = pf(f, 'msCritique');
+            const msAttention = pf(f, 'msAttention');
+            const msAttentionFocus = pfArr(f, 'msAttentionFocus');
+            const msMemory = pf(f, 'msMemory');
+            const msThinking = pf(f, 'msThinking');
+            const msThinkingPace = pf(f, 'msThinkingPace');
+            const msSpeech = pf(f, 'msSpeech');
+            const msPsychomotor = pf(f, 'msPsychomotor');
+            const msContact = pf(f, 'msContact');
+            const msEmotion = pf(f, 'msEmotion');
+            const msInsightPsychol = pf(f, 'msInsightPsychol');
+            const msInsightPsychiatr = pf(f, 'msInsightPsychiatr');
+            const msInsightRehab = pf(f, 'msInsightRehab');
+            const msComplaints = pf(f, 'msComplaints');
+            const sleepHours = pf(f, 'sleepHours');
+
+            const Fids = window.ASSESSMENT_FIELD_IDS || {};
+            const sortedAss = (assessmentRecs || []).slice().sort((a, b) => {
+                const da = a.fields[Fids.date] || '';
+                const db = b.fields[Fids.date] || '';
+                return da.localeCompare(db);
+            });
+
+            const lines = [];
+            lines.push('ПСИХОЛОГІЧНА КАРТКА ПАЦІЄНТА');
+            lines.push(`Дата формування: ${todayStr}`);
+            lines.push('');
+            lines.push('1. ЗАГАЛЬНІ ДАНІ');
+            lines.push(`ПІБ: ${fullName}`);
+            if (birthdateDisplay) lines.push(`Дата народження: ${birthdateDisplay}${ageStr}`);
+            if (genderShort) lines.push(`Стать: ${genderShort}`);
+            if (milUnit) lines.push(`Військова частина: ${milUnit}`);
+            if (ward) lines.push(`Палата: ${ward}`);
+            const injDate = pf(f, 'injDate');
+            const ampDate = pf(f, 'ampDate');
+            const admDate = pf(f, 'admDate');
+            if (injDate) lines.push(`Дата поранення: ${formatDate(injDate)}`);
+            if (ampDate) lines.push(`Дата ампутації: ${formatDate(ampDate)}`);
+            if (admDate) lines.push(`Дата поступлення: ${formatDate(admDate)}`);
+            if (ampType) lines.push(`Тип ампутації: ${ampType}`);
+            if (rpni) lines.push(`RPNI: ${rpni}`);
+
+            if (ampLines.length) {
+                lines.push('');
+                lines.push('2. РІВНІ АМПУТАЦІЙ');
+                ampLines.forEach(l => lines.push(l));
+            }
+
+            if (painLines.length || painFlow || traumMem) {
+                lines.push('');
+                lines.push('3. БОЛЬОВИЙ ПРОФІЛЬ');
+                painLines.forEach(l => lines.push(l));
+                if (painFlow) lines.push(`Характер протікання: ${painFlow}`);
+                if (traumMem) lines.push(`Травматичні спогади: ${traumMem}`);
+            }
+
+            const hasGenesis = dogDominant || genCerebral.length || genPeripheral.length || genSpinal.length || genPsychogenic.length;
+            if (hasGenesis) {
+                lines.push('');
+                lines.push('4. ГЕНЕЗ БОЛЬОВОГО СИНДРОМУ');
+                if (dogDominant) lines.push(`Домінуючий генез: ${dogDominant}`);
+                if (genPeripheral.length || genPeriphOther) lines.push(`Периферичний: ${[...genPeripheral, genPeriphOther].filter(Boolean).join(', ')}`);
+                if (genCerebral.length || genCerebralOther) lines.push(`Церебральний: ${[...genCerebral, genCerebralOther].filter(Boolean).join(', ')}`);
+                if (genSpinal.length) lines.push(`Спінальний: ${genSpinal.join(', ')}`);
+                if (genPsychogenic.length) lines.push(`Психогенний: ${genPsychogenic.join(', ')}`);
+            }
+
+            const hasTests = cerebralTests.length || periphTests.length || psychTests.length;
+            if (hasTests) {
+                lines.push('');
+                lines.push('5. КЛІНІЧНІ ТЕСТИ');
+                if (cerebralTests.length) lines.push(`Церебральні: ${buildTestLines(cerebralTests, cerebralReactions)}`);
+                if (periphTests.length) lines.push(`Периферичні: ${buildTestLines(periphTests, periphReactions)}`);
+                if (psychTests.length) lines.push(`Психогенні: ${buildTestLines(psychTests, psychReactions)}`);
+            }
+
+            const hasMentalStatus = msOrientation || msAppearance || msFace || msBehavior || msContact || msEmotion || msMemory || msThinking || msSpeech || msPsychomotor;
+            if (hasMentalStatus) {
+                lines.push('');
+                lines.push('6. ПСИХІЧНИЙ СТАН');
+                if (msOrientation) lines.push(`Орієнтація: ${msOrientation}`);
+                if (msAppearance) lines.push(`Зовнішній вигляд: ${msAppearance}`);
+                if (msFace) lines.push(`Вираз обличчя: ${msFace}`);
+                if (msBehavior) lines.push(`Поведінка: ${msBehavior}`);
+                if (msCritique) lines.push(`Критика до стану: ${msCritique}`);
+                if (msAttention) lines.push(`Увага: ${msAttention}${msAttentionFocus.length ? ', концентрована довкола: ' + msAttentionFocus.join(', ') : ''}`);
+                if (msMemory) lines.push(`Пам'ять: ${msMemory}`);
+                if (msThinking) lines.push(`Мислення: ${msThinking}${msThinkingPace ? ', темп — ' + msThinkingPace : ''}`);
+                if (msSpeech) lines.push(`Мова і мовлення: ${msSpeech}`);
+                if (msPsychomotor) lines.push(`Психомоторика: ${msPsychomotor}`);
+                if (msContact) lines.push(`Контакт: ${msContact}`);
+                if (msEmotion) lines.push(`Емоційний фон: ${msEmotion}`);
+                if (sleepHours) lines.push(`Сон (год.): ${sleepHours}`);
+                if (msInsightPsychol) lines.push(`Інсайт (психол.): ${msInsightPsychol}`);
+                if (msInsightPsychiatr) lines.push(`Інсайт (психіатр.): ${msInsightPsychiatr}`);
+                if (msInsightRehab) lines.push(`Інсайт (реабілітація): ${msInsightRehab}`);
+                if (msComplaints) lines.push(`Скарги: ${msComplaints}`);
+            }
+
+            if (sortedAss.length) {
+                lines.push('');
+                lines.push('7. ІСТОРІЯ ОПИТУВАНЬ');
+                sortedAss.forEach((rec, i) => {
+                    const rf = rec.fields;
+                    const d = formatDate(rf[Fids.date]);
+                    const stage = rf[Fids.stage] ? (rf[Fids.stage].name || rf[Fids.stage]) : '';
+                    lines.push(`Опитування ${i+1} — ${d}${stage ? ' (' + stage + ')' : ''}`);
+                    const pcl = rf[Fids.pcl5Sum];
+                    const pclI = rf[Fids.pcl5Interp] ? (rf[Fids.pcl5Interp].name || rf[Fids.pcl5Interp]) : '';
+                    if (pcl !== undefined && pcl !== null) lines.push(`  PCL-5: ${pcl}/80 — ${pclI}`);
+                    const hadsT = rf[Fids.hadsSumT];
+                    const hadsTI = rf[Fids.hadsInterpT] ? (rf[Fids.hadsInterpT].name || rf[Fids.hadsInterpT]) : '';
+                    if (hadsT !== undefined && hadsT !== null) lines.push(`  HADS Тривога: ${hadsT}/21 — ${hadsTI}`);
+                    const hadsD = rf[Fids.hadsSumD];
+                    const hadsDI = rf[Fids.hadsInterpD] ? (rf[Fids.hadsInterpD].name || rf[Fids.hadsInterpD]) : '';
+                    if (hadsD !== undefined && hadsD !== null) lines.push(`  HADS Депресія: ${hadsD}/21 — ${hadsDI}`);
+                    const ais = rf[Fids.aisSum];
+                    const aisI = rf[Fids.aisInterp] ? (rf[Fids.aisInterp].name || rf[Fids.aisInterp]) : '';
+                    if (ais !== undefined && ais !== null) lines.push(`  AIS: ${ais}/24 — ${aisI}`);
+                    const dn4 = rf[Fids.dn4Sum];
+                    const dn4I = rf[Fids.dn4Interp] ? (rf[Fids.dn4Interp].name || rf[Fids.dn4Interp]) : '';
+                    if (dn4 !== undefined && dn4 !== null) lines.push(`  DN-4: ${dn4}/10 — ${dn4I}`);
+                });
+            }
+
+            lines.push('');
+            lines.push('8. ПСИХОЛОГІЧНЕ ЗАКЛЮЧЕННЯ');
+            lines.push(`Психологічний висновок від ${todayStr}`);
+            lines.push(`Пацієнт: ${fullName}${birthdateDisplay ? ', ' + birthdateDisplay + ' р.' : ''}${genderShort ? ', ' + genderShort : ''}`);
+            lines.push('─'.repeat(40));
+
+            let contactBlock = '';
+            if (msOrientation === 'Вірно') contactBlock += 'Алопсихічно та аутопсихічно орієнтований/а вірно. ';
+            else if (msOrientation) contactBlock += `Орієнтування: ${msOrientation}. `;
+            if (msContact === 'Доступний продуктивному') contactBlock += 'Доступний/а продуктивному контакту. ';
+            else if (msContact) contactBlock += `Контакт: ${msContact}. `;
+            if (msBehavior) contactBlock += `Поведінка ${msBehavior.toLowerCase()}, відповідна ситуації. `;
+            if (msAppearance) contactBlock += `Зовнішній вигляд ${msAppearance.toLowerCase()}. `;
+            if (msFace) contactBlock += `Вираз обличчя ${msFace.toLowerCase()}. `;
+            if (msCritique) {
+                if (msCritique === 'Відповідна') contactBlock += 'Критика до стану збережена.';
+                else contactBlock += `Критика до стану: ${msCritique.toLowerCase()}.`;
+            }
+            if (contactBlock) lines.push(`\nОрієнтування / контакт: ${contactBlock.trim()}`);
+
+            if (msComplaints) lines.push(`\nСкарги: ${msComplaints}`);
+
+            let anamBlock = 'Зі слів пацієнта: ';
+            if (injDate) anamBlock += `ампутація внаслідок бойового поранення (${formatDate(injDate)}). `;
+            if (ampLines.length) anamBlock += `Рівень ампутації: ${ampLines.join('; ')}. `;
+            anamBlock += `RPNI ${rpni === 'Так' ? 'виконано' : 'не проводилось'}. `;
+            anamBlock += 'До поранення психічних скарг не відзначав/ла. ';
+            if (hasFv || hasFb) anamBlock += "Фантомні явища з'явились у перші дні після ампутації. ";
+            anamBlock += 'Мотивація до реабілітації збережена.';
+            lines.push(`\n${anamBlock}`);
+
+            let cogBlock = '';
+            if (msMemory) {
+                cogBlock += msMemory === 'В межах вікової норми' ? "Пам'ять у межах вікової норми. " : `Пам'ять: ${msMemory}. `;
+            }
+            if (msAttention) {
+                cogBlock += msAttention === 'Стійка' ? 'Увага достатньо стійка. ' : `Увага: ${msAttention}${msAttentionFocus.length ? ', концентрована довкола ' + msAttentionFocus.join(', ') : ''}. `;
+            }
+            if (msThinking) {
+                cogBlock += msThinking === 'Послідовне'
+                    ? `Мислення послідовне, цілеспрямоване, темп ${msThinkingPace ? msThinkingPace.toLowerCase() : 'помірний'}. `
+                    : `Мислення: ${msThinking}, темп ${msThinkingPace ? msThinkingPace.toLowerCase() : 'помірний'}. `;
+                cogBlock += "Патологічної продукції (марення, нав'язливості) не виявлено. ";
+            }
+            if (msSpeech) {
+                cogBlock += msSpeech === 'Без особливостей' ? "Мова зв'язна, граматично правильна, темп помірний. " : `Мова і мовлення: ${msSpeech}. `;
+            }
+            cogBlock += 'Інтелект відповідає рівню освіти.';
+            if (cogBlock) lines.push(`\nПам'ять, увага, мислення: ${cogBlock.trim()}`);
+
+            const lastAss = sortedAss[sortedAss.length - 1];
+            let emotBlock = '';
+            if (lastAss) {
+                const cssrsRisk = lastAss.fields[Fids.cssrsRisk] ? (lastAss.fields[Fids.cssrsRisk].name || lastAss.fields[Fids.cssrsRisk]) : '';
+                if (cssrsRisk && cssrsRisk !== 'Ризику немає') emotBlock += `Суїцидальний ризик: ${cssrsRisk}. `;
+                else emotBlock += 'Суїцидальних думок не виявлено. ';
+            }
+            if (msEmotion) emotBlock += `Емоційний фон: ${msEmotion.toLowerCase()}. `;
+            if (lastAss) {
+                const pclS = lastAss.fields[Fids.pcl5Sum];
+                const pclI = lastAss.fields[Fids.pcl5Interp] ? (lastAss.fields[Fids.pcl5Interp].name || lastAss.fields[Fids.pcl5Interp]) : '';
+                const hT = lastAss.fields[Fids.hadsSumT];
+                const hTI = lastAss.fields[Fids.hadsInterpT] ? (lastAss.fields[Fids.hadsInterpT].name || lastAss.fields[Fids.hadsInterpT]) : '';
+                const hD = lastAss.fields[Fids.hadsSumD];
+                const hDI = lastAss.fields[Fids.hadsInterpD] ? (lastAss.fields[Fids.hadsInterpD].name || lastAss.fields[Fids.hadsInterpD]) : '';
+                const parts = [];
+                if (pclS !== undefined && pclS !== null) parts.push(`PCL-5: ${pclS}/80 (${pclI})`);
+                if (hT !== undefined && hT !== null) parts.push(`HADS-Т: ${hT}/21 (${hTI})`);
+                if (hD !== undefined && hD !== null) parts.push(`HADS-Д: ${hD}/21 (${hDI})`);
+                if (parts.length) emotBlock += `Підтверджено: ${parts.join('; ')}.`;
+            }
+            if (emotBlock) lines.push(`\nЕмоційний фон: ${emotBlock.trim()}`);
+
+            let sleepBlock = '';
+            if (lastAss) {
+                const aisS = lastAss.fields[Fids.aisSum];
+                const aisI = lastAss.fields[Fids.aisInterp] ? (lastAss.fields[Fids.aisInterp].name || lastAss.fields[Fids.aisInterp]) : '';
+                const slH = lastAss.fields[Fids.sleepHours];
+                if (aisS !== undefined && aisS !== null) sleepBlock += `AIS: ${aisS}/24 (${aisI}). `;
+                if (slH) sleepBlock += `Тривалість сну: ${slH} год. `;
+                else if (sleepHours) sleepBlock += `Тривалість сну: ${sleepHours} год. `;
+            } else if (sleepHours) {
+                sleepBlock += `Тривалість сну: ${sleepHours} год. `;
+            }
+            sleepBlock += "Сон суб'єктивно задовільний.";
+            lines.push(`\nСон: ${sleepBlock.trim()}`);
+
+            let painBlock = '';
+            if (painLines.length) painBlock += painLines.join('; ') + '. ';
+            if (lastAss) {
+                const dn4S = lastAss.fields[Fids.dn4Sum];
+                const dn4I = lastAss.fields[Fids.dn4Interp] ? (lastAss.fields[Fids.dn4Interp].name || lastAss.fields[Fids.dn4Interp]) : '';
+                if (dn4S !== undefined && dn4S !== null) painBlock += `DN-4: ${dn4S}/10 (${dn4I}). `;
+            }
+            if (traumMem) painBlock += `Травматичні спогади: ${traumMem.toLowerCase()}. `;
+            if (painBlock) lines.push(`\nБольовий профіль: ${painBlock.trim()}`);
+
+            if (hasGenesis) {
+                const genesisBlock = dogDominant ? `Домінуючий генез: ${dogDominant}.` : '';
+                lines.push(`\nГенез больового синдрому: ${genesisBlock}`);
+            }
+
+            lines.push('\nРекомендації: [заповнити вручну]');
+            lines.push('');
+            lines.push('Психолог Є. Іордек');
+            lines.push(`Дата: ${todayStr}`);
+
+            const text = lines.join('\n');
+            window._cardText = text;
+
+            document.getElementById('cardContent').innerHTML = `
+                <button class="btn-copy" onclick="copyCard()">Копіювати текст</button>
+                <div class="card-text">${escapeHtml(text)}</div>
+            `;
+        }
     </script>
 
 </body>
