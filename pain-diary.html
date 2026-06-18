@@ -772,7 +772,7 @@
                 const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
                 if (!r.ok) return [];
                 const data = await r.json();
-                return data.records.map(rec => rec.fields['fldc7W3fLYZxuBnDQ'] || '').filter(Boolean);
+                return data.records.map(rec => rec.fields['fldc7W3fLYZxuBnDQ'] || rec.fields['ПІБ'] || '').filter(Boolean);
             } catch { return []; }
         }
 

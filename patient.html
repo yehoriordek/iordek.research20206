@@ -2227,27 +2227,26 @@ Email: yehor.iordek@gmail.com
             return data;
         }
 
-        // Завантажує запис пацієнта з Airtable за Study ID. Повертає об'єкт fields або null, якщо не знайдено
+        // Завантажує запис пацієнта з Airtable за Study ID або ПІБ. Повертає об'єкт fields або null, якщо не знайдено
         async function loadPatientFromAirtable(apiKey, nickname) {
-            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
-            const response = await fetch(
-                `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`
-                    }
+            async function fetchByFormula(formula) {
+                const response = await fetch(
+                    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1`,
+                    { headers: { 'Authorization': `Bearer ${apiKey}` } }
+                );
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => null);
+                    throw new Error(`Airtable: ${errorBody?.error?.message || response.statusText}`);
                 }
-            );
-
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error?.message || response.statusText;
-                throw new Error(`Airtable: ${message}`);
+                const data = await response.json();
+                return data.records.length > 0 ? data.records[0].fields : null;
             }
 
-            const data = await response.json();
-            if (data.records.length === 0) return null;
-            return data.records[0].fields;
+            const byId = await fetchByFormula(`{Study ID}="${nickname}"`);
+            if (byId) return byId;
+
+            const safe = nickname.replace(/"/g, '');
+            return await fetchByFormula(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
         }
 
         // Розшифрування Airtable API-ключа за паролем користувача

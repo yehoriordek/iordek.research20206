@@ -898,7 +898,7 @@
         try {
             const r    = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE}?maxRecords=500`, { headers: { Authorization: `Bearer ${READ_KEY}` } });
             const data = await r.json();
-            const all  = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||'', dob: rec.fields['fldhSmAshVfZmuC63']||'' }));
+            const all  = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||rec.fields['ПІБ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||rec.fields['Study ID']||'', dob: rec.fields['fldhSmAshVfZmuC63']||rec.fields['Дата народження']||'' }));
             const q    = nick.toLowerCase();
             const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().startsWith(q)));
             if (matches.length===1) {
