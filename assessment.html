@@ -41,7 +41,7 @@
         .chips-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid #bdc3c7; border-radius: 16px; font-size: 13px; cursor: pointer; color: #2c3e50; transition: all 0.2s; }
         .chip input { position: absolute; width: 0; height: 0; opacity: 0; }
-        .chip:has(input:checked) { background-color: #3498db; color: #fff; border-color: #3498db; }
+        .chip:has(input:checked), .chip.active { background-color: #3498db; color: #fff; border-color: #3498db; }
         .section-title { font-size: 18px; color: #2c3e50; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #ecf0f1; }
         h3.section-title { font-size: 15px; margin-top: 20px; }
         .section-hint { font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5; padding: 8px; background: #f8f9fa; border-radius: 4px; }
@@ -1437,7 +1437,7 @@
             const response=await fetch(assessmentUrl,{
                 method: existingAssessmentId ? 'PATCH' : 'POST',
                 headers:{'Authorization':`Bearer ${apiKey}`,'Content-Type':'application/json'},
-                body:JSON.stringify({fields})
+                body:JSON.stringify({fields, typecast: true})
             });
             if(!response.ok){const eb=await response.json().catch(()=>null);throw new Error(`Airtable: ${eb?.error?.message||response.statusText}`);}
             const saved=await response.json();
@@ -1503,6 +1503,9 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
       localStorage.removeItem('assessmentFormData');
       window._lastSavedAssessmentId = savedId;
       window._lastSavedApiKey = apiKey;
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('wizardProgress').style.display = 'none';
+      document.querySelector('.button-group').style.display = 'none';
       document.getElementById('clinicianSection').style.display = 'block';
       document.getElementById('clinicianSection').scrollIntoView({behavior:'smooth'});
     }
@@ -1912,7 +1915,7 @@ async function savePsychStatus() {
     const resp = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${ASSESSMENTS_TABLE_ID}/${recordId}`, {
       method: 'PATCH',
       headers: {'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json'},
-      body: JSON.stringify({fields})
+      body: JSON.stringify({fields, typecast: true})
     });
     if (!resp.ok) { const eb = await resp.json().catch(()=>null); throw new Error(`Airtable: ${eb?.error?.message||resp.statusText}`); }
     document.getElementById('psSuccessMessage').style.display = 'block';
