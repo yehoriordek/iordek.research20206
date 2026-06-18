@@ -1315,8 +1315,8 @@
             addIfValue(fields,F.sleepPhase,sleepPhase);
             addIfValue(fields,F.sleepBidir,sleepBidir);
 
-            // LEC-5
-            LEC5_FIELD_IDS.forEach((fieldId,i)=>{ addIfArray(fields,fieldId,lec5[i]); });
+            // LEC-5 (map UI value to stored Airtable option name which has a typo)
+            LEC5_FIELD_IDS.forEach((fieldId,i)=>{ addIfArray(fields,fieldId,(lec5[i]||[]).map(v=>v==='Не впевнений'?'Не вивинен':v)); });
             fields[F.lec5Direct]=direct;
             fields[F.lec5Witness]=witness;
 
