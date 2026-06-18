@@ -188,13 +188,43 @@
             color: #bdc3c7;
             text-align: center;
         }
-        .view-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-        .view-tab { padding: 8px 18px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: #f5f5f5; font-size: 14px; }
-        .view-tab.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
-        .card-area { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 20px; display: none; }
-        .card-text { white-space: pre-wrap; font-family: monospace; font-size: 13px; line-height: 1.6; margin-top: 12px; }
-        .btn-copy { padding: 8px 20px; background: #1a73e8; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .btn-copy:hover { background: #1557b0; }
+        .view-tab {
+            padding: 8px 18px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            background: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #555;
+            transition: background 0.2s, color 0.2s;
+        }
+        .view-tab.active { background: #2980b9; color: white; border-color: #2980b9; }
+        .card-area { display: none; }
+        .card-area.visible { display: block; }
+        .card-text {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 28px 32px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #2c3e50;
+            white-space: pre-wrap;
+        }
+        .btn-copy {
+            padding: 9px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+        .btn-copy:hover { background: #219a52; }
     </style>
 </head>
 <body>
@@ -215,9 +245,9 @@
     <div class="error-msg" id="errorMsg"></div>
     <div class="patient-label" id="patientLabel"></div>
 
-    <div class="view-tabs" id="viewTabs" style="display:none">
-        <button class="view-tab active" onclick="switchView('dynamics')">Динаміка</button>
-        <button class="view-tab" onclick="switchView('card')">Психологічна картка</button>
+    <div class="view-tabs screen-only" id="viewTabs" style="display:none;gap:8px;margin-bottom:20px;">
+        <button type="button" class="view-tab active" id="tabDynamics" onclick="switchView('dynamics')">Динаміка</button>
+        <button type="button" class="view-tab" id="tabCard" onclick="switchView('card')">Психологічна картка</button>
     </div>
     <div class="card-area" id="cardArea">
         <div id="cardContent"><p style="color:#888">Завантажте пацієнта для перегляду картки.</p></div>
@@ -578,16 +608,12 @@
         });
 
         function switchView(view) {
-            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-            if (view === 'dynamics') {
-                document.querySelector('.view-tab:first-child').classList.add('active');
-                document.getElementById('resultsArea').style.display = '';
-                document.getElementById('cardArea').style.display = 'none';
-            } else {
-                document.querySelector('.view-tab:last-child').classList.add('active');
-                document.getElementById('resultsArea').style.display = 'none';
-                document.getElementById('cardArea').style.display = 'block';
-                if (lastPatientData) renderPsychCard(lastPatientData, lastAssessmentData);
+            document.getElementById('tabDynamics').classList.toggle('active', view === 'dynamics');
+            document.getElementById('tabCard').classList.toggle('active', view === 'card');
+            document.getElementById('resultsArea').style.display = view === 'dynamics' ? '' : 'none';
+            document.getElementById('cardArea').classList.toggle('visible', view === 'card');
+            if (view === 'card' && lastPatientData) {
+                renderPsychCard(lastPatientData, lastAssessmentData);
             }
         }
 
