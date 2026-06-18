@@ -105,6 +105,32 @@
     <div class="container">
         <h1>Контрольне опитування</h1>
         <div class="success-message" id="successMessage">Опитування збережено в Airtable!</div>
+
+        <div id="clinicianSection" style="display:none; margin-top:24px; border-top:2px solid #2980b9; padding-top:20px;">
+            <h2 style="color:#2980b9; font-size:18px; margin-bottom:4px;">Психічний статус — заповнює клініцист</h2>
+            <p style="color:#666; font-size:13px; margin-bottom:16px;">Пацієнт передав планшет. Заповніть психічний статус і натисніть «Зберегти психстатус».</p>
+            <div class="success-message" id="psSuccessMessage" style="display:none;">Психічний статус збережено.</div>
+            <div class="error-message" id="psErrorMessage" style="display:none;"></div>
+            <div class="form-group"><label>Орієнтація</label><select id="psOrientation"><option value="">—</option><option>Вірно</option><option>Частково порушена</option><option>Порушена</option></select></div>
+            <div class="form-group"><label>Зовнішній вигляд</label><select id="psAppearance"><option value="">—</option><option>Охайний</option><option>Неохайний</option><option>Неохайний, занедбаний</option></select></div>
+            <div class="form-group"><label>Вираз обличчя</label><select id="psFace"><option value="">—</option><option>Спокійний</option><option>Тривожний</option><option>Напружений</option><option>Сумний</option><option>Гримаси болю</option></select></div>
+            <div class="form-group"><label>Поведінка</label><select id="psBehavior"><option value="">—</option><option>Спокійна, впорядкована</option><option>Тривожна</option><option>Загальмована</option><option>Збуджена</option></select></div>
+            <div class="form-group"><label>Критика до стану</label><select id="psCritique"><option value="">—</option><option>Відповідна</option><option>Частково збережена</option><option>Відсутня</option></select></div>
+            <div class="form-group"><label>Увага</label><select id="psAttention"><option value="">—</option><option>Стійка</option><option>Знижена</option><option>Нестійка</option></select></div>
+            <div class="form-group"><label>Увага (фокус) — можна кілька</label><div class="chips-group" id="psAttentionFocusChips"><button type="button" class="chip" data-value="Болю">Болю</button><button type="button" class="chip" data-value="Стану здоров'я">Стану здоров'я</button><button type="button" class="chip" data-value="Побутових питань">Побутових питань</button><button type="button" class="chip" data-value="Сімейних питань">Сімейних питань</button></div></div>
+            <div class="form-group"><label>Пам'ять</label><select id="psMemory"><option value="">—</option><option>В межах вікової норми</option><option>Незначне зниження</option><option>Суттєве зниження</option></select></div>
+            <div class="form-group"><label>Мислення</label><select id="psThinking"><option value="">—</option><option>Послідовне</option><option>Непослідовне</option><option>Фрагментарне</option></select></div>
+            <div class="form-group"><label>Темп мислення</label><select id="psThinkingPace"><option value="">—</option><option>Помірний</option><option>Прискорений</option><option>Сповільнений</option></select></div>
+            <div class="form-group"><label>Мова і мовлення</label><select id="psSpeech"><option value="">—</option><option>Без особливостей</option><option>Сповільнена</option><option>Прискорена</option><option>Збіднена</option></select></div>
+            <div class="form-group"><label>Психомоторика</label><select id="psPsychomotor"><option value="">—</option><option>В нормі</option><option>Загальмована</option><option>Збуджена</option></select></div>
+            <div class="form-group"><label>Контакт</label><select id="psContact"><option value="">—</option><option>Доступний продуктивному</option><option>Формальний</option><option>Недоступний</option></select></div>
+            <div class="form-group"><label>Емоційний фон</label><select id="psEmotion"><option value="">—</option><option>Рівний, стабільний</option><option>Тривожний</option><option>Знижений</option><option>Лабільний</option><option>Дисфоричний</option></select></div>
+            <div class="form-group"><label>Інсайт (психол.)</label><select id="psInsightPsychol"><option value="">—</option><option>Повний</option><option>Частковий</option><option>Відсутній</option></select></div>
+            <div class="form-group"><label>Інсайт (психіатр.)</label><select id="psInsightPsychiatr"><option value="">—</option><option>Повний</option><option>Частковий</option><option>Відсутній</option></select></div>
+            <div class="form-group"><label>Інсайт (реабілітація)</label><select id="psInsightRehab"><option value="">—</option><option>Повний</option><option>Частковий</option><option>Відсутній</option></select></div>
+            <div class="form-group"><label>Скарги на момент огляду</label><textarea id="psComplaints" rows="3" placeholder="Основні скарги пацієнта на момент огляду"></textarea></div>
+            <div style="margin-top:16px;"><button type="button" id="btnSavePsychStatus" class="btn-submit">Зберегти психстатус</button></div>
+        </div>
         <div class="error-message" id="errorMessage"></div>
 
         <form id="assessmentForm">
@@ -525,7 +551,16 @@
             sfPhantomDesc:'fldEWZElHTYvinHux', sfPhantomDescOther:'fldWSL1XzeL8wOIcZ',
             sfPainDuringSex:'fldoW7th06RZDZnJ8', sfPainIncrease:'fld83P9K8XzJBZCcS',
             sfPainDecrease:'flddBGiia1GkYEu3J', sfSatisfaction:'fldkTbVxAvgouMLWa',
-            sfBodyImage:'fldDWAgWXsLJYgU5t', sfDiscussed:'fld23i39P3nQMYevY'
+            sfBodyImage:'fldDWAgWXsLJYgU5t', sfDiscussed:'fld23i39P3nQMYevY',
+            psOrientation:'fldCEaOUnrZ5faOAj', psAppearance:'fldbyqi8G2AUxz3WX',
+            psFace:'fldmKM8ywkHJzNR4X', psBehavior:'fldeUmCkE2zWFjfYj',
+            psCritique:'fldK2yQR80AC6t3oj', psAttention:'fldFPuo1SFyndV5FF',
+            psAttentionFocus:'fld4FGUrWYYbGQofu', psMemory:'fldLWMioNMsDFbzbI',
+            psThinking:'fldDjUm9MymB8tp6n', psThinkingPace:'fldNFeAm0ux93GAiU',
+            psSpeech:'fldcuof8G6pWktia1', psPsychomotor:'fldRY3jzLjMi9ky6l',
+            psContact:'fldihBcFXsQirs8mn', psEmotion:'flduDzqs2W5fAgv1n',
+            psInsightPsychol:'fld1fIct2WMXVzPj3', psInsightPsychiatr:'fldV4RPCCqlxWsuoG',
+            psInsightRehab:'fldsmK0T5AKeGYLy2', psComplaints:'fldWVcYDqYDoEhXrI'
         };
 
         const SLEEP_A_FIELD_IDS = [
@@ -1405,6 +1440,8 @@
                 body:JSON.stringify({fields})
             });
             if(!response.ok){const eb=await response.json().catch(()=>null);throw new Error(`Airtable: ${eb?.error?.message||response.statusText}`);}
+            const saved=await response.json();
+            return saved.id;
         }
 
 
@@ -1458,12 +1495,16 @@ document.getElementById('passwordConfirm').addEventListener('click', async () =>
       _passwordCallback = null;
       cb(apiKey);
     } else {
-      await saveAssessment(apiKey, getFormData());
+      const savedId = await saveAssessment(apiKey, getFormData());
       closePasswordDialog();
       document.getElementById('passwordConfirm').disabled = false;
       document.getElementById('passwordConfirm').textContent = 'Зберегти';
-      showSuccess('Запис збережено успішно.');
+      showSuccess('Запис збережено. Передайте планшет клініцисту для заповнення психічного статусу.');
       localStorage.removeItem('assessmentFormData');
+      window._lastSavedAssessmentId = savedId;
+      window._lastSavedApiKey = apiKey;
+      document.getElementById('clinicianSection').style.display = 'block';
+      document.getElementById('clinicianSection').scrollIntoView({behavior:'smooth'});
     }
   } catch (e) {
     const errEl = document.getElementById('passwordError');
@@ -1832,6 +1873,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // load saved data
   loadFromLocalStorage();
+});
+
+
+async function savePsychStatus() {
+  const recordId = window._lastSavedAssessmentId;
+  const apiKey = window._lastSavedApiKey || cachedApiKey;
+  if (!recordId || !apiKey) {
+    document.getElementById('psErrorMessage').textContent = 'Немає збереженого запису. Спочатку збережіть опитування.';
+    document.getElementById('psErrorMessage').style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('btnSavePsychStatus');
+  btn.disabled = true;
+  btn.textContent = 'Збереження…';
+  const g = id => document.getElementById(id)?.value || '';
+  const fields = {};
+  if (g('psOrientation')) fields[F.psOrientation] = g('psOrientation');
+  if (g('psAppearance')) fields[F.psAppearance] = g('psAppearance');
+  if (g('psFace')) fields[F.psFace] = g('psFace');
+  if (g('psBehavior')) fields[F.psBehavior] = g('psBehavior');
+  if (g('psCritique')) fields[F.psCritique] = g('psCritique');
+  if (g('psAttention')) fields[F.psAttention] = g('psAttention');
+  const focus = [...document.querySelectorAll('#psAttentionFocusChips .chip.active')].map(b => b.dataset.value);
+  if (focus.length) fields[F.psAttentionFocus] = focus;
+  if (g('psMemory')) fields[F.psMemory] = g('psMemory');
+  if (g('psThinking')) fields[F.psThinking] = g('psThinking');
+  if (g('psThinkingPace')) fields[F.psThinkingPace] = g('psThinkingPace');
+  if (g('psSpeech')) fields[F.psSpeech] = g('psSpeech');
+  if (g('psPsychomotor')) fields[F.psPsychomotor] = g('psPsychomotor');
+  if (g('psContact')) fields[F.psContact] = g('psContact');
+  if (g('psEmotion')) fields[F.psEmotion] = g('psEmotion');
+  if (g('psInsightPsychol')) fields[F.psInsightPsychol] = g('psInsightPsychol');
+  if (g('psInsightPsychiatr')) fields[F.psInsightPsychiatr] = g('psInsightPsychiatr');
+  if (g('psInsightRehab')) fields[F.psInsightRehab] = g('psInsightRehab');
+  if (g('psComplaints')) fields[F.psComplaints] = g('psComplaints');
+  try {
+    const resp = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${ASSESSMENTS_TABLE_ID}/${recordId}`, {
+      method: 'PATCH',
+      headers: {'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json'},
+      body: JSON.stringify({fields})
+    });
+    if (!resp.ok) { const eb = await resp.json().catch(()=>null); throw new Error(`Airtable: ${eb?.error?.message||resp.statusText}`); }
+    document.getElementById('psSuccessMessage').style.display = 'block';
+    document.getElementById('psErrorMessage').style.display = 'none';
+    btn.textContent = 'Збережено';
+  } catch(e) {
+    document.getElementById('psErrorMessage').textContent = e.message || 'Помилка збереження';
+    document.getElementById('psErrorMessage').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Зберегти психстатус';
+  }
+}
+document.getElementById('btnSavePsychStatus').addEventListener('click', savePsychStatus);
+document.querySelectorAll('#psAttentionFocusChips .chip').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('active'));
 });
 
     </script>
