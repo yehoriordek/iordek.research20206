@@ -5,896 +5,879 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сесія ТФБ</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; color: #333; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-            color: #333;
-        }
+        .print-mode-toggle { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; padding: 10px; background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+        .print-mode-toggle label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+        .print-mode-toggle input[type="checkbox"] { cursor: pointer; width: 18px; height: 18px; }
 
-        .print-mode-toggle {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
+        .container { max-width: 640px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+        h1 { margin-bottom: 30px; font-size: 24px; color: #2c3e50; text-align: center; }
 
-        .print-mode-toggle label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        .section-title { font-size: 18px; color: #2c3e50; margin: 28px 0 15px; padding-bottom: 8px; border-bottom: 1px solid #ecf0f1; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 7px; font-weight: 500; color: #2c3e50; font-size: 14px; }
+        .required { color: #e74c3c; }
 
-        .print-mode-toggle input[type="checkbox"] {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
+        input[type="text"], input[type="date"], input[type="number"], select, textarea {
+            width: 100%; padding: 9px 11px; border: 1px solid #bdc3c7; border-radius: 4px;
+            font-size: 14px; font-family: inherit; transition: border-color .2s;
         }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,.1); }
+        textarea { min-height: 60px; resize: vertical; }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+        .chips-group { display: flex; flex-wrap: wrap; gap: 7px; }
+        .chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border: 1px solid #bdc3c7; border-radius: 14px; font-size: 13px; cursor: pointer; color: #2c3e50; transition: all .15s; user-select: none; }
+        .chip input { position: absolute; width: 0; height: 0; opacity: 0; }
+        .chip:has(input:checked) { background: #3498db; color: #fff; border-color: #3498db; }
+        .chip.disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
 
-        h1 {
-            margin-bottom: 30px;
-            font-size: 24px;
-            color: #2c3e50;
-            text-align: center;
-        }
+        .test-counter { font-size: 13px; color: #7f8c8d; margin-top: 8px; }
+        .test-counter.warn { color: #e74c3c; font-weight: 600; }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
+        .test-reactions-section { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .test-reaction-item { background: #f8f9fa; border: 1px solid #e3e6ea; border-radius: 6px; padding: 12px 14px; }
+        .test-reaction-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .test-name-label { font-weight: 600; font-size: 13px; color: #2c3e50; }
+        .genesis-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+        .genesis-cereb { background: #d5e8f7; color: #1a6fa0; }
+        .genesis-psycho { background: #e8d5f7; color: #6b1aa0; }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
+        .attempt-card { border: 1px solid #d5dce4; border-radius: 8px; padding: 16px; margin-bottom: 14px; position: relative; }
+        .attempt-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .attempt-card-title { font-weight: 700; font-size: 15px; color: #2c3e50; }
+        .btn-remove-attempt { background: none; border: none; font-size: 18px; color: #95a5a6; cursor: pointer; padding: 0 4px; line-height: 1; flex: none; }
+        .btn-remove-attempt:hover { color: #e74c3c; }
 
-        .required {
-            color: #e74c3c;
-        }
+        .attempt-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; font-size: 13px; }
+        .attempt-meta-item { display: flex; align-items: center; gap: 5px; }
+        .match-badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .match-yes { background: #d5f7e0; color: #1a7a40; }
+        .match-no  { background: #f7d5d5; color: #a01a1a; }
+        .match-na  { background: #f0f0f0; color: #888; }
 
-        input[type="text"],
-        input[type="date"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
+        .vas-row { display: flex; align-items: center; gap: 12px; }
+        .vas-row input[type="range"] { flex: 1; height: 6px; accent-color: #3498db; cursor: pointer; }
+        .vas-value { min-width: 28px; text-align: center; font-weight: 700; font-size: 16px; color: #2c3e50; }
+        .vas-before-display { font-size: 13px; color: #666; }
+        .vas-before-val { font-weight: 700; color: #2c3e50; }
 
-        textarea {
-            min-height: 70px;
-            resize: vertical;
-        }
+        .btn-add-attempt { padding: 9px 18px; background: #ecf0f1; border: 1px dashed #95a5a6; border-radius: 6px; font-size: 14px; color: #555; cursor: pointer; width: 100%; margin-top: 4px; transition: background .15s; }
+        .btn-add-attempt:hover { background: #d5dce4; }
+        .btn-add-attempt:disabled { opacity: .4; cursor: not-allowed; }
 
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
+        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .radio-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px; border: 1px solid #bdc3c7; border-radius: 14px; font-size: 14px; cursor: pointer; transition: all .15s; }
+        .radio-chip input { position: absolute; width: 0; height: 0; opacity: 0; }
+        .radio-chip:has(input:checked) { background: #27ae60; color: #fff; border-color: #27ae60; }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
+        .button-group { display: flex; gap: 10px; margin-top: 30px; }
+        button.btn-submit { flex: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 4px; background: #27ae60; color: white; cursor: pointer; transition: background .2s; }
+        button.btn-submit:hover { background: #229954; }
+        button.btn-reset { flex: 1; padding: 12px; font-size: 14px; font-weight: 600; border: none; border-radius: 4px; background: #95a5a6; color: white; cursor: pointer; transition: background .2s; }
+        button.btn-reset:hover { background: #7f8c8d; }
 
-        button {
-            flex: 1;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+        .success-message { display: none; padding: 14px; margin-bottom: 18px; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; }
+        .error-message   { display: none; padding: 14px; margin-bottom: 18px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; }
 
-        .btn-submit {
-            background-color: #27ae60;
-            color: white;
-        }
+        .password-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); align-items: center; justify-content: center; z-index: 100; }
+        .password-overlay.visible { display: flex; }
+        .password-dialog { background: white; padding: 25px; border-radius: 8px; max-width: 360px; width: 90%; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+        .password-dialog h2 { font-size: 18px; margin-bottom: 10px; color: #2c3e50; }
+        .password-dialog p { font-size: 14px; margin-bottom: 15px; color: #555; }
+        .password-error { display: none; color: #e74c3c; font-size: 13px; margin-bottom: 10px; }
 
-        .btn-submit:hover {
-            background-color: #229954;
-        }
+        .print-only { display: none; }
+        .print-checkbox-box { width: 16px; height: 16px; border: 1px solid #000; display: inline-block; flex-shrink: 0; }
+        .print-checkbox-option { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 5px; }
 
-        .btn-reset {
-            background-color: #95a5a6;
-            color: white;
-        }
+        .vas-print-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+        .vas-print-box { width: 26px; height: 26px; border: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
 
-        .btn-reset:hover {
-            background-color: #7f8c8d;
-        }
-
-        .success-message {
-            display: none;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
-        }
-
-        .print-only {
-            display: none;
-        }
-
-        .print-checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .print-checkbox-group.print-only {
-            display: none;
-        }
-
-        .print-checkbox-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            color: #2c3e50;
-        }
-
-        .print-checkbox-box {
-            width: 18px;
-            height: 18px;
-            border: 1px solid #000;
-            flex-shrink: 0;
-        }
-
-        .chips-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 14px;
-            border: 1px solid #bdc3c7;
-            border-radius: 16px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #2c3e50;
-            transition: all 0.2s;
-        }
-
-        .chip input {
-            position: absolute;
-            width: 0;
-            height: 0;
-            opacity: 0;
-        }
-
-        .chip:has(input:checked) {
-            background-color: #3498db;
-            color: #fff;
-            border-color: #3498db;
-        }
-
-        .section-title {
-            font-size: 18px;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-
-        /* Режим друку */
         @media print {
-            body {
-                background-color: white;
-                padding: 0;
-            }
-
-            .print-mode-toggle,
-            .button-group,
-            .success-message {
-                display: none !important;
-            }
-
-            .container {
-                box-shadow: none;
-                padding: 20px 0;
-            }
-
-            .screen-only {
-                display: none !important;
-            }
-
-            .print-only {
-                display: block !important;
-            }
-
-            .print-checkbox-group.print-only {
-                display: flex !important;
-            }
-
-            input[type="text"],
-            select,
-            textarea {
-                border: none;
-                border-bottom: 1px solid #000;
-                padding: 8px 0;
-                margin-bottom: 20px;
-            }
-
-            input[type="text"]:focus,
-            select:focus,
-            textarea:focus {
-                box-shadow: none;
-                border-bottom: 1px dashed #000;
-            }
-
-            input[type="text"]::placeholder,
-            textarea::placeholder {
-                color: transparent;
-            }
-
-            label {
-                font-size: 12px;
-            }
+            body { background: white; padding: 0; }
+            .print-mode-toggle, .button-group, .success-message, .error-message { display: none !important; }
+            .container { box-shadow: none; padding: 10px 0; }
+            .screen-only { display: none !important; }
+            .print-only { display: block !important; }
+            input[type="text"], input[type="date"], input[type="number"], select, textarea { border: none; border-bottom: 1px solid #000; padding: 5px 0; }
+            input::placeholder, textarea::placeholder { color: transparent; }
         }
 
-        /* Режим друку - визуальна імітація */
-        body.print-layout .container {
-            background-color: #fff;
-            box-shadow: none;
-            padding: 20px;
+        body.print-layout .screen-only { display: none; }
+        body.print-layout .print-only { display: block; }
+        body.print-layout .container { box-shadow: none; }
+        body.print-layout input[type="text"], body.print-layout input[type="date"],
+        body.print-layout input[type="number"], body.print-layout select {
+            border: none; border-bottom: 2px solid #000; background: transparent; padding: 6px 0;
         }
-
-        body.print-layout .screen-only {
-            display: none;
-        }
-
-        body.print-layout .print-only {
-            display: block;
-        }
-
-        body.print-layout .print-checkbox-group.print-only {
-            display: flex;
-        }
-
-        body.print-layout input[type="text"],
-        body.print-layout select {
-            border: none;
-            border-bottom: 2px solid #000;
-            padding: 8px 0;
-            background-color: transparent;
-            margin-bottom: 15px;
-        }
-
-        body.print-layout input[type="text"]:focus,
-        body.print-layout select:focus {
-            box-shadow: none;
-            border-bottom-style: dashed;
-        }
-
-        body.print-layout input[type="text"]::placeholder {
-            color: transparent;
-        }
-
-        body.print-layout .button-group {
-            display: none;
-        }
-
-        body.print-layout .print-mode-toggle {
-            display: flex;
-        }
-
-        /* Модальне вікно для пароля */
-        .password-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-
-        .password-overlay.visible {
-            display: flex;
-        }
-
-        .password-dialog {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            max-width: 360px;
-            width: 90%;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .password-dialog h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        .password-dialog p {
-            font-size: 14px;
-            margin-bottom: 15px;
-            color: #555;
-        }
-
-        .password-error {
-            display: none;
-            color: #e74c3c;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
-
-        .error-message {
-            display: none;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            border-radius: 4px;
-        }
+        body.print-layout .button-group { display: none; }
+        body.print-layout .print-mode-toggle { display: flex; }
+        body.print-layout .attempt-card { border: none; border-top: 1px solid #ccc; border-radius: 0; padding: 12px 0; }
+        body.print-layout .btn-add-attempt, body.print-layout .btn-remove-attempt { display: none; }
+        body.print-layout .attempt-meta { display: none; }
+        body.print-layout .vas-row { display: none; }
+        body.print-layout .chips-group { display: none; }
     </style>
 </head>
 <body>
-    <div class="print-mode-toggle">
-        <label>
-            <input type="checkbox" id="printModeToggle">
-            Режим друку
-        </label>
-    </div>
+<div class="print-mode-toggle">
+    <label><input type="checkbox" id="printModeToggle"> Режим друку</label>
+</div>
 
-    <div class="container">
-        <h1>Сесія ТФБ</h1>
+<div class="container">
+    <h1>Сесія ТФБ</h1>
+    <div class="success-message" id="successMessage">Сесію збережено в Airtable.</div>
+    <div class="error-message"  id="errorMessage"></div>
 
-        <div class="success-message" id="successMessage">
-            ✓ Сесію збережено в Airtable!
-        </div>
+    <form id="tfbForm">
 
-        <div class="error-message" id="errorMessage"></div>
-
-        <form id="tfbForm">
-            <div class="form-group">
-                <label for="tfbNickname">Study ID або прізвище учасника <span class="required">*</span></label>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <input type="text" id="tfbNickname" required autocomplete="off" style="flex:1;box-sizing:border-box">
-                  <div id="tfbDobInfo" style="flex:0 0 auto;font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #ccc;background:#f8f8f8;min-width:140px;text-align:center;color:#888">—</div>
-                </div>
+        <!-- 0. Службові поля -->
+        <div class="form-group">
+            <label for="tfbNickname">Study ID або прізвище учасника <span class="required">*</span></label>
+            <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="tfbNickname" required autocomplete="off" style="flex:1">
+                <div id="tfbDobInfo" style="flex:0 0 auto;font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #ccc;background:#f8f8f8;min-width:140px;text-align:center;color:#888">—</div>
             </div>
-
-            <div class="form-group">
+        </div>
+        <div style="display:flex;gap:12px;">
+            <div class="form-group" style="flex:1">
                 <label for="tfbDate">Дата сесії</label>
                 <input type="date" id="tfbDate" class="screen-only">
-                <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата сесії (дд.мм.рррр)">
+                <input type="text" class="print-only" placeholder="дд.мм.рррр">
             </div>
-
-            <h2 class="section-title">Тести (проведені перед/під час сесії)</h2>
-
-            <div class="form-group">
-                <label>Церебральні тести <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                <div class="chips-group screen-only" id="cerebTestsChips">
-                    <label class="chip"><input type="checkbox" value="Контрлат.тест (дзеркало)"><span>Контрлат.тест (дзеркало)</span></label>
-                    <label class="chip"><input type="checkbox" value="Контрлат.тест (муляж)"><span>Контрлат.тест (муляж)</span></label>
-                    <label class="chip"><input type="checkbox" value="Контрлат.тест (стимул. інтакт. кінцівки)"><span>Контрлат.тест (стимул. інтакт. кінцівки)</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест моторної уяви"><span>Тест моторної уяви</span></label>
-                    <label class="chip"><input type="checkbox" value="Хватальний рефлекс"><span>Хватальний рефлекс</span></label>
-                    <label class="chip"><input type="checkbox" value="Рефлекс захисту"><span>Рефлекс захисту</span></label>
-                    <label class="chip"><input type="checkbox" value="Пальце-носова проба"><span>Пальце-носова проба</span></label>
-                    <label class="chip"><input type="checkbox" value="Телескопія гумкою"><span>Телескопія гумкою</span></label>
-                    <label class="chip"><input type="checkbox" value="Телескопія панчохою"><span>Телескопія панчохою</span></label>
-                    <label class="chip"><input type="checkbox" value="Телескопія муляжем"><span>Телескопія муляжем</span></label>
-                    <label class="chip"><input type="checkbox" value="Мозочковий тест"><span>Мозочковий тест</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Церебральні тести для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрлат.тест (дзеркало)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрлат.тест (муляж)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрлат.тест (стимул. інтакт. кінцівки)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест моторної уяви</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Хватальний рефлекс</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Рефлекс захисту</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Пальце-носова проба</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Телескопія гумкою</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Телескопія панчохою</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Телескопія муляжем</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Мозочковий тест</span></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Периферичні тести <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                <div class="chips-group screen-only" id="perTestsChips">
-                    <label class="chip"><input type="checkbox" value="Мобілізація шва"><span>Мобілізація шва</span></label>
-                    <label class="chip"><input type="checkbox" value="МФТ з мобіл. шва"><span>МФТ з мобіл. шва</span></label>
-                    <label class="chip"><input type="checkbox" value="Компресія в тригерних точках"><span>Компресія в тригерних точках</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест компресії тазу"><span>Тест компресії тазу</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест МФ ланцюгів (передній)"><span>Тест МФ ланцюгів (передній)</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест МФ ланцюгів (задній)"><span>Тест МФ ланцюгів (задній)</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест МФ ланцюгів (діагональний)"><span>Тест МФ ланцюгів (діагональний)</span></label>
-                    <label class="chip"><input type="checkbox" value="Контрлат.тест патерну крока"><span>Контрлат.тест патерну крока</span></label>
-                    <label class="chip"><input type="checkbox" value="Тракція м'язів кукси"><span>Тракція м'язів кукси</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест пензликом"><span>Тест пензликом</span></label>
-                    <label class="chip"><input type="checkbox" value="Переривання сенс. потоку"><span>Переривання сенс. потоку</span></label>
-                    <label class="chip"><input type="checkbox" value="Біль при дефекації/сечоспусканні"><span>Біль при дефекації/сечоспусканні</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Периферичні тести для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Мобілізація шва</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>МФТ з мобіл. шва</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Компресія в тригерних точках</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест компресії тазу</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест МФ ланцюгів (передній)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест МФ ланцюгів (задній)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест МФ ланцюгів (діагональний)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрлат.тест патерну крока</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тракція м'язів кукси</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест пензликом</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Переривання сенс. потоку</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Біль при дефекації/сечоспусканні</span></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Психогенні тести <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                <div class="chips-group screen-only" id="psyTestsChips">
-                    <label class="chip"><input type="checkbox" value="Флеш-тест (спалахом)"><span>Флеш-тест (спалахом)</span></label>
-                    <label class="chip"><input type="checkbox" value="Тест тілесного відреагування болю"><span>Тест тілесного відреагування болю</span></label>
-                    <label class="chip"><input type="checkbox" value="Відволікання"><span>Відволікання</span></label>
-                    <label class="chip"><input type="checkbox" value="Когнітивне навантаження"><span>Когнітивне навантаження</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Психогенні тести для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Флеш-тест (спалахом)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тест тілесного відреагування болю</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Відволікання</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Когнітивне навантаження</span></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="tfbTestReactions">Реакції на проведені тести</label>
-                <textarea id="tfbTestReactions" placeholder="Опишіть, як учасник реагував на тести"></textarea>
-            </div>
-
-            <h2 class="section-title">Застосована техніка терапії</h2>
-
-            <div class="form-group">
-                <label>Техніки <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                <div class="chips-group screen-only" id="techniquesChips">
-                    <label class="chip"><input type="checkbox" value="Дзеркальна терапія (4 етапи)"><span>Дзеркальна терапія (4 етапи)</span></label>
-                    <label class="chip"><input type="checkbox" value="Муляж-терапія (4 етапи)"><span>Муляж-терапія (4 етапи)</span></label>
-                    <label class="chip"><input type="checkbox" value="Муляж-терапія з телескопією"><span>Муляж-терапія з телескопією</span></label>
-                    <label class="chip"><input type="checkbox" value="Телескопія гумкою/рушником"><span>Телескопія гумкою/рушником</span></label>
-                    <label class="chip"><input type="checkbox" value="Контрлатеральна стимуляція (синхронізація відчуттів)"><span>Контрлатеральна стимуляція (синхронізація відчуттів)</span></label>
-                    <label class="chip"><input type="checkbox" value="Brainspotting"><span>Brainspotting</span></label>
-                    <label class="chip"><input type="checkbox" value="DBT"><span>DBT</span></label>
-                    <label class="chip"><input type="checkbox" value="Somatic Experience"><span>Somatic Experience</span></label>
-                    <label class="chip"><input type="checkbox" value="Тапінг по тілу (переписування кордонів)"><span>Тапінг по тілу (переписування кордонів)</span></label>
-                    <label class="chip"><input type="checkbox" value="Мозочкова стимуляція"><span>Мозочкова стимуляція</span></label>
-                    <label class="chip"><input type="checkbox" value="Мозочкова стимуляція + контрлатеральна стимуляція"><span>Мозочкова стимуляція + контрлатеральна стимуляція</span></label>
-                    <label class="chip"><input type="checkbox" value="Сенсорна інтеграція"><span>Сенсорна інтеграція</span></label>
-                    <label class="chip"><input type="checkbox" value="Навчання новим руховим патернам"><span>Навчання новим руховим патернам</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Техніки для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Дзеркальна терапія (4 етапи)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Муляж-терапія (4 етапи)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Муляж-терапія з телескопією</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Телескопія гумкою/рушником</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Контрлатеральна стимуляція (синхронізація відчуттів)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Brainspotting</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>DBT</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Somatic Experience</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тапінг по тілу (переписування кордонів)</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Мозочкова стимуляція</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Мозочкова стимуляція + контрлатеральна стимуляція</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Сенсорна інтеграція</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Навчання новим руховим патернам</span></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="techniquesOther">Інші техніки</label>
-                <input type="text" id="techniquesOther" placeholder="Введіть назву...">
-            </div>
-
-            <h2 class="section-title">Результат сесії</h2>
-
-            <div class="form-group">
-                <label>Результати <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                <div class="chips-group screen-only" id="resultsChips">
-                    <label class="chip"><input type="checkbox" value="ФБ збільшився"><span>ФБ збільшився</span></label>
-                    <label class="chip"><input type="checkbox" value="ФБ зменшився"><span>ФБ зменшився</span></label>
-                    <label class="chip"><input type="checkbox" value="ФБ зник"><span>ФБ зник</span></label>
-                    <label class="chip"><input type="checkbox" value="ФВ збільшились"><span>ФВ збільшились</span></label>
-                    <label class="chip"><input type="checkbox" value="ФВ зменшились"><span>ФВ зменшились</span></label>
-                    <label class="chip"><input type="checkbox" value="ФВ зникли"><span>ФВ зникли</span></label>
-                    <label class="chip"><input type="checkbox" value="Телескопія"><span>Телескопія</span></label>
-                    <label class="chip"><input type="checkbox" value="Зворотна телескопія"><span>Зворотна телескопія</span></label>
-                    <label class="chip"><input type="checkbox" value="Без змін"><span>Без змін</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Результати для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>ФБ збільшився</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>ФБ зменшився</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>ФБ зник</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>ФВ збільшились</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>ФВ зменшились</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>ФВ зникли</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Телескопія</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Зворотна телескопія</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Без змін</span></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="resultsOther">Інші реакції</label>
-                <textarea id="resultsOther" placeholder="Опишіть, якщо результат не входить у перелік вище"></textarea>
-            </div>
-
-            <div class="button-group">
-                <button type="submit" class="btn-submit">Зберегти</button>
-                <button type="reset" class="btn-reset">Очистити</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="password-overlay" id="passwordOverlay">
-        <div class="password-dialog">
-            <h2 id="passwordDialogTitle">Збереження в Airtable</h2>
-            <p id="passwordDialogDesc">Введіть пароль для розблокування доступу до Airtable.</p>
-            <div class="form-group">
-                <input type="password" id="airtablePassword" placeholder="Пароль">
-            </div>
-            <div class="password-error" id="passwordError">Неправильний пароль. Спробуйте ще раз.</div>
-            <div class="button-group">
-                <button type="button" class="btn-submit" id="passwordConfirm">Зберегти</button>
-                <button type="button" class="btn-reset" id="passwordCancel">Скасувати</button>
+            <div class="form-group" style="flex:0 0 130px">
+                <label for="tfbSessionNumber">Номер сесії</label>
+                <input type="number" id="tfbSessionNumber" min="1" placeholder="1">
             </div>
         </div>
+
+        <!-- 1. Мішень -->
+        <h2 class="section-title">1. Мішень сесії</h2>
+        <div class="form-group">
+            <label>Мішень <span class="required">*</span></label>
+            <div class="radio-group screen-only" id="targetRadioGroup">
+                <label class="radio-chip"><input type="radio" name="target" value="ФБ"> Фантомний біль (ФБ)</label>
+                <label class="radio-chip"><input type="radio" name="target" value="ФВ"> Фантомні відчуття (ФВ)</label>
+            </div>
+            <div class="print-only">
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Фантомний біль (ФБ)</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Фантомні відчуття (ФВ)</span></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>VAS до <span id="vasPreValueLabel" style="font-weight:700;color:#2c3e50"></span></label>
+            <div class="vas-row screen-only">
+                <span style="font-size:12px;color:#888">0</span>
+                <input type="range" id="vasPre" min="0" max="10" step="1" value="5">
+                <span style="font-size:12px;color:#888">10</span>
+                <span class="vas-value" id="vasPreValue">5</span>
+            </div>
+            <div class="print-only">
+                <div class="vas-print-row" id="vasPrePrint">
+                    <span style="font-size:12px;margin-right:4px">VAS:</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Тести -->
+        <h2 class="section-title">2. Тести та реакції <span style="font-size:13px;font-weight:400;color:#7f8c8d">(максимум 3)</span></h2>
+        <div class="form-group">
+            <label>Церебральні тести</label>
+            <div class="chips-group screen-only" id="cerebTestsChips">
+                <label class="chip"><input type="checkbox" value="Контрлат.тест (дзеркало)"><span>Контрлат.тест (дзеркало)</span></label>
+                <label class="chip"><input type="checkbox" value="Контрлат.тест (муляж)"><span>Контрлат.тест (муляж)</span></label>
+                <label class="chip"><input type="checkbox" value="Контрлат.тест (стимул. інтакт. кінцівки)"><span>Контрлат.тест (стимул. інтакт. кінцівки)</span></label>
+                <label class="chip"><input type="checkbox" value="Тест моторної уяви"><span>Тест моторної уяви</span></label>
+                <label class="chip"><input type="checkbox" value="Хватальний рефлекс"><span>Хватальний рефлекс</span></label>
+                <label class="chip"><input type="checkbox" value="Рефлекс захисту"><span>Рефлекс захисту</span></label>
+                <label class="chip"><input type="checkbox" value="Пальце-носова проба"><span>Пальце-носова проба</span></label>
+                <label class="chip"><input type="checkbox" value="Телескопія гумкою"><span>Телескопія гумкою</span></label>
+                <label class="chip"><input type="checkbox" value="Телескопія панчохою"><span>Телескопія панчохою</span></label>
+                <label class="chip"><input type="checkbox" value="Телескопія муляжем"><span>Телескопія муляжем</span></label>
+                <label class="chip"><input type="checkbox" value="Мозочковий тест"><span>Мозочковий тест</span></label>
+            </div>
+            <div class="print-only">
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрлат.тест (дзеркало)</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрлат.тест (муляж)</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрлат.тест (стимул. інтакт. кінцівки)</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Тест моторної уяви</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Хватальний рефлекс</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Рефлекс захисту</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Пальце-носова проба</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Телескопія гумкою</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Телескопія панчохою</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Телескопія муляжем</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Мозочковий тест</span></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Психокогнітивні тести</label>
+            <div class="chips-group screen-only" id="psychoTestsChips">
+                <label class="chip"><input type="checkbox" value="Флеш-тест"><span>Флеш-тест</span></label>
+                <label class="chip"><input type="checkbox" value="Тест тілесного відреагування болю"><span>Тест тілесного відреагування болю</span></label>
+                <label class="chip"><input type="checkbox" value="Відволікання"><span>Відволікання</span></label>
+                <label class="chip"><input type="checkbox" value="Когнітивне навантаження"><span>Когнітивне навантаження</span></label>
+            </div>
+            <div class="print-only">
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Флеш-тест</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Тест тілесного відреагування болю</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Відволікання</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Когнітивне навантаження</span></div>
+            </div>
+        </div>
+        <div class="test-counter screen-only" id="testCounter">Обрано: 0 / 3</div>
+        <div class="test-reactions-section screen-only" id="testReactionsSection"></div>
+
+        <!-- print reactions placeholder -->
+        <div class="print-only" style="margin-top:12px;">
+            <label style="font-size:13px;color:#555;">Реакції на тести (запишіть від руки)</label>
+            <div style="border-bottom:1px solid #000;min-height:30px;margin-top:6px;margin-bottom:8px;"></div>
+            <div style="border-bottom:1px solid #000;min-height:30px;margin-bottom:8px;"></div>
+            <div style="border-bottom:1px solid #000;min-height:30px;margin-bottom:8px;"></div>
+        </div>
+
+        <!-- 3. Спроби -->
+        <h2 class="section-title">3. Спроби методів <span style="font-size:13px;font-weight:400;color:#7f8c8d">(максимум 5)</span></h2>
+        <div id="attemptsContainer"></div>
+        <button type="button" class="btn-add-attempt screen-only" id="btnAddAttempt">+ Додати спробу</button>
+
+        <!-- print attempts placeholder -->
+        <div class="print-only" id="printAttemptsPlaceholder">
+            <p style="font-size:13px;color:#555;margin-bottom:10px;">Спроби (заповніть від руки):</p>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                <thead><tr>
+                    <th style="border:1px solid #999;padding:4px;text-align:left;">№</th>
+                    <th style="border:1px solid #999;padding:4px;text-align:left;">Пов'яз. тест</th>
+                    <th style="border:1px solid #999;padding:4px;text-align:left;">Метод</th>
+                    <th style="border:1px solid #999;padding:4px;text-align:left;">VAS до</th>
+                    <th style="border:1px solid #999;padding:4px;text-align:left;">VAS після</th>
+                    <th style="border:1px solid #999;padding:4px;text-align:left;">Реакція</th>
+                </tr></thead>
+                <tbody>
+                    <tr><td style="border:1px solid #999;padding:6px;">1</td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td></tr>
+                    <tr><td style="border:1px solid #999;padding:6px;">2</td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td></tr>
+                    <tr><td style="border:1px solid #999;padding:6px;">3</td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td></tr>
+                    <tr><td style="border:1px solid #999;padding:6px;">4</td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td></tr>
+                    <tr><td style="border:1px solid #999;padding:6px;">5</td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td><td style="border:1px solid #999;padding:6px;"></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 4. Фінальний VAS -->
+        <h2 class="section-title">4. Фінальний VAS</h2>
+        <div class="form-group">
+            <label>VAS через 5 хв (washout)</label>
+            <div class="vas-row screen-only">
+                <span style="font-size:12px;color:#888">0</span>
+                <input type="range" id="vasPost5min" min="0" max="10" step="1" value="5">
+                <span style="font-size:12px;color:#888">10</span>
+                <span class="vas-value" id="vasPost5minValue">5</span>
+            </div>
+            <div class="print-only">
+                <div class="vas-print-row" id="vasPost5minPrint"></div>
+            </div>
+        </div>
+
+        <!-- 5. Зворотній зв'язок -->
+        <h2 class="section-title">5. Зворотній зв'язок пацієнта</h2>
+        <div class="form-group">
+            <label for="feedbackText">Що змінилось у відчутті?</label>
+            <textarea id="feedbackText" rows="3" placeholder="Слова пацієнта..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Де відчуває зміну</label>
+            <div class="radio-group screen-only" id="feedbackLocationGroup">
+                <label class="radio-chip"><input type="radio" name="feedbackLocation" value="у фантомі"> у фантомі</label>
+                <label class="radio-chip"><input type="radio" name="feedbackLocation" value="у куксі"> у куксі</label>
+                <label class="radio-chip"><input type="radio" name="feedbackLocation" value="у тілі загалом"> у тілі загалом</label>
+                <label class="radio-chip"><input type="radio" name="feedbackLocation" value="не відчуває"> не відчуває</label>
+            </div>
+            <div class="print-only">
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>у фантомі</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>у куксі</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>у тілі загалом</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>не відчуває</span></div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn-submit">Зберегти</button>
+            <button type="reset"  class="btn-reset">Очистити</button>
+        </div>
+    </form>
+</div>
+
+<!-- Password overlay -->
+<div class="password-overlay" id="passwordOverlay">
+    <div class="password-dialog">
+        <h2 id="passwordDialogTitle">Збереження в Airtable</h2>
+        <p id="passwordDialogDesc">Введіть пароль для розблокування доступу до Airtable.</p>
+        <div class="form-group"><input type="password" id="airtablePassword" placeholder="Пароль"></div>
+        <div class="password-error" id="passwordError">Неправильний пароль або помилка збереження.</div>
+        <div class="button-group">
+            <button type="button" class="btn-submit" id="passwordConfirm">Зберегти</button>
+            <button type="button" class="btn-reset"  id="passwordCancel">Скасувати</button>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Підключення до Airtable (див. data-structure.md)
-        const AIRTABLE_BASE_ID = 'appRtxXIvhSWdb6sJ';
-        const PARTICIPANTS_TABLE_ID = 'tblMV2RrZGmcGAdqz';
-        const TFB_TABLE_ID = 'tblsVbzOGx00xkNBy';
+<script>
+    const AIRTABLE_BASE_ID   = 'appRtxXIvhSWdb6sJ';
+    const PARTICIPANTS_TABLE = 'tblMV2RrZGmcGAdqz';
+    const TFB_TABLE          = 'tblsVbzOGx00xkNBy';
 
-        // Зашифрований API-ключ Airtable (PBKDF2 + AES-256-GCM, пароль вводиться користувачем).
-        // Той самий ключ, що й в index.html.
-        const AIRTABLE_KEY_SALT = 'ik21lBrYTwPQ7iMBpT73Bg==';
-        const AIRTABLE_KEY_IV = 'qbpGROq4MbushQ/o';
-        const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
+    const AIRTABLE_KEY_SALT       = 'ik21lBrYTwPQ7iMBpT73Bg==';
+    const AIRTABLE_KEY_IV         = 'qbpGROq4MbushQ/o';
+    const AIRTABLE_KEY_CIPHERTEXT = 'p4na6eCk6kv91/FFQ6tKOei/61fiHFsfIZxT8OQRFPTcADAchf6SKxAbg3MykZ68HzYzab5HouMqbVyi4Le7+OUgEjQ++CKHzW1FvN4alJGBwq4IsUeH3zPdT99+tEqe7gk=';
 
-        const printModeToggle = document.getElementById('printModeToggle');
-        const form = document.getElementById('tfbForm');
-        const successMessage = document.getElementById('successMessage');
-        const errorMessage = document.getElementById('errorMessage');
-        const passwordOverlay = document.getElementById('passwordOverlay');
-        const passwordInput = document.getElementById('airtablePassword');
-        const passwordError = document.getElementById('passwordError');
-        const passwordConfirm = document.getElementById('passwordConfirm');
-        const passwordCancel = document.getElementById('passwordCancel');
+    const CEREBRAL_TESTS  = ['Контрлат.тест (дзеркало)','Контрлат.тест (муляж)','Контрлат.тест (стимул. інтакт. кінцівки)','Тест моторної уяви','Хватальний рефлекс','Рефлекс захисту','Пальце-носова проба','Телескопія гумкою','Телескопія панчохою','Телескопія муляжем','Мозочковий тест'];
+    const PSYCHOCOG_TESTS = ['Флеш-тест','Тест тілесного відреагування болю','Відволікання','Когнітивне навантаження'];
 
-        // Режим друку
-        printModeToggle.addEventListener('change', function() {
-            if (this.checked) {
-                document.body.classList.add('print-layout');
-                window.print();
-            } else {
-                document.body.classList.remove('print-layout');
-            }
+    const CEREBRAL_METHODS  = ['Дзеркальна терапія (4 етапи)','Муляж-терапія (4 етапи)','Муляж-терапія з телескопією','Телескопія гумкою/рушником','Контрлатеральна стимуляція','Мозочкова стимуляція','Мозочкова стимуляція + контрлатеральна','Сенсорна інтеграція','Навчання новим руховим патернам'];
+    const PSYCHOCOG_METHODS = ['Brainspotting','Somatic Experience','DBT','Тапінг по тілу'];
+
+    const CEREBRAL_REACTIONS  = ['зникла фантомна кінцівка','посилилось','послабилось','змінило положення до більш комфортного','змінило положення до менш комфортного','телескопіювалось в куксу'];
+    const PSYCHOCOG_REACTIONS = ['зникла фантомна кінцівка','зникло відчуття в фантомній кінцівці','стало чіткішим','стало менш чітким','не змінилось','змінило локалізацію'];
+
+    const MAX_TESTS    = 3;
+    const MAX_ATTEMPTS = 5;
+
+    function testGenesis(name)   { return CEREBRAL_TESTS.includes(name)   ? 'Церебральний' : 'Психокогнітивний'; }
+    function methodGenesis(name) { return CEREBRAL_METHODS.includes(name) ? 'Церебральний' : 'Психокогнітивний'; }
+    function reactionsFor(genesis) { return genesis === 'Церебральний' ? CEREBRAL_REACTIONS : PSYCHOCOG_REACTIONS; }
+    function genesisBadgeClass(g)  { return g === 'Церебральний' ? 'genesis-cereb' : 'genesis-psycho'; }
+
+    // ── VAS print boxes ──────────────────────────────────────────────────────
+    function buildVasPrintBoxes(containerId) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = '';
+        for (let i = 0; i <= 10; i++) {
+            const box = document.createElement('div');
+            box.className = 'vas-print-box';
+            box.textContent = i;
+            el.appendChild(box);
+        }
+    }
+    buildVasPrintBoxes('vasPrePrint');
+    buildVasPrintBoxes('vasPost5minPrint');
+
+    // ── VAS sliders ──────────────────────────────────────────────────────────
+    function initVasSlider(sliderId, labelId) {
+        const slider = document.getElementById(sliderId);
+        const label  = document.getElementById(labelId);
+        if (!slider || !label) return;
+        label.textContent = slider.value;
+        slider.addEventListener('input', () => {
+            label.textContent = slider.value;
+            if (sliderId === 'vasPre') recalcVasBefore();
+        });
+    }
+    initVasSlider('vasPre',      'vasPreValue');
+    initVasSlider('vasPost5min', 'vasPost5minValue');
+
+    // ── Tests logic ──────────────────────────────────────────────────────────
+    function getSelectedTests() {
+        const checked = [];
+        document.querySelectorAll('#cerebTestsChips input:checked, #psychoTestsChips input:checked').forEach(el => {
+            checked.push(el.value);
+        });
+        return checked;
+    }
+
+    function updateTestCounter() {
+        const selected = getSelectedTests();
+        const count = selected.length;
+        const counter = document.getElementById('testCounter');
+        counter.textContent = `Обрано: ${count} / ${MAX_TESTS}`;
+        counter.classList.toggle('warn', count >= MAX_TESTS);
+
+        // disable unchecked chips if at max
+        document.querySelectorAll('#cerebTestsChips .chip, #psychoTestsChips .chip').forEach(chip => {
+            const cb = chip.querySelector('input');
+            if (!cb.checked) chip.classList.toggle('disabled', count >= MAX_TESTS);
+            else chip.classList.remove('disabled');
+        });
+    }
+
+    function renderTestReactions() {
+        const selected = getSelectedTests();
+        const section  = document.getElementById('testReactionsSection');
+        section.innerHTML = '';
+        if (selected.length === 0) return;
+
+        selected.forEach(testName => {
+            const genesis   = testGenesis(testName);
+            const reactions = reactionsFor(genesis);
+            const item = document.createElement('div');
+            item.className = 'test-reaction-item';
+            item.dataset.test = testName;
+            item.innerHTML = `
+                <div class="test-reaction-header">
+                    <span class="test-name-label">${testName}</span>
+                    <span class="genesis-badge ${genesisBadgeClass(genesis)}">${genesis}</span>
+                </div>
+                <div class="chips-group" id="testReact_${CSS.escape(testName)}"></div>
+            `;
+            section.appendChild(item);
+
+            const chipsEl = item.querySelector('.chips-group');
+            reactions.forEach(r => {
+                const lbl = document.createElement('label');
+                lbl.className = 'chip';
+                lbl.innerHTML = `<input type="checkbox" value="${r}"><span>${r}</span>`;
+                chipsEl.appendChild(lbl);
+            });
+        });
+    }
+
+    function onTestChange() {
+        updateTestCounter();
+        renderTestReactions();
+        updateAttemptTestRefs();
+    }
+
+    document.querySelectorAll('#cerebTestsChips input, #psychoTestsChips input').forEach(cb => {
+        cb.addEventListener('change', onTestChange);
+    });
+    updateTestCounter();
+
+    // ── Attempts ─────────────────────────────────────────────────────────────
+    let attemptCount = 0;
+
+    function buildMethodSelect() {
+        let html = '<option value="">— оберіть метод —</option>';
+        html += '<optgroup label="Церебральні">';
+        CEREBRAL_METHODS.forEach(m => { html += `<option value="${m}">${m}</option>`; });
+        html += '</optgroup><optgroup label="Психокогнітивні">';
+        PSYCHOCOG_METHODS.forEach(m => { html += `<option value="${m}">${m}</option>`; });
+        html += '</optgroup>';
+        return html;
+    }
+
+    function buildTestRefSelect(selectedTests) {
+        let html = '<option value="">— оберіть тест —</option>';
+        selectedTests.forEach(t => { html += `<option value="${t}">${t}</option>`; });
+        return html;
+    }
+
+    function addAttempt() {
+        if (attemptCount >= MAX_ATTEMPTS) return;
+        attemptCount++;
+        const idx = attemptCount;
+        const container = document.getElementById('attemptsContainer');
+        const card = document.createElement('div');
+        card.className = 'attempt-card';
+        card.dataset.idx = idx;
+
+        const selectedTests = getSelectedTests();
+        const vasBefore = getVasBefore(idx);
+
+        card.innerHTML = `
+            <div class="attempt-card-header">
+                <span class="attempt-card-title">Спроба ${idx}</span>
+                <button type="button" class="btn-remove-attempt" title="Видалити спробу">×</button>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <div class="form-group" style="flex:1;min-width:180px;">
+                    <label>Пов'язаний тест</label>
+                    <select class="attempt-test-ref">${buildTestRefSelect(selectedTests)}</select>
+                </div>
+                <div class="form-group" style="flex:2;min-width:200px;">
+                    <label>Метод</label>
+                    <select class="attempt-method">${buildMethodSelect()}</select>
+                </div>
+            </div>
+            <div class="attempt-meta screen-only">
+                <div class="attempt-meta-item">Генез методу: <strong class="attempt-method-genesis-label">—</strong></div>
+                <div class="attempt-meta-item">Збіг з тестом: <span class="match-badge match-na attempt-match-badge">—</span></div>
+                <div class="attempt-meta-item vas-before-display">VAS до: <span class="vas-before-val">${vasBefore}</span></div>
+            </div>
+            <div class="form-group">
+                <label>VAS після: <span class="attempt-vas-after-label">${vasBefore}</span></label>
+                <div class="vas-row screen-only">
+                    <span style="font-size:12px;color:#888">0</span>
+                    <input type="range" class="attempt-vas-after" min="0" max="10" step="1" value="${vasBefore}">
+                    <span style="font-size:12px;color:#888">10</span>
+                    <span class="vas-value attempt-vas-after-val">${vasBefore}</span>
+                </div>
+                <div class="print-only">
+                    <div class="vas-print-row attempt-vas-after-print"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Реакція на метод</label>
+                <div class="chips-group attempt-reaction-chips screen-only"></div>
+                <div class="print-only" style="font-size:12px;color:#555;">
+                    <div style="border-bottom:1px solid #000;min-height:24px;margin-top:4px;"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Реакція словами</label>
+                <input type="text" class="attempt-reaction-text" placeholder="Короткий коментар...">
+            </div>
+        `;
+        container.appendChild(card);
+
+        // build VAS print boxes for this attempt
+        const vasPrintRow = card.querySelector('.attempt-vas-after-print');
+        for (let i = 0; i <= 10; i++) {
+            const box = document.createElement('div');
+            box.className = 'vas-print-box';
+            box.textContent = i;
+            vasPrintRow.appendChild(box);
+        }
+
+        // Remove button
+        card.querySelector('.btn-remove-attempt').addEventListener('click', () => {
+            card.remove();
+            attemptCount--;
+            renumberAttempts();
+            recalcVasBefore();
+            updateAddButton();
         });
 
-        function showError(text) {
-            errorMessage.textContent = text;
-            errorMessage.style.display = 'block';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
-        }
+        // Method select → update genesis label, match badge, reaction chips
+        const methodSel = card.querySelector('.attempt-method');
+        methodSel.addEventListener('change', () => onAttemptMethodChange(card));
 
-        function showSuccess() {
-            successMessage.style.display = 'block';
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 3000);
-        }
+        // Test ref select → update match badge
+        const testRefSel = card.querySelector('.attempt-test-ref');
+        testRefSel.addEventListener('change', () => updateMatchBadge(card));
 
-        // Зчитує значення позначених чекбоксів-чипів у контейнері
-        function getCheckedValues(containerId) {
-            return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
-        }
+        // VAS after slider
+        const vasSlider = card.querySelector('.attempt-vas-after');
+        vasSlider.addEventListener('input', () => {
+            card.querySelector('.attempt-vas-after-label').textContent = vasSlider.value;
+            card.querySelector('.attempt-vas-after-val').textContent   = vasSlider.value;
+            recalcVasBefore();
+        });
 
-        // Позначає чекбокси-чипи в контейнері за списком значень
-        function setCheckedValues(containerId, values) {
-            const selected = new Set(values || []);
-            document.querySelectorAll(`#${containerId} input[type="checkbox"]`).forEach(el => {
-                el.checked = selected.has(el.value);
+        updateAddButton();
+        saveToLocalStorage();
+    }
+
+    function onAttemptMethodChange(card) {
+        const method  = card.querySelector('.attempt-method').value;
+        const genesis = method ? methodGenesis(method) : null;
+        const genesisLabel = card.querySelector('.attempt-method-genesis-label');
+        genesisLabel.textContent = genesis || '—';
+
+        // update reaction chips
+        const chipsEl = card.querySelector('.attempt-reaction-chips');
+        chipsEl.innerHTML = '';
+        if (genesis) {
+            reactionsFor(genesis).forEach(r => {
+                const lbl = document.createElement('label');
+                lbl.className = 'chip';
+                lbl.innerHTML = `<input type="checkbox" value="${r}"><span>${r}</span>`;
+                chipsEl.appendChild(lbl);
             });
         }
 
-        function getFormData() {
-            return {
-                nickname: document.getElementById('tfbNickname').value,
-                date: document.getElementById('tfbDate').value,
-                cerebTests: getCheckedValues('cerebTestsChips'),
-                perTests: getCheckedValues('perTestsChips'),
-                psyTests: getCheckedValues('psyTestsChips'),
-                testReactions: document.getElementById('tfbTestReactions').value,
-                techniques: getCheckedValues('techniquesChips'),
-                techniquesOther: document.getElementById('techniquesOther').value,
-                results: getCheckedValues('resultsChips'),
-                resultsOther: document.getElementById('resultsOther').value
-            };
+        updateMatchBadge(card);
+        saveToLocalStorage();
+    }
+
+    function updateMatchBadge(card) {
+        const testRef = card.querySelector('.attempt-test-ref').value;
+        const method  = card.querySelector('.attempt-method').value;
+        const badge   = card.querySelector('.attempt-match-badge');
+        if (!testRef || !method) {
+            badge.className = 'match-badge match-na attempt-match-badge';
+            badge.textContent = '—';
+            return;
         }
+        const match = testGenesis(testRef) === methodGenesis(method);
+        badge.className = `match-badge ${match ? 'match-yes' : 'match-no'} attempt-match-badge`;
+        badge.textContent = match ? 'Збігається' : 'Не збігається';
+    }
 
-        // Розшифрування Airtable API-ключа за паролем користувача
-        // (формат і параметри описані в .claude/skills/airtable-key-encryption/SKILL.md)
-        async function deriveAesKey(password, saltB64) {
-            const enc = new TextEncoder();
-            const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-            const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-            return crypto.subtle.deriveKey(
-                { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
-                baseKey,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['decrypt']
-            );
-        }
+    function renumberAttempts() {
+        attemptCount = 0;
+        document.querySelectorAll('.attempt-card').forEach(card => {
+            attemptCount++;
+            card.dataset.idx = attemptCount;
+            card.querySelector('.attempt-card-title').textContent = `Спроба ${attemptCount}`;
+        });
+    }
 
-        async function decryptAirtableKey(password) {
-            const key = await deriveAesKey(password, AIRTABLE_KEY_SALT);
-            const iv = Uint8Array.from(atob(AIRTABLE_KEY_IV), c => c.charCodeAt(0));
-            const ciphertext = Uint8Array.from(atob(AIRTABLE_KEY_CIPHERTEXT), c => c.charCodeAt(0));
-            const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
-            return new TextDecoder().decode(plaintext);
-        }
+    function getVasBefore(idx) {
+        if (idx === 1) return parseInt(document.getElementById('vasPre').value) || 0;
+        const cards = Array.from(document.querySelectorAll('.attempt-card'));
+        if (cards.length < idx - 1) return parseInt(document.getElementById('vasPre').value) || 0;
+        const prevCard = cards[idx - 2];
+        if (!prevCard) return parseInt(document.getElementById('vasPre').value) || 0;
+        return parseInt(prevCard.querySelector('.attempt-vas-after').value) || 0;
+    }
 
-        // Пошук запису учасника в Airtable за Study ID
-        async function findRecordIdByNickname(apiKey, nickname) {
-            const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
-            const response = await fetch(
-                `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`
-                    }
-                }
-            );
+    function recalcVasBefore() {
+        const cards = Array.from(document.querySelectorAll('.attempt-card'));
+        let prevVas = parseInt(document.getElementById('vasPre').value) || 0;
+        cards.forEach(card => {
+            card.querySelector('.vas-before-val').textContent = prevVas;
+            const vasAfterVal = parseInt(card.querySelector('.attempt-vas-after').value) || 0;
+            prevVas = vasAfterVal;
+        });
+    }
 
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error?.message || response.statusText;
-                throw new Error(`Airtable: ${message}`);
-            }
+    function updateAttemptTestRefs() {
+        const tests = getSelectedTests();
+        document.querySelectorAll('.attempt-test-ref').forEach(sel => {
+            const current = sel.value;
+            sel.innerHTML = buildTestRefSelect(tests);
+            if (tests.includes(current)) sel.value = current;
+            else sel.value = '';
+            const card = sel.closest('.attempt-card');
+            if (card) updateMatchBadge(card);
+        });
+    }
 
-            const data = await response.json();
-            if (data.records.length > 0) return data.records[0].id;
-            // Пошук за прізвищем (ПІБ)
-            const safe = nickname.replace(/"/g, '');
-            const formula2 = encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
-            const r2 = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula2}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=5`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
-            if (!r2.ok) return null;
-            const d2 = await r2.json();
-            if (d2.records.length === 1) return d2.records[0].id;
-            if (d2.records.length > 1) {
-                const names = d2.records.map(r => { const bd = r.fields['fldhSmAshVfZmuC63']; const bdStr = bd ? new Date(bd).toLocaleDateString('uk-UA') : '?'; return `${r.fields['fldc7W3fLYZxuBnDQ'] || '?'}, ${bdStr} (${r.fields['fldyUD3kFFZNJmbPF'] || '?'})`; }).join('\n• ');
-                throw new Error(`Знайдено кількох учасників:\n• ${names}\n\nУточніть прізвище або введіть точний Study ID.`);
-            }
-            return null;
-        }
+    function updateAddButton() {
+        const btn = document.getElementById('btnAddAttempt');
+        const count = document.querySelectorAll('.attempt-card').length;
+        btn.disabled = count >= MAX_ATTEMPTS;
+        btn.textContent = count >= MAX_ATTEMPTS ? `Максимум ${MAX_ATTEMPTS} спроб` : '+ Додати спробу';
+    }
 
-        // Запис сесії ТФБ в Airtable. Кожна сесія — новий запис у таблиці "Сесії ТФБ",
-        // зв'язаний з учасником за Study ID.
-        async function saveTfbSession(apiKey, formData) {
-            const participantId = await findRecordIdByNickname(apiKey, formData.nickname);
-            if (!participantId) {
-                throw new Error(`Учасника зі Study ID або прізвищем "${formData.nickname}" не знайдено.`);
-            }
+    document.getElementById('btnAddAttempt').addEventListener('click', addAttempt);
+    document.getElementById('vasPre').addEventListener('input', recalcVasBefore);
 
-            const fields = {
-                'Учасник': [participantId]
-            };
+    // ── Collect form data ────────────────────────────────────────────────────
+    function getTestsData() {
+        return getSelectedTests().map(testName => {
+            const genesis = testGenesis(testName);
+            const reactions = [];
+            const escapedId = `testReact_${testName.replace(/[^a-zA-Zа-яА-ЯіІєЄїЇ0-9]/g, c => '\\' + c.codePointAt(0).toString(16).padStart(6,'0') + ' ')}`;
+            try {
+                document.querySelectorAll(`#testReactionsSection [data-test="${testName}"] input:checked`).forEach(el => {
+                    reactions.push(el.value);
+                });
+            } catch(e) {}
+            return { test: testName, genesis, reactions };
+        });
+    }
 
-            if (formData.date) fields['Дата сесії'] = formData.date;
-            if (formData.cerebTests.length) fields['Церебральні тести'] = formData.cerebTests;
-            if (formData.perTests.length) fields['Периферичні тести'] = formData.perTests;
-            if (formData.psyTests.length) fields['Психогенні тести'] = formData.psyTests;
-            if (formData.testReactions) fields['Реакції на тести'] = formData.testReactions;
-            if (formData.techniques.length) fields['Застосовані техніки'] = formData.techniques;
-            if (formData.techniquesOther) fields['Інші техніки'] = formData.techniquesOther;
-            if (formData.results.length) fields['Результат сесії'] = formData.results;
-            if (formData.resultsOther) fields['Інші реакції'] = formData.resultsOther;
-
-            const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TFB_TABLE_ID}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fields })
+    function getAttemptsData() {
+        const attempts = [];
+        document.querySelectorAll('.attempt-card').forEach((card, i) => {
+            const testRef      = card.querySelector('.attempt-test-ref').value;
+            const method       = card.querySelector('.attempt-method').value;
+            const mGenesis     = method ? methodGenesis(method) : null;
+            const tGenesis     = testRef ? testGenesis(testRef) : null;
+            const genesisMatch = (testRef && method) ? (tGenesis === mGenesis) : null;
+            const vasBefore    = parseInt(card.querySelector('.vas-before-val').textContent) || 0;
+            const vasAfter     = parseInt(card.querySelector('.attempt-vas-after').value) || 0;
+            const reactions    = Array.from(card.querySelectorAll('.attempt-reaction-chips input:checked')).map(el => el.value);
+            const text         = card.querySelector('.attempt-reaction-text').value;
+            attempts.push({
+                attemptNumber: i + 1,
+                testRef, testGenesis: tGenesis,
+                method, methodGenesis: mGenesis,
+                genesisMatch,
+                vasBefore, vasAfter, vasChange: vasAfter - vasBefore,
+                reactions, text
             });
+        });
+        return attempts;
+    }
 
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error?.message || response.statusText;
-                throw new Error(`Airtable: ${message}`);
-            }
+    function getFormData() {
+        const target      = document.querySelector('input[name="target"]:checked');
+        const feedbackLoc = document.querySelector('input[name="feedbackLocation"]:checked');
+        const attempts    = getAttemptsData();
+        const lastAttempt = attempts.length ? attempts[attempts.length - 1] : null;
+        return {
+            nickname:         document.getElementById('tfbNickname').value.trim(),
+            date:             document.getElementById('tfbDate').value,
+            sessionNumber:    document.getElementById('tfbSessionNumber').value,
+            target:           target ? target.value : '',
+            vasPre:           parseInt(document.getElementById('vasPre').value) || 0,
+            tests:            getTestsData(),
+            attempts,
+            vasPostImmediate: lastAttempt ? lastAttempt.vasAfter : null,
+            vasPost5min:      parseInt(document.getElementById('vasPost5min').value) || 0,
+            feedbackText:     document.getElementById('feedbackText').value,
+            feedbackLocation: feedbackLoc ? feedbackLoc.value : ''
+        };
+    }
+
+    // ── Save to Airtable ─────────────────────────────────────────────────────
+    async function deriveAesKey(password, saltB64) {
+        const enc = new TextEncoder();
+        const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+        const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+        return crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+            baseKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+        );
+    }
+
+    async function decryptAirtableKey(password) {
+        const key        = await deriveAesKey(password, AIRTABLE_KEY_SALT);
+        const iv         = Uint8Array.from(atob(AIRTABLE_KEY_IV), c => c.charCodeAt(0));
+        const ciphertext = Uint8Array.from(atob(AIRTABLE_KEY_CIPHERTEXT), c => c.charCodeAt(0));
+        const plaintext  = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+        return new TextDecoder().decode(plaintext);
+    }
+
+    async function findRecordIdByNickname(apiKey, nickname) {
+        const formula = encodeURIComponent(`{Study ID}="${nickname}"`);
+        const r = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${formula}&maxRecords=1`, { headers: { Authorization: `Bearer ${apiKey}` } });
+        if (!r.ok) { const e = await r.json().catch(()=>null); throw new Error(`Airtable: ${e?.error?.message || r.statusText}`); }
+        const data = await r.json();
+        if (data.records.length) return data.records[0].id;
+        const safe = nickname.replace(/"/g, '');
+        const r2 = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE}?filterByFormula=${encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`)}&fields[]=fldc7W3fLYZxuBnDQ&fields[]=fldyUD3kFFZNJmbPF&fields[]=fldhSmAshVfZmuC63&maxRecords=5`, { headers: { Authorization: `Bearer ${apiKey}` } });
+        if (!r2.ok) return null;
+        const d2 = await r2.json();
+        if (d2.records.length === 1) return d2.records[0].id;
+        if (d2.records.length > 1) {
+            const names = d2.records.map(rec => { const bd = rec.fields['fldhSmAshVfZmuC63']; return `${rec.fields['fldc7W3fLYZxuBnDQ']||'?'}, ${bd ? new Date(bd).toLocaleDateString('uk-UA') : '?'} (${rec.fields['fldyUD3kFFZNJmbPF']||'?'})`; }).join('\n• ');
+            throw new Error(`Знайдено кількох учасників:\n• ${names}\n\nУточніть прізвище або введіть точний Study ID.`);
         }
+        return null;
+    }
 
-        let cachedApiKey = null;
-        if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
-        let _passwordCallback = null;
+    async function saveTfbSession(apiKey, d) {
+        const participantId = await findRecordIdByNickname(apiKey, d.nickname);
+        if (!participantId) throw new Error(`Учасника "${d.nickname}" не знайдено.`);
+        const fields = { 'Учасник': [participantId] };
+        if (d.date)          fields['Дата сесії']          = d.date;
+        if (d.sessionNumber) fields['Номер сесії']          = parseInt(d.sessionNumber);
+        if (d.target)        fields['Мішень сесії']         = d.target;
+        fields['VAS до']                                    = d.vasPre;
+        if (d.tests.length)  fields['Тести (JSON)']         = JSON.stringify(d.tests);
+        if (d.attempts.length) fields['Спроби (JSON)']      = JSON.stringify(d.attempts);
+        if (d.vasPostImmediate !== null) fields['VAS після (одразу)'] = d.vasPostImmediate;
+        fields['VAS через 5 хв']                            = d.vasPost5min;
+        if (d.feedbackText)  fields["Зворотний зв'язок"]   = d.feedbackText;
+        if (d.feedbackLocation) fields['Де відчуває зміну'] = d.feedbackLocation;
 
-        async function fetchNicknameSuggestions(apiKey, query) {
-            const safe = query.replace(/"/g, '');
-            const formula = encodeURIComponent(`SEARCH(LOWER("${safe}"),LOWER({ПІБ}))`);
-            const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE_ID}?filterByFormula=${formula}&fields[]=fldc7W3fLYZxuBnDQ&maxRecords=10`;
-            try {
-                const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
-                if (!r.ok) return [];
-                const data = await r.json();
-                return data.records.map(rec => rec.fields['fldc7W3fLYZxuBnDQ'] || '').filter(Boolean);
-            } catch { return []; }
-        }
+        const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TFB_TABLE}`, {
+            method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields })
+        });
+        if (!res.ok) { const e = await res.json().catch(()=>null); throw new Error(`Airtable: ${e?.error?.message || res.statusText}`); }
+    }
 
-        function openPasswordDialog(callback) {
-            _passwordCallback = callback || null;
-            document.getElementById('passwordDialogTitle').textContent = callback ? 'Доступ до Airtable' : 'Збереження в Airtable';
-            document.getElementById('passwordDialogDesc').textContent = callback ? 'Введіть пароль для пошуку учасників.' : 'Введіть пароль для розблокування доступу до Airtable.';
-            document.getElementById('passwordConfirm').textContent = callback ? 'Розблокувати' : 'Зберегти';
-            passwordInput.value = '';
-            passwordError.style.display = 'none';
-            passwordOverlay.classList.add('visible');
-            passwordInput.focus();
-        }
+    // ── Password dialog ──────────────────────────────────────────────────────
+    let cachedApiKey = sessionStorage.getItem('atKey') || null;
+    let _passwordCallback = null;
 
-        function closePasswordDialog() {
-            passwordOverlay.classList.remove('visible');
-            passwordInput.value = '';
-        }
+    function openPasswordDialog(isUnlock) {
+        document.getElementById('passwordDialogTitle').textContent = isUnlock ? 'Доступ до Airtable' : 'Збереження в Airtable';
+        document.getElementById('passwordDialogDesc').textContent  = isUnlock ? 'Введіть пароль для пошуку учасників.' : 'Введіть пароль для збереження в Airtable.';
+        document.getElementById('passwordConfirm').textContent     = isUnlock ? 'Розблокувати' : 'Зберегти';
+        document.getElementById('airtablePassword').value = '';
+        document.getElementById('passwordError').style.display = 'none';
+        document.getElementById('passwordOverlay').classList.add('visible');
+        document.getElementById('airtablePassword').focus();
+    }
 
-        passwordCancel.addEventListener('click', closePasswordDialog);
+    function closePasswordDialog() {
+        document.getElementById('passwordOverlay').classList.remove('visible');
+        document.getElementById('airtablePassword').value = '';
+    }
 
-        passwordConfirm.addEventListener('click', async function() {
-            const password = passwordInput.value;
-            if (!password) {
-                return;
-            }
+    document.getElementById('passwordCancel').addEventListener('click', closePasswordDialog);
 
-            passwordError.style.display = 'none';
-            passwordConfirm.disabled = true;
-            passwordConfirm.textContent = _passwordCallback ? 'Розблокування…' : 'Збереження…';
-
-            try {
-                const apiKey = await decryptAirtableKey(password);
-                cachedApiKey = apiKey;
-                sessionStorage.setItem('atKey', apiKey);
-                if (_passwordCallback) {
-                    closePasswordDialog();
-                    passwordConfirm.disabled = false;
-                    passwordConfirm.textContent = 'Зберегти';
-                    const cb = _passwordCallback;
-                    _passwordCallback = null;
-                    cb(apiKey);
-                    return;
-                }
-                await saveTfbSession(apiKey, getFormData());
+    document.getElementById('passwordConfirm').addEventListener('click', async function() {
+        const pw = document.getElementById('airtablePassword').value;
+        if (!pw) return;
+        const errEl  = document.getElementById('passwordError');
+        const btnEl  = document.getElementById('passwordConfirm');
+        errEl.style.display = 'none';
+        btnEl.disabled = true;
+        btnEl.textContent = _passwordCallback ? 'Розблокування…' : 'Збереження…';
+        try {
+            const apiKey = await decryptAirtableKey(pw);
+            cachedApiKey = apiKey;
+            sessionStorage.setItem('atKey', apiKey);
+            if (_passwordCallback) {
                 closePasswordDialog();
-                passwordConfirm.disabled = false;
-                passwordConfirm.textContent = 'Зберегти';
-                showSuccess();
-                localStorage.removeItem('tfbSessionFormData');
-                form.reset();
-            } catch (err) {
-                console.error('Не вдалося зберегти сесію ТФБ в Airtable:', err);
-                passwordError.textContent = err.message && (err.message.includes('не знайдено') || err.message.includes('кількох учасників'))
-                    ? err.message
-                    : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
-                passwordError.style.display = 'block';
-                passwordConfirm.textContent = 'Зберегти';
-            } finally {
-                passwordConfirm.disabled = false;
-            }
-        });
-
-        // Обробка відправки форми
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (!AIRTABLE_KEY_CIPHERTEXT) {
-                showError('Збереження в Airtable ще не налаштоване. Зверніться до адміністратора форми.');
+                const cb = _passwordCallback;
+                _passwordCallback = null;
+                btnEl.disabled = false;
+                btnEl.textContent = 'Зберегти';
+                cb(apiKey);
                 return;
             }
+            await saveTfbSession(apiKey, getFormData());
+            closePasswordDialog();
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => document.getElementById('successMessage').style.display = 'none', 3000);
+            localStorage.removeItem('tfbSessionFormData');
+            document.getElementById('tfbForm').reset();
+            document.getElementById('attemptsContainer').innerHTML = '';
+            attemptCount = 0;
+            updateAddButton();
+            renderTestReactions();
+            updateTestCounter();
+        } catch(err) {
+            errEl.textContent = (err.message && (err.message.includes('не знайдено') || err.message.includes('кількох учасників'))) ? err.message : 'Неправильний пароль або помилка збереження.';
+            errEl.style.display = 'block';
+        } finally {
+            btnEl.disabled = false;
+            btnEl.textContent = _passwordCallback ? 'Розблокувати' : 'Зберегти';
+        }
+    });
 
-            if (!document.getElementById('tfbNickname').value) {
-                showError('Вкажіть Study ID учасника.');
-                return;
-            }
+    // ── Form submit ──────────────────────────────────────────────────────────
+    document.getElementById('tfbForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const d = getFormData();
+        if (!d.nickname) { showError('Вкажіть Study ID учасника.'); return; }
+        if (!d.target)   { showError('Оберіть мішень сесії (ФБ або ФВ).'); return; }
+        _passwordCallback = null;
+        openPasswordDialog(false);
+    });
 
-            openPasswordDialog();
-        });
+    function showError(txt) {
+        const el = document.getElementById('errorMessage');
+        el.textContent = txt;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 5000);
+    }
 
-        // Завантажити дані з localStorage (якщо були збережені)
-        window.addEventListener('load', function() {
-            const savedData = localStorage.getItem('tfbSessionFormData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                document.getElementById('tfbNickname').value = data.nickname || '';
-                document.getElementById('tfbDate').value = data.date || '';
-                setCheckedValues('cerebTestsChips', data.cerebTests);
-                setCheckedValues('perTestsChips', data.perTests);
-                setCheckedValues('psyTestsChips', data.psyTests);
-                document.getElementById('tfbTestReactions').value = data.testReactions || '';
-                setCheckedValues('techniquesChips', data.techniques);
-                document.getElementById('techniquesOther').value = data.techniquesOther || '';
-                setCheckedValues('resultsChips', data.results);
-                document.getElementById('resultsOther').value = data.resultsOther || '';
-            }
-        });
+    // ── LocalStorage ─────────────────────────────────────────────────────────
+    function saveToLocalStorage() {
+        try { localStorage.setItem('tfbSessionFormData', JSON.stringify(getFormData())); } catch(e) {}
+    }
 
-        // Зберегти дані в localStorage при змінах
-        form.addEventListener('change', function() {
-            localStorage.setItem('tfbSessionFormData', JSON.stringify(getFormData()));
-        });
+    document.getElementById('tfbForm').addEventListener('change', saveToLocalStorage);
 
+    // ── Print mode ───────────────────────────────────────────────────────────
+    document.getElementById('printModeToggle').addEventListener('change', function() {
+        if (this.checked) { document.body.classList.add('print-layout'); window.print(); }
+        else document.body.classList.remove('print-layout');
+    });
 
-        const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
-        document.getElementById('tfbNickname').addEventListener('blur', async () => {
-          const nick = document.getElementById('tfbNickname').value.trim();
-          const dobEl = document.getElementById('tfbDobInfo');
-          if (!nick) { dobEl.textContent='—'; dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; return; }
-          dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; dobEl.textContent='Пошук…';
-          try {
-            const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?maxRecords=500`;
-            const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
-            if (!r.ok) throw new Error(r.status);
+    // ── Participant lookup (read-only key) ───────────────────────────────────
+    const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
+    document.getElementById('tfbNickname').addEventListener('blur', async () => {
+        const nick  = document.getElementById('tfbNickname').value.trim();
+        const dobEl = document.getElementById('tfbDobInfo');
+        if (!nick) { dobEl.textContent='—'; dobEl.style.cssText='color:#888;background:#f8f8f8;border-color:#ccc'; return; }
+        dobEl.style.cssText='color:#888;background:#f8f8f8;border-color:#ccc'; dobEl.textContent='Пошук…';
+        try {
+            const r    = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PARTICIPANTS_TABLE}?maxRecords=500`, { headers: { Authorization: `Bearer ${READ_KEY}` } });
             const data = await r.json();
-            const all = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||rec.fields['ПІБ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||rec.fields['Study ID']||'', dob: rec.fields['fldhSmAshVfZmuC63']||rec.fields['Дата народження']||'' }));
-            const q = nick.toLowerCase();
+            const all  = data.records.map(rec => ({ name: rec.fields['fldc7W3fLYZxuBnDQ']||'', id: rec.fields['fldyUD3kFFZNJmbPF']||'', dob: rec.fields['fldhSmAshVfZmuC63']||'' }));
+            const q    = nick.toLowerCase();
             const matches = all.filter(p => p.id.toLowerCase()===q || p.name.toLowerCase()===q || (p.name && p.name.toLowerCase().startsWith(q)));
             if (matches.length===1) {
-              const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
-              dobEl.style.color='#27ae60'; dobEl.style.background='#eafaf1'; dobEl.style.borderColor='#27ae60'; dobEl.textContent=dob;
+                const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}) : 'н/д';
+                dobEl.style.cssText='color:#27ae60;background:#eafaf1;border-color:#27ae60'; dobEl.textContent=dob;
             } else if (matches.length>1) {
-              dobEl.style.color='#e67e22'; dobEl.style.background='#fef9e7'; dobEl.style.borderColor='#e67e22'; dobEl.textContent=`${matches.length} збіги — уточніть`;
+                dobEl.style.cssText='color:#e67e22;background:#fef9e7;border-color:#e67e22'; dobEl.textContent=`${matches.length} збіги — уточніть`;
             } else {
-              dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Не знайдено';
+                dobEl.style.cssText='color:#e74c3c;background:#fdf2f2;border-color:#e74c3c'; dobEl.textContent='Не знайдено';
             }
-          } catch(e) { dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Помилка'; }
-        });
-    </script>
+        } catch(e) { dobEl.style.cssText='color:#e74c3c;background:#fdf2f2;border-color:#e74c3c'; dobEl.textContent='Помилка'; }
+    });
+</script>
 </body>
 </html>
