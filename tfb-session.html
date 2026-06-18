@@ -166,6 +166,21 @@
                 <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Фантомні відчуття (ФВ)</span></div>
             </div>
         </div>
+        <div class="form-group" id="returnBetweenGroup" style="display:none">
+            <label id="returnBetweenLabel">ФБ між сесіями</label>
+            <div class="radio-group screen-only" id="returnBetweenRadioGroup">
+                <label class="radio-chip"><input type="radio" name="returnBetween" value="не повернувся з минулої сесії"> не повернувся</label>
+                <label class="radio-chip"><input type="radio" name="returnBetween" value="повернувся того ж дня"> того ж дня</label>
+                <label class="radio-chip"><input type="radio" name="returnBetween" value="повернувся наступного дня"> наступного дня</label>
+                <label class="radio-chip"><input type="radio" name="returnBetween" value="повернувся через 2+ дні"> через 2+ дні</label>
+            </div>
+            <div class="print-only">
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>не повернувся з минулої сесії</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>повернувся того ж дня</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>повернувся наступного дня</span></div>
+                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>повернувся через 2+ дні</span></div>
+            </div>
+        </div>
         <div class="form-group">
             <label>VAS до <span id="vasPreValueLabel" style="font-weight:700;color:#2c3e50"></span></label>
             <div class="vas-row screen-only">
@@ -642,6 +657,21 @@
         btn.textContent = count >= MAX_ATTEMPTS ? `Максимум ${MAX_ATTEMPTS} спроб` : '+ Додати спробу';
     }
 
+    // ── Return between sessions ───────────────────────────────────────────────
+    function updateReturnBetween() {
+        const sessionNum = parseInt(document.getElementById('tfbSessionNumber').value) || 0;
+        const group = document.getElementById('returnBetweenGroup');
+        group.style.display = sessionNum > 1 ? '' : 'none';
+        if (sessionNum <= 1) {
+            document.querySelectorAll('input[name="returnBetween"]').forEach(r => r.checked = false);
+        }
+        const target = document.querySelector('input[name="target"]:checked');
+        const label = document.getElementById('returnBetweenLabel');
+        label.textContent = (target ? target.value : 'ФБ/ФВ') + ' між сесіями';
+    }
+    document.getElementById('tfbSessionNumber').addEventListener('input', updateReturnBetween);
+    document.querySelectorAll('input[name="target"]').forEach(r => r.addEventListener('change', updateReturnBetween));
+
     document.getElementById('btnAddAttempt').addEventListener('click', addAttempt);
     document.getElementById('vasPre').addEventListener('input', recalcVasBefore);
 
@@ -689,11 +719,13 @@
         const feedbackLoc = document.querySelector('input[name="feedbackLocation"]:checked');
         const attempts    = getAttemptsData();
         const lastAttempt = attempts.length ? attempts[attempts.length - 1] : null;
+        const returnBetween = document.querySelector('input[name="returnBetween"]:checked');
         return {
             nickname:         document.getElementById('tfbNickname').value.trim(),
             date:             document.getElementById('tfbDate').value,
             sessionNumber:    document.getElementById('tfbSessionNumber').value,
             target:           target ? target.value : '',
+            returnBetween:    returnBetween ? returnBetween.value : '',
             vasPre:           parseInt(document.getElementById('vasPre').value) || 0,
             tests:            getTestsData(),
             attempts,
@@ -747,8 +779,9 @@
         const fields = { 'Учасник': [participantId] };
         if (d.date)          fields['Дата сесії']          = d.date;
         if (d.sessionNumber) fields['Номер сесії']          = parseInt(d.sessionNumber);
-        if (d.target)        fields['Мішень сесії']         = d.target;
-        fields['VAS до']                                    = d.vasPre;
+        if (d.target)          fields['Мішень сесії']           = d.target;
+        if (d.returnBetween)   fields['Повернення між сесіями'] = d.returnBetween;
+        fields['VAS до']                                      = d.vasPre;
         if (d.tests.length)  fields['Тести (JSON)']         = JSON.stringify(d.tests);
         if (d.attempts.length) fields['Спроби (JSON)']      = JSON.stringify(d.attempts);
         if (d.vasPostImmediate !== null) fields['VAS після (одразу)'] = d.vasPostImmediate;
