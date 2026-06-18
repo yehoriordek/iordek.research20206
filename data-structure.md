@@ -1591,8 +1591,6 @@
 |---|---|---|
 | Назва (primary) | `fldEwUGdVIkQJn70T` | singleLineText |
 | Дата | `fldWpOW9zyBNKVwOV` | date |
-| Тип запиту | `fldx1uq6TvQnByKEj` | multipleSelects |
-| Симптоматика | `fldX3NlaAVQMJr6kN` | multilineText |
 | Протокол | `fld1Pj77aWmkG5vwJ` | multipleSelects ("Протокол 1", "Протокол 2") |
 | Нотатки | `fldkG8SyTLJxJaYD3` | multilineText |
 | Учасник (зв'язок) | `fldEwAdhDkeXjP64x` | multipleRecordLinks → Учасники |

@@ -408,46 +408,6 @@
                 <input type="text" class="print-only" placeholder="дд.мм.рррр" aria-label="Дата сесії (дд.мм.рррр)">
             </div>
 
-            <div class="form-group">
-                <label>Тип запиту <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
-                <div class="chips-group screen-only" id="requestCatsChips">
-                    <label class="chip"><input type="checkbox" value="БАР"><span>БАР</span></label>
-                    <label class="chip"><input type="checkbox" value="Депресивні"><span>Депресивні</span></label>
-                    <label class="chip"><input type="checkbox" value="Тривожні"><span>Тривожні</span></label>
-                    <label class="chip"><input type="checkbox" value="Стрес/Травма"><span>Стрес/Травма</span></label>
-                    <label class="chip"><input type="checkbox" value="РХП"><span>РХП</span></label>
-                    <label class="chip"><input type="checkbox" value="Органічні"><span>Органічні</span></label>
-                    <label class="chip"><input type="checkbox" value="Інтерперсон. складн."><span>Інтерперсон. складн.</span></label>
-                    <label class="chip"><input type="checkbox" value="Сімейні стосунки"><span>Сімейні стосунки</span></label>
-                    <label class="chip"><input type="checkbox" value="Кризова"><span>Кризова</span></label>
-                    <label class="chip"><input type="checkbox" value="Суїцидальна"><span>Суїцидальна</span></label>
-                    <label class="chip"><input type="checkbox" value="Когнітивна"><span>Когнітивна</span></label>
-                    <label class="chip"><input type="checkbox" value="Конверсійний синдром"><span>Конверсійний синдром</span></label>
-                    <label class="chip"><input type="checkbox" value="Позит. психіатр. симпт."><span>Позит. психіатр. симпт.</span></label>
-                    <label class="chip"><input type="checkbox" value="Розлади мотивації"><span>Розлади мотивації</span></label>
-                </div>
-                <div class="print-checkbox-group print-only" aria-label="Тип запиту для друку">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>БАР</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Депресивні</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Тривожні</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Стрес/Травма</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>РХП</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Органічні</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Інтерперсон. складн.</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Сімейні стосунки</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Кризова</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Суїцидальна</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Когнітивна</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Конверсійний синдром</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Позит. психіатр. симпт.</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Розлади мотивації</span></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="ptSymptomatology">Симптоматика</label>
-                <textarea id="ptSymptomatology" placeholder="Опишіть актуальну симптоматику учасника"></textarea>
-            </div>
 
             <div class="form-group">
                 <label>Протокол <span style="color:#999;font-weight:400;">(можна обидва)</span></label>
@@ -543,9 +503,7 @@
             return {
                 nickname: document.getElementById('ptNickname').value,
                 date: document.getElementById('ptDate').value,
-                requestCats: getCheckedValues('requestCatsChips'),
-                symptomatology: document.getElementById('ptSymptomatology').value,
-                protocol: getCheckedValues('protocolChips'),
+protocol: getCheckedValues('protocolChips'),
                 notes: document.getElementById('ptNotes').value
             };
         }
@@ -605,8 +563,6 @@
 
             const fields = { 'Учасник': [participantId] };
             if (formData.date) fields['Дата'] = formData.date;
-            if (formData.requestCats.length) fields['Тип запиту'] = formData.requestCats;
-            if (formData.symptomatology) fields['Симптоматика'] = formData.symptomatology;
             if (formData.protocol.length) fields['Протокол'] = formData.protocol;
             if (formData.notes) fields['Нотатки'] = formData.notes;
 
@@ -708,8 +664,6 @@
                 const data = JSON.parse(savedData);
                 document.getElementById('ptNickname').value = data.nickname || '';
                 document.getElementById('ptDate').value = data.date || '';
-                setCheckedValues('requestCatsChips', data.requestCats);
-                document.getElementById('ptSymptomatology').value = data.symptomatology || '';
                 setCheckedValues('protocolChips', data.protocol);
                 document.getElementById('ptNotes').value = data.notes || '';
             }
