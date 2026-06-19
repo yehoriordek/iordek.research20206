@@ -441,6 +441,10 @@
                 </div>
             </div>
 
+            <div id="panelValidationError" style="display:none; padding:12px 16px; margin-bottom:12px; background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; border-radius:4px; font-size:14px;">
+                Будь ласка, дайте хоча б одну відповідь перед тим, як перейти далі.
+            </div>
+
             <div class="button-group screen-only">
               <button type="button" id="btnBack" class="btn-next" style="display:none;">← Назад</button>
               <button type="button" id="btnNext" class="btn-next">Далі →</button>
@@ -1626,11 +1630,45 @@ function activateStep(idx) {
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
+function isPanelFilled(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return true;
+
+  // Selects with a chosen value
+  for (const s of panel.querySelectorAll('select:not(.print-only)')) {
+    if (s.value && s.value !== '') return true;
+  }
+  // Checked checkboxes
+  for (const c of panel.querySelectorAll('input[type="checkbox"]:not(.print-only)')) {
+    if (c.checked) return true;
+  }
+  // Checked radios
+  if (panel.querySelector('input[type="radio"]:checked')) return true;
+  // Number inputs with a value
+  for (const n of panel.querySelectorAll('input[type="number"]:not(.print-only)')) {
+    if (n.value !== '') return true;
+  }
+  // Chip buttons marked as active or selected
+  if (panel.querySelector('.chip.active, .chip.selected')) return true;
+
+  return false;
+}
+
+const panelValidationError = document.getElementById('panelValidationError');
+
 document.getElementById('btnNext').addEventListener('click', () => {
+  const panelId = 'panel-' + STEP_ORDER[currentStepIndex];
+  if (!isPanelFilled(panelId)) {
+    panelValidationError.style.display = 'block';
+    panelValidationError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+  panelValidationError.style.display = 'none';
   if (currentStepIndex < STEP_ORDER.length - 1) activateStep(currentStepIndex + 1);
 });
 
 document.getElementById('btnBack').addEventListener('click', () => {
+  panelValidationError.style.display = 'none';
   if (currentStepIndex > 0) activateStep(currentStepIndex - 1);
 });
 
