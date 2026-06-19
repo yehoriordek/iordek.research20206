@@ -689,13 +689,17 @@
                         Study ID
                         <span class="required">*</span>
                     </label>
-                    <input
-                        type="text"
-                        id="patientNickname"
-                        name="patient_nickname"
-                        placeholder="Напр., P-001 або C-001"
-                        required
-                    >
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input
+                            type="text"
+                            id="patientNickname"
+                            name="patient_nickname"
+                            placeholder="Напр., P-001 або C-001"
+                            required
+                            style="flex:1;"
+                        >
+                        <button type="button" class="btn-new screen-only" id="generateIdBtn" style="white-space:nowrap;padding:8px 12px;font-size:13px;">Новий ID</button>
+                    </div>
                     <button type="button" class="btn-new screen-only" id="loadPatientBtn" style="margin-top: 8px;">Завантажити дані пацієнта</button>
                 </div>
 
@@ -2235,11 +2239,27 @@ Email: yehor.iordek@gmail.com
             if (consentDate) { consentDate.min = weekAgoStr; consentDate.max = todayStr; }
         })();
 
+        function generateStudyId() {
+            const now = new Date();
+            const yy = String(now.getFullYear()).slice(2);
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const rnd = String(Math.floor(Math.random() * 9000) + 1000);
+            return `P-${yy}${mm}${dd}-${rnd}`;
+        }
+
+        document.getElementById('generateIdBtn').addEventListener('click', function() {
+            document.getElementById('patientNickname').value = generateStudyId();
+            form.dispatchEvent(new Event('change'));
+        });
+
         // Завантажити дані з localStorage (якщо були збережені)
         window.addEventListener('load', function() {
             const savedData = localStorage.getItem('patientFormData');
             if (savedData) {
                 applyFormData(JSON.parse(savedData));
+            } else {
+                document.getElementById('patientNickname').value = generateStudyId();
             }
         });
 

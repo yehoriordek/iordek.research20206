@@ -1013,8 +1013,32 @@
         function renderPsiCssrsItem(item, index) {
             const options=PSI_CSSRS_OPTS.map(o=>`<option value="${o}">${o}</option>`).join('');
             const printOptions=PSI_CSSRS_OPTS.map(o=>`<div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>${o}</span></div>`).join('');
-            const methodField=item.id==='q3'?`<div class="form-group"><label for="psi_cssrs_q3method">Якщо так — який метод/засіб?</label><input type="text" id="psi_cssrs_q3method" placeholder="Опис методу..."></div>`:'';
-            return `<div class="form-group"><label for="psi_cssrs_${item.id}">${index+1}. ${item.q}</label><select id="psi_cssrs_${item.id}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>${methodField}`;
+            const methodField=item.id==='q3'?`<div class="form-group" id="cssrs-method-group"><label for="psi_cssrs_q3method">Якщо так — який метод/засіб?</label><input type="text" id="psi_cssrs_q3method" placeholder="Опис методу..."></div>`:'';
+            return `<div class="form-group" id="cssrs-group-${item.id}"><label for="psi_cssrs_${item.id}">${index+1}. ${item.q}</label><select id="psi_cssrs_${item.id}" class="screen-only"><option value="">—</option>${options}</select><div class="print-checkbox-group print-only">${printOptions}</div></div>${methodField}`;
+        }
+
+        function updateCssrsSkipLogic() {
+            const q1=document.getElementById('psi_cssrs_q1').value;
+            const q2=document.getElementById('psi_cssrs_q2').value;
+            const q3=document.getElementById('psi_cssrs_q3').value;
+            const q4=document.getElementById('psi_cssrs_q4').value;
+            const showQ2=q1==='Так';
+            const showQ3=showQ2&&q2==='Так';
+            const showQ4=showQ3&&q3==='Так';
+            const showQ5=showQ4&&q4==='Так';
+            const methodGroup=document.getElementById('cssrs-method-group');
+            [['q2',showQ2],['q3',showQ3],['q4',showQ4],['q5',showQ5]].forEach(([id,show])=>{
+                const g=document.getElementById(`cssrs-group-${id}`);
+                if(!g)return;
+                g.style.display=show?'':'none';
+                if(!show){const el=document.getElementById(`psi_cssrs_${id}`);if(el)el.value='';}
+            });
+            if(methodGroup){
+                const showMethod=showQ3&&q3==='Так';
+                methodGroup.style.display=showMethod?'':'none';
+                if(!showMethod){const m=document.getElementById('psi_cssrs_q3method');if(m)m.value='';}
+            }
+            updatePsiCssrsSummary();
         }
         function getPsiCssrsData() {
             const data={};
@@ -1081,7 +1105,8 @@
             document.querySelectorAll('#psiHadsContainer select').forEach(el=>el.addEventListener('change',updatePsiHadsSummary));
             document.querySelectorAll('#psiAisContainer select').forEach(el=>el.addEventListener('change',updatePsiAisSummary));
             document.querySelectorAll('#psiDn4Container select').forEach(el=>el.addEventListener('change',updatePsiDn4Summary));
-            document.querySelectorAll('#psiCssrsContainer select').forEach(el=>el.addEventListener('change',updatePsiCssrsSummary));
+            document.querySelectorAll('#psiCssrsContainer select').forEach(el=>el.addEventListener('change',updateCssrsSkipLogic));
+            updateCssrsSkipLogic();
             document.querySelectorAll('#psiDestContainer select').forEach(el=>el.addEventListener('change',updatePsiDestSummary));
             document.getElementById('psi_moca').addEventListener('input',updatePsiMocaSummary);
             updatePsiSummary(); updatePsiPcl5Summary(); updatePsiHadsSummary(); updatePsiAisSummary();
