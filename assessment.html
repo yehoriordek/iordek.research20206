@@ -1921,6 +1921,7 @@ async function savePsychStatus() {
     document.getElementById('psSuccessMessage').style.display = 'block';
     document.getElementById('psErrorMessage').style.display = 'none';
     btn.textContent = 'Збережено';
+    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
   } catch(e) {
     document.getElementById('psErrorMessage').textContent = e.message || 'Помилка збереження';
     document.getElementById('psErrorMessage').style.display = 'block';
