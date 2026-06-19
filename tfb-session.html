@@ -99,6 +99,13 @@
         .btn-remove-pair:hover { color: #e74c3c; }
         .btn-add-pair { margin-top: 4px; padding: 7px 16px; background: #ecf0f1; border: 1px dashed #95a5a6; border-radius: 4px; font-size: 13px; color: #555; cursor: pointer; width: 100%; }
         .btn-add-pair:hover { background: #d5dce4; }
+        .btn-add-pair:disabled { opacity: .4; cursor: not-allowed; }
+
+        .test-pair { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .test-pair select { padding: 7px 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 14px; font-family: inherit; background: white; }
+        .test-pair select:focus { outline: none; border-color: #3498db; }
+        .test-pair .test-sel { flex: 1.4; }
+        .test-pair .reaction-sel { flex: 1; }
 
         .vas-print-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
         .vas-print-box { width: 26px; height: 26px; border: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
@@ -217,58 +224,12 @@
         <!-- 2. Тести -->
         <h2 class="section-title">2. Тести та реакції <span style="font-size:13px;font-weight:400;color:#7f8c8d">(максимум 3)</span></h2>
         <div class="form-group">
-            <label>Церебральні тести</label>
-            <div class="chips-group screen-only" id="cerebTestsChips">
-                <label class="chip"><input type="checkbox" value="Контрлат.тест (дзеркало)"><span>Контрлат.тест (дзеркало)</span></label>
-                <label class="chip"><input type="checkbox" value="Контрлат.тест (муляж)"><span>Контрлат.тест (муляж)</span></label>
-                <label class="chip"><input type="checkbox" value="Контрлат.тест (стимул. інтакт. кінцівки)"><span>Контрлат.тест (стимул. інтакт. кінцівки)</span></label>
-                <label class="chip"><input type="checkbox" value="Тест моторної уяви"><span>Тест моторної уяви</span></label>
-                <label class="chip"><input type="checkbox" value="Хватальний рефлекс"><span>Хватальний рефлекс</span></label>
-                <label class="chip"><input type="checkbox" value="Рефлекс захисту"><span>Рефлекс захисту</span></label>
-                <label class="chip"><input type="checkbox" value="Пальце-носова проба"><span>Пальце-носова проба</span></label>
-                <label class="chip"><input type="checkbox" value="Телескопія гумкою"><span>Телескопія гумкою</span></label>
-                <label class="chip"><input type="checkbox" value="Телескопія панчохою"><span>Телескопія панчохою</span></label>
-                <label class="chip"><input type="checkbox" value="Телескопія муляжем"><span>Телескопія муляжем</span></label>
-                <label class="chip"><input type="checkbox" value="Мозочковий тест"><span>Мозочковий тест</span></label>
+            <div class="screen-only">
+                <div id="testPairsContainer"></div>
+                <button type="button" id="btnAddTestPair" class="btn-add-pair">+ Додати</button>
+                <div class="test-counter" id="testCounter" style="margin-top:6px;">Обрано: 0 / 3</div>
             </div>
-            <div class="print-only">
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрлат.тест (дзеркало)</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрлат.тест (муляж)</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Контрлат.тест (стимул. інтакт. кінцівки)</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Тест моторної уяви</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Хватальний рефлекс</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Рефлекс захисту</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Пальце-носова проба</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Телескопія гумкою</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Телескопія панчохою</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Телескопія муляжем</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Мозочковий тест</span></div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Психокогнітивні тести</label>
-            <div class="chips-group screen-only" id="psychoTestsChips">
-                <label class="chip"><input type="checkbox" value="Флеш-тест"><span>Флеш-тест</span></label>
-                <label class="chip"><input type="checkbox" value="Тест тілесного відреагування болю"><span>Тест тілесного відреагування болю</span></label>
-                <label class="chip"><input type="checkbox" value="Відволікання"><span>Відволікання</span></label>
-                <label class="chip"><input type="checkbox" value="Когнітивне навантаження"><span>Когнітивне навантаження</span></label>
-            </div>
-            <div class="print-only">
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Флеш-тест</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Тест тілесного відреагування болю</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Відволікання</span></div>
-                <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>Когнітивне навантаження</span></div>
-            </div>
-        </div>
-        <div class="test-counter screen-only" id="testCounter">Обрано: 0 / 3</div>
-        <div class="test-reactions-section screen-only" id="testReactionsSection"></div>
-
-        <!-- print reactions placeholder -->
-        <div class="print-only" style="margin-top:12px;">
-            <label style="font-size:13px;color:#555;">Реакції на тести (запишіть від руки)</label>
-            <div style="border-bottom:1px solid #000;min-height:30px;margin-top:6px;margin-bottom:8px;"></div>
-            <div style="border-bottom:1px solid #000;min-height:30px;margin-bottom:8px;"></div>
-            <div style="border-bottom:1px solid #000;min-height:30px;margin-bottom:8px;"></div>
+            <div class="print-only" id="testPairsPrintArea"></div>
         </div>
 
         <!-- 3. Спроби -->
@@ -466,70 +427,88 @@
     initVasSlider('vasPost5min', 'vasPost5minValue');
 
     // ── Tests logic ──────────────────────────────────────────────────────────
-    function getSelectedTests() {
-        const checked = [];
-        document.querySelectorAll('#cerebTestsChips input:checked, #psychoTestsChips input:checked').forEach(el => {
-            checked.push(el.value);
-        });
-        return checked;
+    const testPairsContainer = document.getElementById('testPairsContainer');
+    const testPairsPrintArea = document.getElementById('testPairsPrintArea');
+
+    function buildTestSelectHtml() {
+        let html = '<option value="">— оберіть тест —</option>';
+        html += '<optgroup label="Церебральні">';
+        CEREBRAL_TESTS.forEach(t => { html += `<option value="${t}">${t}</option>`; });
+        html += '</optgroup><optgroup label="Психокогнітивні">';
+        PSYCHOCOG_TESTS.forEach(t => { html += `<option value="${t}">${t}</option>`; });
+        html += '</optgroup>';
+        return html;
     }
 
-    function updateTestCounter() {
-        const selected = getSelectedTests();
-        const count = selected.length;
+    function buildTestPairRow() {
+        const row = document.createElement('div');
+        row.className = 'test-pair';
+        const selTest = document.createElement('select');
+        selTest.dataset.role = 'test';
+        selTest.className = 'test-sel';
+        selTest.innerHTML = buildTestSelectHtml();
+        const selReaction = document.createElement('select');
+        selReaction.dataset.role = 'reaction';
+        selReaction.className = 'reaction-sel';
+        selReaction.innerHTML = '<option value="">— реакція —</option>';
+        const btnRemove = document.createElement('button');
+        btnRemove.type = 'button';
+        btnRemove.className = 'btn-remove-pair';
+        btnRemove.textContent = '×';
+        btnRemove.title = 'Видалити';
+        selTest.addEventListener('change', () => {
+            const genesis = selTest.value ? testGenesis(selTest.value) : null;
+            selReaction.innerHTML = '<option value="">— реакція —</option>' +
+                (genesis ? reactionsFor(genesis) : []).map(r => `<option value="${r}">${r}</option>`).join('');
+            updateAttemptTestRefs();
+            updateTestPairsUI();
+        });
+        selReaction.addEventListener('change', updateTestPairsPrintArea);
+        btnRemove.addEventListener('click', () => { row.remove(); updateAttemptTestRefs(); updateTestPairsUI(); });
+        row.appendChild(selTest);
+        row.appendChild(selReaction);
+        row.appendChild(btnRemove);
+        return row;
+    }
+
+    function getTestPairs() {
+        return Array.from(testPairsContainer.querySelectorAll('.test-pair')).map(row => ({
+            test:     row.querySelector('[data-role="test"]').value,
+            reaction: row.querySelector('[data-role="reaction"]').value
+        }));
+    }
+
+    function getSelectedTests() {
+        return getTestPairs().map(p => p.test).filter(t => t);
+    }
+
+    function updateTestPairsUI() {
+        const count = testPairsContainer.querySelectorAll('.test-pair').length;
         const counter = document.getElementById('testCounter');
         counter.textContent = `Обрано: ${count} / ${MAX_TESTS}`;
         counter.classList.toggle('warn', count >= MAX_TESTS);
-
-        // disable unchecked chips if at max
-        document.querySelectorAll('#cerebTestsChips .chip, #psychoTestsChips .chip').forEach(chip => {
-            const cb = chip.querySelector('input');
-            if (!cb.checked) chip.classList.toggle('disabled', count >= MAX_TESTS);
-            else chip.classList.remove('disabled');
-        });
-    }
-
-    function renderTestReactions() {
-        const selected = getSelectedTests();
-        const section  = document.getElementById('testReactionsSection');
-        section.innerHTML = '';
-        if (selected.length === 0) return;
-
-        selected.forEach(testName => {
-            const genesis   = testGenesis(testName);
-            const reactions = reactionsFor(genesis);
-            const item = document.createElement('div');
-            item.className = 'test-reaction-item';
-            item.dataset.test = testName;
-            item.innerHTML = `
-                <div class="test-reaction-header">
-                    <span class="test-name-label">${testName}</span>
-                    <span class="genesis-badge ${genesisBadgeClass(genesis)}">${genesis}</span>
-                </div>
-                <div class="chips-group" id="testReact_${CSS.escape(testName)}"></div>
-            `;
-            section.appendChild(item);
-
-            const chipsEl = item.querySelector('.chips-group');
-            reactions.forEach(r => {
-                const lbl = document.createElement('label');
-                lbl.className = 'chip';
-                lbl.innerHTML = `<input type="checkbox" value="${r}"><span>${r}</span>`;
-                chipsEl.appendChild(lbl);
-            });
-        });
-    }
-
-    function onTestChange() {
-        updateTestCounter();
-        renderTestReactions();
+        const btn = document.getElementById('btnAddTestPair');
+        btn.disabled = count >= MAX_TESTS;
+        btn.textContent = count >= MAX_TESTS ? `Максимум ${MAX_TESTS} тестів` : '+ Додати';
+        updateTestPairsPrintArea();
         updateAttemptTestRefs();
     }
 
-    document.querySelectorAll('#cerebTestsChips input, #psychoTestsChips input').forEach(cb => {
-        cb.addEventListener('change', onTestChange);
-    });
-    updateTestCounter();
+    function updateTestPairsPrintArea() {
+        const pairs = getTestPairs();
+        testPairsPrintArea.innerHTML = pairs.length ?
+            pairs.map(p => `<div class="print-checkbox-option" style="margin-bottom:6px"><span class="print-checkbox-box"></span><span>${p.test || '—'}: ${p.reaction || '—'}</span></div>`).join('') :
+            '<div style="border-bottom:1px solid #000;min-height:26px;margin-bottom:8px;"></div>'.repeat(3);
+    }
+
+    function addTestPair() {
+        if (testPairsContainer.querySelectorAll('.test-pair').length >= MAX_TESTS) return;
+        testPairsContainer.appendChild(buildTestPairRow());
+        updateTestPairsUI();
+    }
+
+    document.getElementById('btnAddTestPair').addEventListener('click', addTestPair);
+    addTestPair();
 
     // ── Attempts ─────────────────────────────────────────────────────────────
     let attemptCount = 0;
@@ -754,17 +733,9 @@
 
     // ── Collect form data ────────────────────────────────────────────────────
     function getTestsData() {
-        return getSelectedTests().map(testName => {
-            const genesis = testGenesis(testName);
-            const reactions = [];
-            const escapedId = `testReact_${testName.replace(/[^a-zA-Zа-яА-ЯіІєЄїЇ0-9]/g, c => '\\' + c.codePointAt(0).toString(16).padStart(6,'0') + ' ')}`;
-            try {
-                document.querySelectorAll(`#testReactionsSection [data-test="${testName}"] input:checked`).forEach(el => {
-                    reactions.push(el.value);
-                });
-            } catch(e) {}
-            return { test: testName, genesis, reactions };
-        });
+        return getTestPairs()
+            .filter(p => p.test)
+            .map(p => ({ test: p.test, genesis: testGenesis(p.test), reactions: p.reaction ? [p.reaction] : [] }));
     }
 
     function getAttemptsData() {
