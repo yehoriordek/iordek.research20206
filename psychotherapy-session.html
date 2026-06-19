@@ -484,7 +484,26 @@
                 <input type="text" class="print-only" placeholder="№" style="max-width:120px" aria-label="Номер сесії">
             </div>
 
-            <!-- 1. Запит пацієнта -->
+            <!-- 1. Стан між сесіями (прихованe для сесії №1) -->
+            <div class="form-group" id="interSessionStateGroup" style="display:none">
+                <label>Стан між сесіями</label>
+                <div class="radio-group screen-only" id="interSessionStateRadio">
+                    <label class="radio-chip"><input type="radio" name="interSessionState" value="значно покращився"> значно покращився</label>
+                    <label class="radio-chip"><input type="radio" name="interSessionState" value="покращився"> покращився</label>
+                    <label class="radio-chip"><input type="radio" name="interSessionState" value="без змін"> без змін</label>
+                    <label class="radio-chip"><input type="radio" name="interSessionState" value="погіршився"> погіршився</label>
+                    <label class="radio-chip"><input type="radio" name="interSessionState" value="значно погіршився"> значно погіршився</label>
+                </div>
+                <div class="print-only">
+                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>значно покращився</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>покращився</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>без змін</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>погіршився</span></div>
+                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>значно погіршився</span></div>
+                </div>
+            </div>
+
+            <!-- 2. Запит пацієнта -->
             <div class="form-group">
                 <label>Запит пацієнта <span style="color:#999;font-weight:400;">(можна декілька)</span></label>
 
@@ -756,16 +775,17 @@
 
         // Нові ID полів Airtable
         const FIELDS = {
-            participant:   'fldERCIY7q4PeYrvl',
-            date:          'fldRUlFCFANKY9y74',
-            sessionNum:    'fldI0iRg9ew43AygV',
-            request:       'fldDrHlEsESGBVMT4',
-            bodyMarkers:   'fldthGCbYMarMtq5l',
-            localization:  'fldXb4gAizJ2iRRLA',
-            sudBefore:     'fld2BTAXu0gW9j5xw',
-            method:        'fldWkEq9Je7FQwoO7',
-            sudAfter:      'flduwNs4hzE2m2fmX',
-            feedback:      'fldkzOeMqYq1Txb3f'
+            participant:        'fldERCIY7q4PeYrvl',
+            date:               'fldRUlFCFANKY9y74',
+            sessionNum:         'fldI0iRg9ew43AygV',
+            interSessionState:  'fldaSiQFcbiTuWtfm',
+            request:            'fldDrHlEsESGBVMT4',
+            bodyMarkers:        'fldthGCbYMarMtq5l',
+            localization:       'fldXb4gAizJ2iRRLA',
+            sudBefore:          'fld2BTAXu0gW9j5xw',
+            method:             'fldWkEq9Je7FQwoO7',
+            sudAfter:           'flduwNs4hzE2m2fmX',
+            feedback:           'fldkzOeMqYq1Txb3f'
         };
 
         const printModeToggle = document.getElementById('printModeToggle');
@@ -785,6 +805,15 @@
                 window.print();
             } else {
                 document.body.classList.remove('print-layout');
+            }
+        });
+
+        // Показ поля "Стан між сесіями" тільки для сесії №2 і вище
+        document.getElementById('ptSessionNum').addEventListener('input', function() {
+            const num = parseInt(this.value, 10);
+            document.getElementById('interSessionStateGroup').style.display = (num > 1) ? '' : 'none';
+            if (num <= 1) {
+                document.querySelectorAll('input[name="interSessionState"]').forEach(r => r.checked = false);
             }
         });
 
@@ -831,17 +860,19 @@
         }
 
         function getFormData() {
+            const interSessionStateEl = document.querySelector('input[name="interSessionState"]:checked');
             return {
-                nickname:    document.getElementById('ptNickname').value,
-                date:        document.getElementById('ptDate').value,
-                sessionNum:  document.getElementById('ptSessionNum').value,
-                request:     getRequestValues(),
-                bodyMarkers: getCheckedValues('bodyMarkersChips'),
-                localization: getCheckedValues('localizationChips'),
-                sudBefore:   document.getElementById('ptSudBefore').value,
-                method:      document.getElementById('ptMethod').value,
-                sudAfter:    document.getElementById('ptSudAfter').value,
-                feedback:    document.getElementById('ptFeedback').value
+                nickname:           document.getElementById('ptNickname').value,
+                date:               document.getElementById('ptDate').value,
+                sessionNum:         document.getElementById('ptSessionNum').value,
+                interSessionState:  interSessionStateEl ? interSessionStateEl.value : '',
+                request:            getRequestValues(),
+                bodyMarkers:        getCheckedValues('bodyMarkersChips'),
+                localization:       getCheckedValues('localizationChips'),
+                sudBefore:          document.getElementById('ptSudBefore').value,
+                method:             document.getElementById('ptMethod').value,
+                sudAfter:           document.getElementById('ptSudAfter').value,
+                feedback:           document.getElementById('ptFeedback').value
             };
         }
 
@@ -912,8 +943,9 @@
                 [FIELDS.participant]: [participantId]
             };
 
-            if (formData.date)          fields[FIELDS.date] = formData.date;
-            if (formData.sessionNum)    fields[FIELDS.sessionNum] = Number(formData.sessionNum);
+            if (formData.date)               fields[FIELDS.date] = formData.date;
+            if (formData.sessionNum)         fields[FIELDS.sessionNum] = Number(formData.sessionNum);
+            if (formData.interSessionState)  fields[FIELDS.interSessionState] = formData.interSessionState;
             if (formData.request.length)     fields[FIELDS.request] = formData.request;
             if (formData.bodyMarkers.length) fields[FIELDS.bodyMarkers] = formData.bodyMarkers;
             if (formData.localization.length) fields[FIELDS.localization] = formData.localization;
