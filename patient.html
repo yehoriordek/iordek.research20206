@@ -1510,8 +1510,28 @@ Email: yehor.iordek@gmail.com
         const stepTabs = document.querySelectorAll('.step-tab');
         const formSteps = document.querySelectorAll('.form-step');
 
+        // Відстеження відвіданих кроків та підвкладок
+        const SUB_STEP_ORDER = ['pain', 'stump', 'genesis', 'tests'];
+        const visitedSubTabs = new Set(['pain']);
+        let currentSubStep = 'pain';
+        const visitedSteps = new Set([1]);
+
+        function refreshNextButton() {
+            const pgc = document.getElementById('painGenesisContent');
+            const painVisible = pgc && !pgc.classList.contains('screen-hidden');
+            document.querySelectorAll('.btn-step-next').forEach(function(btn) {
+                if (currentStep === TOTAL_STEPS && painVisible) {
+                    const idx = SUB_STEP_ORDER.indexOf(currentSubStep);
+                    btn.disabled = idx >= SUB_STEP_ORDER.length - 1;
+                } else {
+                    btn.disabled = currentStep === TOTAL_STEPS;
+                }
+            });
+        }
+
         function showStep(step) {
             currentStep = step;
+            visitedSteps.add(step);
             formSteps.forEach(function(el) {
                 el.classList.toggle('active', parseInt(el.dataset.step, 10) === step);
             });
@@ -1521,9 +1541,7 @@ Email: yehor.iordek@gmail.com
             document.querySelectorAll('.btn-step-prev').forEach(function(btn) {
                 btn.disabled = step === 1;
             });
-            document.querySelectorAll('.btn-step-next').forEach(function(btn) {
-                btn.disabled = step === TOTAL_STEPS;
-            });
+            refreshNextButton();
             window.scrollTo({ top: 0, behavior: 'auto' });
         }
 
@@ -1537,11 +1555,18 @@ Email: yehor.iordek@gmail.com
         const subStepTabs = document.querySelectorAll('.sub-step-tab');
         const subSteps = document.querySelectorAll('.sub-step');
 
+        function showSubStep(target) {
+            currentSubStep = target;
+            visitedSubTabs.add(target);
+            subStepTabs.forEach(t => t.classList.toggle('active', t.dataset.substepTab === target));
+            subSteps.forEach(s => s.classList.toggle('active', s.dataset.substep === target));
+            refreshNextButton();
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
         subStepTabs.forEach(function(tab) {
             tab.addEventListener('click', function() {
-                const target = tab.dataset.substepTab;
-                subStepTabs.forEach(t => t.classList.toggle('active', t === tab));
-                subSteps.forEach(s => s.classList.toggle('active', s.dataset.substep === target));
+                showSubStep(tab.dataset.substepTab);
             });
         });
 
@@ -1555,7 +1580,14 @@ Email: yehor.iordek@gmail.com
 
         document.querySelectorAll('.btn-step-next').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                if (currentStep < TOTAL_STEPS) {
+                const pgc = document.getElementById('painGenesisContent');
+                const painVisible = pgc && !pgc.classList.contains('screen-hidden');
+                if (currentStep === TOTAL_STEPS && painVisible) {
+                    const idx = SUB_STEP_ORDER.indexOf(currentSubStep);
+                    if (idx < SUB_STEP_ORDER.length - 1) {
+                        showSubStep(SUB_STEP_ORDER[idx + 1]);
+                    }
+                } else if (currentStep < TOTAL_STEPS) {
                     showStep(currentStep + 1);
                 }
             });
@@ -1595,6 +1627,7 @@ Email: yehor.iordek@gmail.com
             PAIN_PHENOMENA.forEach((p, i) => {
                 document.getElementById(`painBlock${p.key}`).classList.toggle('screen-hidden', !painHasCheckboxes[i].checked);
             });
+            refreshNextButton();
         }
 
         PAIN_PHENOMENA.forEach((p, i) => {
@@ -2065,6 +2098,28 @@ Email: yehor.iordek@gmail.com
             if (!AIRTABLE_KEY_CIPHERTEXT) {
                 showError('Збереження в Airtable ще не налаштоване. Зверніться до адміністратора форми.');
                 return;
+            }
+
+            // Перевірка, що відвідано всі кроки
+            for (let s = 1; s <= TOTAL_STEPS; s++) {
+                if (!visitedSteps.has(s)) {
+                    showStep(s);
+                    showError('Будь ласка, заповніть усі розділи форми перед збереженням.');
+                    return;
+                }
+            }
+
+            // Перевірка, що відвідано всі підвкладки Біль/Генез (якщо вони видимі)
+            const pgc = document.getElementById('painGenesisContent');
+            if (pgc && !pgc.classList.contains('screen-hidden')) {
+                const unvisited = SUB_STEP_ORDER.filter(s => !visitedSubTabs.has(s));
+                if (unvisited.length > 0) {
+                    const tabLabels = { pain: 'Біль', stump: 'Патології кукси', genesis: 'Генез', tests: 'Тести' };
+                    showStep(3);
+                    showSubStep(unvisited[0]);
+                    showError(`Будь ласка, перегляньте підвкладку "${tabLabels[unvisited[0]]}" у розділі Біль/Генез.`);
+                    return;
+                }
             }
 
             pendingAction = 'save';
