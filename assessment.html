@@ -1870,10 +1870,14 @@ document.getElementById('assessmentForm').addEventListener('change', saveToLocal
 
 // ── DOMContentLoaded ──────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // set today's date
-  const today = new Date().toISOString().slice(0, 10);
+  const todayDate = new Date();
+  const today = todayDate.toISOString().slice(0, 10);
+  const weekAgo = new Date(todayDate);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+
   const dateEl = document.getElementById('assessmentDate');
-  if (dateEl && !dateEl.value) dateEl.value = today;
+  if (dateEl) { dateEl.min = weekAgoStr; dateEl.max = today; if (!dateEl.value) dateEl.value = today; }
 
   // render dynamic sections
   renderDogSection();
