@@ -842,6 +842,16 @@
           } catch(e) { dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Помилка'; }
         });
 
+        // Обмеження дати — вікно 7 днів
+        (function() {
+            const today = new Date();
+            const todayStr = today.toISOString().slice(0, 10);
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const el = document.getElementById('osDate');
+            if (el) { el.min = weekAgo.toISOString().slice(0, 10); el.max = todayStr; }
+        })();
+
         // Завантажити дані з localStorage при відкритті
         window.addEventListener('load', function() {
             const savedData = localStorage.getItem('objectiveStudiesFormData');

@@ -1177,6 +1177,16 @@
             }
         });
 
+        // Обмеження дати сесії — вікно 7 днів
+        (function() {
+            const today = new Date();
+            const todayStr = today.toISOString().slice(0, 10);
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const el = document.getElementById('ptDate');
+            if (el) { el.min = weekAgo.toISOString().slice(0, 10); el.max = todayStr; }
+        })();
+
         // localStorage — зберігання між сесіями
         window.addEventListener('load', function() {
             const saved = localStorage.getItem('psychotherapySessionFormData');

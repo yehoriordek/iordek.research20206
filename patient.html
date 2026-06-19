@@ -2212,6 +2212,29 @@ Email: yehor.iordek@gmail.com
             if (el = document.getElementById('milUnit')) el.value = data.milUnit || '';
         }
 
+        // Обмеження дат при завантаженні
+        (function() {
+            const today = new Date();
+            const todayStr = today.toISOString().slice(0, 10);
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+
+            // Дата народження — тільки минуле
+            const dob = document.getElementById('patientBirthdate');
+            if (dob) dob.max = todayStr;
+
+            // Медичні події — теж тільки минуле (без нижньої межі)
+            ['injDate','ampDate','admDate','reampDate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.max = todayStr;
+            });
+
+            // Дата заповнення анкети — вікно 7 днів
+            const consentDate = document.getElementById('consent_date');
+            if (consentDate) { consentDate.min = weekAgoStr; consentDate.max = todayStr; }
+        })();
+
         // Завантажити дані з localStorage (якщо були збережені)
         window.addEventListener('load', function() {
             const savedData = localStorage.getItem('patientFormData');
