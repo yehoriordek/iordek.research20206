@@ -470,6 +470,25 @@
             destInterp:        'fldRhe2fR4tqpKT6i',
             mocaScore:         'fldFuvVjzQuRO5LeH',
             mocaInterp:        'fldSNBICDxl8XkO1r',
+            // ПС — Психічний статус (заповнюється клініцистом у assessment.html)
+            psOrientation:     'fldCEaOUnrZ5faOAj',
+            psAppearance:      'fldbyqi8G2AUxz3WX',
+            psFace:            'fldmKM8ywkHJzNR4X',
+            psBehavior:        'fldeUmCkE2zWFjfYj',
+            psCritique:        'fldK2yQR80AC6t3oj',
+            psAttention:       'fldFPuo1SFyndV5FF',
+            psAttentionFocus:  'fld4FGUrWYYbGQofu',
+            psMemory:          'fldLWMioNMsDFbzbI',
+            psThinking:        'fldDjUm9MymB8tp6n',
+            psThinkingPace:    'fldNFeAm0ux93GAiU',
+            psSpeech:          'fldcuof8G6pWktia1',
+            psPsychomotor:     'fldRY3jzLjMi9ky6l',
+            psContact:         'fldihBcFXsQirs8mn',
+            psEmotion:         'flduDzqs2W5fAgv1n',
+            psInsightPsychol:  'fld1fIct2WMXVzPj3',
+            psInsightPsychiatr:'fldV4RPCCqlxWsuoG',
+            psInsightRehab:    'fldsmK0T5AKeGYLy2',
+            psComplaints:      'fldWVcYDqYDoEhXrI',
         };
 
         const ASSESSMENT_FIELDS = Object.values(F).filter(id => id !== F.participant && id !== F.stage);
@@ -841,32 +860,47 @@
                 return tests.map((t, i) => t + (reactions[i] ? ' → ' + reactions[i] : '')).join('; ');
             }
 
-            const msOrientation = pf(f, 'msOrientation');
-            const msAppearance = pf(f, 'msAppearance');
-            const msFace = pf(f, 'msFace');
-            const msBehavior = pf(f, 'msBehavior');
-            const msCritique = pf(f, 'msCritique');
-            const msAttention = pf(f, 'msAttention');
-            const msAttentionFocus = pfArr(f, 'msAttentionFocus');
-            const msMemory = pf(f, 'msMemory');
-            const msThinking = pf(f, 'msThinking');
-            const msThinkingPace = pf(f, 'msThinkingPace');
-            const msSpeech = pf(f, 'msSpeech');
-            const msPsychomotor = pf(f, 'msPsychomotor');
-            const msContact = pf(f, 'msContact');
-            const msEmotion = pf(f, 'msEmotion');
-            const msInsightPsychol = pf(f, 'msInsightPsychol');
-            const msInsightPsychiatr = pf(f, 'msInsightPsychiatr');
-            const msInsightRehab = pf(f, 'msInsightRehab');
-            const msComplaints = pf(f, 'msComplaints');
-            const sleepHours = pf(f, 'sleepHours');
-
             const Fids = window.ASSESSMENT_FIELD_IDS || {};
             const sortedAss = (assessmentRecs || []).slice().sort((a, b) => {
                 const da = a.fields[Fids.date] || '';
                 const db = b.fields[Fids.date] || '';
                 return da.localeCompare(db);
             });
+
+            // Психічний статус читається з останнього опитування (ПС— поля)
+            function afv(rec, key) {
+                if (!rec) return '';
+                const v = rec.fields[Fids[key]];
+                if (v === null || v === undefined) return '';
+                if (typeof v === 'object' && v.name) return v.name;
+                return String(v);
+            }
+            function afArr(rec, key) {
+                if (!rec) return [];
+                const v = rec.fields[Fids[key]];
+                if (!v || !Array.isArray(v)) return [];
+                return v.map(item => typeof item === 'object' && item.name ? item.name : String(item));
+            }
+            const lastAss = sortedAss[sortedAss.length - 1] || null;
+            const msOrientation   = afv(lastAss, 'psOrientation');
+            const msAppearance    = afv(lastAss, 'psAppearance');
+            const msFace          = afv(lastAss, 'psFace');
+            const msBehavior      = afv(lastAss, 'psBehavior');
+            const msCritique      = afv(lastAss, 'psCritique');
+            const msAttention     = afv(lastAss, 'psAttention');
+            const msAttentionFocus= afArr(lastAss, 'psAttentionFocus');
+            const msMemory        = afv(lastAss, 'psMemory');
+            const msThinking      = afv(lastAss, 'psThinking');
+            const msThinkingPace  = afv(lastAss, 'psThinkingPace');
+            const msSpeech        = afv(lastAss, 'psSpeech');
+            const msPsychomotor   = afv(lastAss, 'psPsychomotor');
+            const msContact       = afv(lastAss, 'psContact');
+            const msEmotion       = afv(lastAss, 'psEmotion');
+            const msInsightPsychol   = afv(lastAss, 'psInsightPsychol');
+            const msInsightPsychiatr = afv(lastAss, 'psInsightPsychiatr');
+            const msInsightRehab     = afv(lastAss, 'psInsightRehab');
+            const msComplaints    = afv(lastAss, 'psComplaints');
+            const sleepHours      = pf(f, 'sleepHours'); // залишається з анкети пацієнта
 
             const lines = [];
             lines.push('ПСИХОЛОГІЧНА КАРТКА ПАЦІЄНТА');
@@ -1020,7 +1054,6 @@
             cogBlock += 'Інтелект відповідає рівню освіти.';
             if (cogBlock) lines.push(`\nПам'ять, увага, мислення: ${cogBlock.trim()}`);
 
-            const lastAss = sortedAss[sortedAss.length - 1];
             let emotBlock = '';
             if (lastAss) {
                 const cssrsRisk = lastAss.fields[Fids.cssrsRisk] ? (lastAss.fields[Fids.cssrsRisk].name || lastAss.fields[Fids.cssrsRisk]) : '';
