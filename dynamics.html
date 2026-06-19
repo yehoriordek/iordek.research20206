@@ -202,29 +202,161 @@
         .view-tab.active { background: #2980b9; color: white; border-color: #2980b9; }
         .card-area { display: none; }
         .card-area.visible { display: block; }
-        .card-text {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            padding: 28px 32px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.7;
-            color: #2c3e50;
-            white-space: pre-wrap;
-        }
-        .btn-copy {
+        .card-btns { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-copy, .btn-print {
             padding: 9px 20px;
-            background: #27ae60;
             color: white;
             border: none;
             border-radius: 6px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-bottom: 16px;
         }
+        .btn-copy { background: #27ae60; }
         .btn-copy:hover { background: #219a52; }
+        .btn-print { background: #7f8c8d; }
+        .btn-print:hover { background: #636e72; }
+
+        /* Psych card HTML layout */
+        .psych-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #2c3e50;
+        }
+        .pc-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 28px 16px;
+        }
+        .pc-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .pc-meta { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+        .pc-patient-bar {
+            background: #eef6ff;
+            border-bottom: 1px solid #d0e8fb;
+            padding: 12px 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 20px;
+            align-items: baseline;
+        }
+        .pc-name { font-size: 16px; font-weight: 700; color: #1a6fbf; }
+        .pc-detail { font-size: 13px; color: #555; }
+        .pc-body { padding: 0 28px 28px; }
+        .pc-section { margin-top: 24px; }
+        .pc-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7f8c8d;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+        .pc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px 24px;
+        }
+        .pc-field { display: flex; flex-direction: column; }
+        .pc-label { font-size: 11px; color: #95a5a6; margin-bottom: 1px; }
+        .pc-val { font-size: 13px; font-weight: 500; }
+
+        /* Scores table */
+        .pc-scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .pc-scores-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #7f8c8d;
+            padding: 6px 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        .pc-scores-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #f5f5f5;
+            vertical-align: middle;
+        }
+        .pc-scores-table tr:last-child td { border-bottom: none; }
+        .pc-scores-table .scale-name { font-weight: 500; color: #555; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge.green  { background: #d5f5e3; color: #1e8449; }
+        .badge.yellow { background: #fef9e7; color: #b7950b; border: 1px solid #f9e79f; }
+        .badge.orange { background: #fdebd0; color: #ca6f1e; }
+        .badge.red    { background: #fadbd8; color: #922b21; }
+        .badge.gray   { background: #f2f3f4; color: #626567; }
+        .badge.empty  { color: #bdc3c7; font-weight: 400; font-style: italic; }
+
+        /* Conclusion section */
+        .pc-conclusion { background: #fafafa; border-radius: 8px; padding: 20px 24px; margin: 24px 0 0; }
+        .pc-conclusion .pc-section-title { color: #2c3e50; border-color: #d5d8dc; }
+        .pc-concl-sub {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 4px;
+        }
+        .pc-concl-patient {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+        .pc-divider { border: none; border-top: 1px solid #d5d8dc; margin: 12px 0 16px; }
+        .pc-para {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #2c3e50;
+            margin: 0 0 12px;
+        }
+        .pc-para:last-of-type { margin-bottom: 0; }
+        .pc-para strong { font-weight: 600; color: #1a252f; }
+        .pc-reco {
+            background: #fff;
+            border: 1px dashed #bdc3c7;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #95a5a6;
+            font-style: italic;
+            margin: 16px 0;
+        }
+        .pc-signature {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #d5d8dc;
+            font-size: 13px;
+            color: #555;
+        }
+        .pc-sig-name { font-weight: 600; }
+
+        @media print {
+            .top-bar, .search-box, .view-tabs, .card-btns { display: none !important; }
+            .card-area { display: block !important; }
+            body { background: white; padding: 0; }
+            .psych-card { box-shadow: none; border-radius: 0; }
+        }
     </style>
 </head>
 <body>
@@ -948,9 +1080,216 @@
             const text = lines.join('\n');
             window._cardText = text;
 
+            // ── helpers for HTML card ──────────────────────────────────────
+            function scoreBadge(score, maxScore, interp) {
+                if (score === undefined || score === null) return '<span class="badge empty">—</span>';
+                const interpStr = interp || '';
+                let cls = 'gray';
+                const low = interpStr.toLowerCase();
+                if (low.includes('норма') || low.includes('немає')) cls = 'green';
+                else if (low.includes('субклін') || low.includes('підозра') || low.includes('незначн')) cls = 'yellow';
+                else if (low.includes('клінічна тривога') || low.includes('клінічна депресія') ||
+                         low.includes('ptsd') || low.includes('птср') || low.includes('нейропатичний') ||
+                         low.includes('порушення') || low.includes('ризик')) cls = 'red';
+                else if (low.includes('можлив') || low.includes('помірн')) cls = 'orange';
+                const label = interpStr ? `${score}/${maxScore} · ${interpStr}` : `${score}/${maxScore}`;
+                return `<span class="badge ${cls}">${label}</span>`;
+            }
+
+            function noData() { return '<span class="badge empty">немає даних</span>'; }
+
+            function assRow(label, maxScore, scoreField, interpField, rec) {
+                if (!rec) return `<td>${noData()}</td>`;
+                const s = rec.fields[scoreField];
+                const i = rec.fields[interpField] ? (rec.fields[interpField].name || rec.fields[interpField]) : '';
+                return `<td>${scoreBadge(s, maxScore, i)}</td>`;
+            }
+
+            function cssrsBadge(rec) {
+                if (!rec) return `<td>${noData()}</td>`;
+                const v = rec.fields[Fids.cssrsRisk] ? (rec.fields[Fids.cssrsRisk].name || rec.fields[Fids.cssrsRisk]) : null;
+                if (!v) return `<td>${noData()}</td>`;
+                const cls = v === 'Ризику немає' ? 'green' : 'red';
+                return `<td><span class="badge ${cls}">${v}</span></td>`;
+            }
+
+            // ── build assessment columns ──────────────────────────────────
+            const byStageHtml = { 'Первинне': null, 'Контрольне': null, 'Вихідне': null };
+            sortedAss.forEach(rec => {
+                const st = rec.fields[Fids.stage] ? (rec.fields[Fids.stage].name || rec.fields[Fids.stage]) : '';
+                if (byStageHtml.hasOwnProperty(st)) byStageHtml[st] = rec;
+            });
+            const stageKeys = ['Первинне', 'Контрольне', 'Вихідне'];
+            const stageDates = stageKeys.map(k => {
+                const r = byStageHtml[k];
+                return r ? formatDate(r.fields[Fids.date]) : null;
+            });
+            const scoresTableBody = [
+                { label: 'PCL-5', max: 80, sf: Fids.pcl5Sum, if: Fids.pcl5Interp },
+                { label: 'HADS Тривога', max: 21, sf: Fids.hadsSumT, if: Fids.hadsInterpT },
+                { label: 'HADS Депресія', max: 21, sf: Fids.hadsSumD, if: Fids.hadsInterpD },
+                { label: 'AIS (сон)', max: 24, sf: Fids.aisSum, if: Fids.aisInterp },
+                { label: 'DN-4 (біль)', max: 10, sf: Fids.dn4Sum, if: Fids.dn4Interp },
+            ].map(row => {
+                const cells = stageKeys.map(k => assRow(row.label, row.max, row.sf, row.if, byStageHtml[k])).join('');
+                return `<tr><td class="scale-name">${row.label}</td>${cells}</tr>`;
+            }).join('');
+            const cssrsRow = `<tr><td class="scale-name">C-SSRS (ризик)</td>${stageKeys.map(k => cssrsBadge(byStageHtml[k])).join('')}</tr>`;
+
+            const thDates = stageKeys.map((k, i) => `<th>${k}${stageDates[i] ? '<br><span style="font-weight:400;font-size:10px">' + stageDates[i] + '</span>' : ''}</th>`).join('');
+
+            // ── general data ──────────────────────────────────────────────
+            function pcField(label, val) {
+                if (!val) return '';
+                return `<div class="pc-field"><span class="pc-label">${label}</span><span class="pc-val">${val}</span></div>`;
+            }
+
+            const generalFields = [
+                pcField('Військова частина', milUnit),
+                pcField('Палата', ward),
+                pcField('Дата поранення', injDate ? formatDate(injDate) : ''),
+                pcField('Дата ампутації', ampDate ? formatDate(ampDate) : ''),
+                pcField('Дата поступлення', admDate ? formatDate(admDate) : ''),
+                pcField('Тип ампутації', ampType),
+                pcField('RPNI', rpni),
+            ].filter(Boolean).join('');
+
+            // ── conclusion paragraphs ─────────────────────────────────────
+            function para(label, content) {
+                if (!content) return '';
+                return `<p class="pc-para"><strong>${label}:</strong> ${content}</p>`;
+            }
+
+            let contactContent = '';
+            if (msOrientation === 'Вірно') contactContent += 'Алопсихічно та аутопсихічно орієнтований/а вірно. ';
+            else if (msOrientation) contactContent += `Орієнтування: ${msOrientation}. `;
+            if (msContact === 'Доступний продуктивному') contactContent += 'Доступний/а продуктивному контакту. ';
+            else if (msContact) contactContent += `Контакт: ${msContact}. `;
+            if (msBehavior) contactContent += `Поведінка ${msBehavior.toLowerCase()}, відповідна ситуації. `;
+            if (msAppearance) contactContent += `Зовнішній вигляд ${msAppearance.toLowerCase()}. `;
+            if (msFace) contactContent += `Вираз обличчя ${msFace.toLowerCase()}. `;
+            if (msCritique) contactContent += msCritique === 'Відповідна' ? 'Критика до стану збережена.' : `Критика до стану: ${msCritique.toLowerCase()}.`;
+
+            let anamContent = 'Зі слів пацієнта: ';
+            if (injDate) anamContent += `ампутація внаслідок бойового поранення (${formatDate(injDate)}). `;
+            if (ampLines.length) anamContent += `Рівень ампутації: ${ampLines.join('; ')}. `;
+            anamContent += `RPNI ${rpni === 'Так' ? 'виконано' : 'не проводилось'}. `;
+            anamContent += 'До поранення психічних скарг не відзначав/ла. ';
+            if (hasFv || hasFb) anamContent += "Фантомні явища з'явились у перші дні після ампутації. ";
+            anamContent += 'Мотивація до реабілітації збережена.';
+
+            let cogContent = '';
+            if (msMemory) cogContent += msMemory === 'В межах вікової норми' ? "Пам'ять у межах вікової норми. " : `Пам'ять: ${msMemory}. `;
+            if (msAttention) cogContent += msAttention === 'Стійка' ? 'Увага достатньо стійка. ' : `Увага: ${msAttention}. `;
+            if (msThinking) {
+                cogContent += msThinking === 'Послідовне'
+                    ? `Мислення послідовне, цілеспрямоване, темп ${msThinkingPace ? msThinkingPace.toLowerCase() : 'помірний'}. `
+                    : `Мислення: ${msThinking}, темп ${msThinkingPace ? msThinkingPace.toLowerCase() : 'помірний'}. `;
+                cogContent += "Патологічної продукції не виявлено. ";
+            }
+            if (msSpeech && msSpeech !== 'Без особливостей') cogContent += `Мова: ${msSpeech}. `;
+            cogContent += 'Інтелект відповідає рівню освіти.';
+
+            let emotContent = '';
+            if (lastAss) {
+                const cssrsRisk = lastAss.fields[Fids.cssrsRisk] ? (lastAss.fields[Fids.cssrsRisk].name || lastAss.fields[Fids.cssrsRisk]) : '';
+                emotContent += cssrsRisk && cssrsRisk !== 'Ризику немає' ? `Суїцидальний ризик: ${cssrsRisk}. ` : 'Суїцидальних думок не виявлено. ';
+            }
+            if (msEmotion) emotContent += `Емоційний фон: ${msEmotion.toLowerCase()}. `;
+            if (lastAss) {
+                const pclS = lastAss.fields[Fids.pcl5Sum];
+                const pclI = lastAss.fields[Fids.pcl5Interp] ? (lastAss.fields[Fids.pcl5Interp].name || lastAss.fields[Fids.pcl5Interp]) : '';
+                const hT = lastAss.fields[Fids.hadsSumT];
+                const hTI = lastAss.fields[Fids.hadsInterpT] ? (lastAss.fields[Fids.hadsInterpT].name || lastAss.fields[Fids.hadsInterpT]) : '';
+                const hD = lastAss.fields[Fids.hadsSumD];
+                const hDI = lastAss.fields[Fids.hadsInterpD] ? (lastAss.fields[Fids.hadsInterpD].name || lastAss.fields[Fids.hadsInterpD]) : '';
+                const parts = [];
+                if (pclS !== undefined && pclS !== null) parts.push(`PCL-5: ${pclS}/80 (${pclI})`);
+                if (hT !== undefined && hT !== null) parts.push(`HADS-Т: ${hT}/21 (${hTI})`);
+                if (hD !== undefined && hD !== null) parts.push(`HADS-Д: ${hD}/21 (${hDI})`);
+                if (parts.length) emotContent += `Підтверджено: ${parts.join('; ')}.`;
+            }
+
+            let sleepContent = '';
+            if (lastAss) {
+                const aisS = lastAss.fields[Fids.aisSum];
+                const aisI = lastAss.fields[Fids.aisInterp] ? (lastAss.fields[Fids.aisInterp].name || lastAss.fields[Fids.aisInterp]) : '';
+                const slH = lastAss.fields[Fids.sleepHours];
+                if (aisS !== undefined && aisS !== null) sleepContent += `AIS: ${aisS}/24 (${aisI}). `;
+                if (slH) sleepContent += `Тривалість сну: ${slH} год. `;
+                else if (sleepHours) sleepContent += `Тривалість сну: ${sleepHours} год. `;
+            } else if (sleepHours) {
+                sleepContent += `Тривалість сну: ${sleepHours} год. `;
+            }
+            sleepContent += "Сон суб'єктивно задовільний.";
+
+            let painContent = '';
+            if (painLines.length) painContent += painLines.join('; ') + '. ';
+            if (lastAss) {
+                const dn4S = lastAss.fields[Fids.dn4Sum];
+                const dn4I = lastAss.fields[Fids.dn4Interp] ? (lastAss.fields[Fids.dn4Interp].name || lastAss.fields[Fids.dn4Interp]) : '';
+                if (dn4S !== undefined && dn4S !== null) painContent += `DN-4: ${dn4S}/10 (${dn4I}). `;
+            }
+            if (traumMem) painContent += `Травматичні спогади: ${traumMem.toLowerCase()}.`;
+
+            const genesisContent = hasGenesis && dogDominant ? `Домінуючий генез: ${dogDominant}.` : '';
+
+            // ── compose HTML ──────────────────────────────────────────────
+            const hasScores = sortedAss.length > 0;
+            const html = `
+<div class="psych-card">
+  <div class="pc-header">
+    <div class="pc-title">Психологічна картка пацієнта</div>
+    <div class="pc-meta">Дата формування: ${todayStr}</div>
+  </div>
+  <div class="pc-patient-bar">
+    <span class="pc-name">${escapeHtml(fullName)}</span>
+    ${birthdateDisplay ? `<span class="pc-detail">${birthdateDisplay}${ageStr}</span>` : ''}
+    ${genderShort ? `<span class="pc-detail">${genderShort}</span>` : ''}
+    ${ward ? `<span class="pc-detail">Палата ${ward}</span>` : ''}
+    ${milUnit ? `<span class="pc-detail">${milUnit}</span>` : ''}
+  </div>
+  <div class="pc-body">
+    ${generalFields ? `<div class="pc-section"><div class="pc-section-title">1. Загальні дані</div><div class="pc-grid">${generalFields}</div></div>` : ''}
+
+    ${ampLines.length ? `<div class="pc-section"><div class="pc-section-title">2. Рівні ампутацій</div><div class="pc-grid">${ampLines.map(l => pcField('', l)).join('')}</div></div>` : ''}
+
+    ${painLines.length || painFlow || traumMem ? `<div class="pc-section"><div class="pc-section-title">3. Больовий профіль</div><div class="pc-grid">${[...painLines.map(l => pcField('', l)), painFlow ? pcField('Характер протікання', painFlow) : '', traumMem ? pcField('Травматичні спогади', traumMem) : ''].filter(Boolean).join('')}</div></div>` : ''}
+
+    ${hasGenesis ? `<div class="pc-section"><div class="pc-section-title">4. Генез больового синдрому</div><div class="pc-grid">${[dogDominant ? pcField('Домінуючий генез', dogDominant) : '', (genPeripheral.length || genPeriphOther) ? pcField('Периферичний', [...genPeripheral, genPeriphOther].filter(Boolean).join(', ')) : '', (genCerebral.length || genCerebralOther) ? pcField('Церебральний', [...genCerebral, genCerebralOther].filter(Boolean).join(', ')) : '', genSpinal.length ? pcField('Спінальний', genSpinal.join(', ')) : '', genPsychogenic.length ? pcField('Психогенний', genPsychogenic.join(', ')) : ''].filter(Boolean).join('')}</div></div>` : ''}
+
+    ${hasMentalStatus ? `<div class="pc-section"><div class="pc-section-title">6. Психічний стан</div><div class="pc-grid">${[msOrientation ? pcField('Орієнтація', msOrientation) : '', msAppearance ? pcField('Зовнішній вигляд', msAppearance) : '', msBehavior ? pcField('Поведінка', msBehavior) : '', msCritique ? pcField('Критика до стану', msCritique) : '', msContact ? pcField('Контакт', msContact) : '', msEmotion ? pcField('Емоційний фон', msEmotion) : '', msMemory ? pcField("Пам'ять", msMemory) : '', msAttention ? pcField('Увага', msAttention + (msAttentionFocus.length ? ' / ' + msAttentionFocus.join(', ') : '')) : '', msThinking ? pcField('Мислення', msThinking + (msThinkingPace ? ', темп — ' + msThinkingPace : '')) : '', msSpeech ? pcField('Мова', msSpeech) : '', msPsychomotor ? pcField('Психомоторика', msPsychomotor) : '', msInsightPsychol ? pcField('Інсайт (психол.)', msInsightPsychol) : '', msInsightRehab ? pcField('Інсайт (реабіл.)', msInsightRehab) : '', msComplaints ? pcField('Скарги', msComplaints) : '', sleepHours ? pcField('Сон (год.)', sleepHours) : ''].filter(Boolean).join('')}</div></div>` : ''}
+
+    ${hasScores ? `<div class="pc-section"><div class="pc-section-title">7. Результати опитувань</div><table class="pc-scores-table"><thead><tr><th>Шкала</th>${thDates}</tr></thead><tbody>${scoresTableBody}${cssrsRow}</tbody></table></div>` : ''}
+
+    <div class="pc-conclusion">
+      <div class="pc-section-title">8. Психологічне заключення</div>
+      <div class="pc-concl-sub">Психологічний висновок від ${todayStr}</div>
+      <div class="pc-concl-patient">${escapeHtml(fullName)}${birthdateDisplay ? ', ' + birthdateDisplay : ''}${genderShort ? ', ' + genderShort : ''}</div>
+      <hr class="pc-divider">
+      ${contactContent ? para('Орієнтування / контакт', contactContent.trim()) : ''}
+      ${msComplaints ? para('Скарги', msComplaints) : ''}
+      ${para('Анамнез', anamContent)}
+      ${para("Пам'ять, увага, мислення", cogContent.trim())}
+      ${emotContent ? para('Емоційний фон', emotContent.trim()) : ''}
+      ${sleepContent ? para('Сон', sleepContent.trim()) : ''}
+      ${painContent ? para('Больовий профіль', painContent.trim()) : ''}
+      ${genesisContent ? para('Генез больового синдрому', genesisContent) : ''}
+      <div class="pc-reco">Рекомендації: [заповнити вручну]</div>
+      <div class="pc-signature">
+        <span class="pc-sig-name">Психолог Є. Іордек</span>
+        <span>${todayStr}</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+
             document.getElementById('cardContent').innerHTML = `
-                <button class="btn-copy" onclick="copyCard()">Копіювати текст</button>
-                <div class="card-text">${escapeHtml(text)}</div>
+                <div class="card-btns">
+                    <button class="btn-copy" onclick="copyCard()">Копіювати текст</button>
+                    <button class="btn-print" onclick="window.print()">Друкувати</button>
+                </div>
+                ${html}
             `;
         }
     </script>
