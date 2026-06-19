@@ -1079,6 +1079,7 @@
         let cachedApiKey = null;
         if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
         let _passwordCallback = null;
+        let _isSaving = false;
 
         function openPasswordDialog(callback) {
             _passwordCallback = callback || null;
@@ -1100,9 +1101,10 @@
 
         passwordConfirm.addEventListener('click', async function() {
             const password = passwordInput.value;
-            if (!password) return;
+            if (!password || _isSaving) return;
 
             passwordError.style.display = 'none';
+            _isSaving = true;
             passwordConfirm.disabled = true;
             passwordConfirm.textContent = _passwordCallback ? 'Розблокування…' : 'Збереження…';
 
@@ -1121,15 +1123,11 @@
                 }
                 await savePsychotherapySession(apiKey, getFormData());
                 closePasswordDialog();
-                passwordConfirm.disabled = false;
-                passwordConfirm.textContent = 'Зберегти';
-                showSuccess();
                 localStorage.removeItem('psychotherapySessionFormData');
-                form.reset();
-                document.getElementById('ptSudBeforeVal').textContent = '5';
-                document.getElementById('ptSudAfterVal').textContent = '5';
+                window.location.href = 'index.html';
             } catch (err) {
                 console.error(err);
+                _isSaving = false;
                 passwordError.textContent = err.message && (err.message.includes('не знайдено') || err.message.includes('кількох учасників'))
                     ? err.message
                     : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
@@ -1142,6 +1140,8 @@
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            if (_isSaving) return;
 
             if (!document.getElementById('ptNickname').value) {
                 showError('Вкажіть Study ID учасника.');
@@ -1156,14 +1156,19 @@
                 return;
             }
 
+            const submitBtn = form.querySelector('.btn-submit');
+
             if (cachedApiKey) {
+                _isSaving = true;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Збереження…';
                 savePsychotherapySession(cachedApiKey, getFormData()).then(() => {
-                    showSuccess();
                     localStorage.removeItem('psychotherapySessionFormData');
-                    form.reset();
-                    document.getElementById('ptSudBeforeVal').textContent = '5';
-                    document.getElementById('ptSudAfterVal').textContent = '5';
+                    window.location.href = 'index.html';
                 }).catch(err => {
+                    _isSaving = false;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Зберегти';
                     if (err.message && err.message.includes('401')) {
                         cachedApiKey = null;
                         sessionStorage.removeItem('atKey');
