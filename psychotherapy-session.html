@@ -109,6 +109,48 @@
             margin-top: 30px;
         }
 
+        .inter-session-pair {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .inter-session-pair select {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+        }
+        .inter-session-pair select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .btn-remove-pair {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #95a5a6;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            flex: none;
+        }
+        .btn-remove-pair:hover { color: #e74c3c; }
+        .btn-add-pair {
+            margin-top: 4px;
+            padding: 7px 16px;
+            background: #ecf0f1;
+            border: 1px dashed #95a5a6;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+        }
+        .btn-add-pair:hover { background: #d5dce4; }
+
         button {
             flex: 1;
             padding: 12px;
@@ -487,20 +529,11 @@
             <!-- 1. Стан між сесіями (прихованe для сесії №1) -->
             <div class="form-group" id="interSessionStateGroup" style="display:none">
                 <label>Стан між сесіями</label>
-                <div class="radio-group screen-only" id="interSessionStateRadio">
-                    <label class="radio-chip"><input type="radio" name="interSessionState" value="значно покращився"> значно покращився</label>
-                    <label class="radio-chip"><input type="radio" name="interSessionState" value="покращився"> покращився</label>
-                    <label class="radio-chip"><input type="radio" name="interSessionState" value="без змін"> без змін</label>
-                    <label class="radio-chip"><input type="radio" name="interSessionState" value="погіршився"> погіршився</label>
-                    <label class="radio-chip"><input type="radio" name="interSessionState" value="значно погіршився"> значно погіршився</label>
+                <div class="screen-only">
+                    <div id="interSessionPairsContainer"></div>
+                    <button type="button" id="btnAddInterSessionPair" class="btn-add-pair">+ Додати</button>
                 </div>
-                <div class="print-only">
-                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>значно покращився</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>покращився</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>без змін</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>погіршився</span></div>
-                    <div class="print-checkbox-option"><span class="print-checkbox-box"></span><span>значно погіршився</span></div>
-                </div>
+                <div class="print-only" id="interSessionPrintArea"></div>
             </div>
 
             <!-- 2. Запит пацієнта -->
@@ -778,7 +811,7 @@
             participant:        'fldERCIY7q4PeYrvl',
             date:               'fldRUlFCFANKY9y74',
             sessionNum:         'fldI0iRg9ew43AygV',
-            interSessionState:  'fldaSiQFcbiTuWtfm',
+            interSessionJson:   'fldp8geYgdl1bsZOQ',
             request:            'fldDrHlEsESGBVMT4',
             bodyMarkers:        'fldthGCbYMarMtq5l',
             localization:       'fldXb4gAizJ2iRRLA',
@@ -808,13 +841,88 @@
             }
         });
 
-        // Показ поля "Стан між сесіями" тільки для сесії №2 і вище
+        // --- Стан між сесіями: динамічні пари ---
+        const WHAT_OPTIONS = [
+            'сон', 'настрій', 'тривожність', 'апатія', 'страх', 'біль',
+            'відчуття тіла', 'частота спогадів', 'інтенсивність спогадів',
+            'нав\'язливі бажання', 'мислення', 'увага', 'пам\'ять',
+            'мова', 'мовлення', 'сексуальна функція', 'загальний стан'
+        ];
+        const CHANGE_OPTIONS = [
+            'значно покращився/лась', 'покращився/лась', 'без змін',
+            'погіршився/лась', 'значно погіршився/лась',
+            'збільшилась', 'зменшилась'
+        ];
+
+        const pairsContainer = document.getElementById('interSessionPairsContainer');
+        const printArea = document.getElementById('interSessionPrintArea');
+
+        function buildPairRow(idx) {
+            const row = document.createElement('div');
+            row.className = 'inter-session-pair';
+            row.dataset.idx = idx;
+
+            const selWhat = document.createElement('select');
+            selWhat.dataset.role = 'what';
+            selWhat.innerHTML = '<option value="">— що змінилось —</option>' +
+                WHAT_OPTIONS.map(o => `<option value="${o}">${o}</option>`).join('');
+
+            const selChange = document.createElement('select');
+            selChange.dataset.role = 'change';
+            selChange.innerHTML = '<option value="">— зміна —</option>' +
+                CHANGE_OPTIONS.map(o => `<option value="${o}">${o}</option>`).join('');
+
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button';
+            btnRemove.className = 'btn-remove-pair';
+            btnRemove.textContent = '×';
+            btnRemove.title = 'Видалити';
+            btnRemove.addEventListener('click', () => {
+                row.remove();
+                updatePrintArea();
+            });
+
+            selWhat.addEventListener('change', updatePrintArea);
+            selChange.addEventListener('change', updatePrintArea);
+
+            row.appendChild(selWhat);
+            row.appendChild(selChange);
+            row.appendChild(btnRemove);
+            return row;
+        }
+
+        function updatePrintArea() {
+            const pairs = getInterSessionPairs();
+            if (!pairs.length) {
+                printArea.innerHTML = '';
+                return;
+            }
+            printArea.innerHTML = pairs.map(p =>
+                `<div class="print-checkbox-option" style="margin-bottom:4px"><span>${p.what || '—'}: ${p.change || '—'}</span></div>`
+            ).join('');
+        }
+
+        function getInterSessionPairs() {
+            return Array.from(pairsContainer.querySelectorAll('.inter-session-pair')).map(row => ({
+                what: row.querySelector('[data-role="what"]').value,
+                change: row.querySelector('[data-role="change"]').value
+            })).filter(p => p.what || p.change);
+        }
+
+        function addPair() {
+            const idx = pairsContainer.children.length;
+            pairsContainer.appendChild(buildPairRow(idx));
+        }
+
+        document.getElementById('btnAddInterSessionPair').addEventListener('click', addPair);
+
+        // Показ розділу тільки для сесії №2 і вище
         document.getElementById('ptSessionNum').addEventListener('input', function() {
             const num = parseInt(this.value, 10);
-            document.getElementById('interSessionStateGroup').style.display = (num > 1) ? '' : 'none';
-            if (num <= 1) {
-                document.querySelectorAll('input[name="interSessionState"]').forEach(r => r.checked = false);
-            }
+            const group = document.getElementById('interSessionStateGroup');
+            group.style.display = (num > 1) ? '' : 'none';
+            if (num > 1 && pairsContainer.children.length === 0) addPair();
+            if (num <= 1) { pairsContainer.innerHTML = ''; updatePrintArea(); }
         });
 
         // SUD слайдери
@@ -860,12 +968,11 @@
         }
 
         function getFormData() {
-            const interSessionStateEl = document.querySelector('input[name="interSessionState"]:checked');
             return {
                 nickname:           document.getElementById('ptNickname').value,
                 date:               document.getElementById('ptDate').value,
                 sessionNum:         document.getElementById('ptSessionNum').value,
-                interSessionState:  interSessionStateEl ? interSessionStateEl.value : '',
+                interSessionPairs:  getInterSessionPairs(),
                 request:            getRequestValues(),
                 bodyMarkers:        getCheckedValues('bodyMarkersChips'),
                 localization:       getCheckedValues('localizationChips'),
@@ -943,10 +1050,10 @@
                 [FIELDS.participant]: [participantId]
             };
 
-            if (formData.date)               fields[FIELDS.date] = formData.date;
-            if (formData.sessionNum)         fields[FIELDS.sessionNum] = Number(formData.sessionNum);
-            if (formData.interSessionState)  fields[FIELDS.interSessionState] = formData.interSessionState;
-            if (formData.request.length)     fields[FIELDS.request] = formData.request;
+            if (formData.date)                    fields[FIELDS.date] = formData.date;
+            if (formData.sessionNum)              fields[FIELDS.sessionNum] = Number(formData.sessionNum);
+            if (formData.interSessionPairs.length) fields[FIELDS.interSessionJson] = JSON.stringify(formData.interSessionPairs);
+            if (formData.request.length)          fields[FIELDS.request] = formData.request;
             if (formData.bodyMarkers.length) fields[FIELDS.bodyMarkers] = formData.bodyMarkers;
             if (formData.localization.length) fields[FIELDS.localization] = formData.localization;
             fields[FIELDS.sudBefore] = Number(formData.sudBefore);
