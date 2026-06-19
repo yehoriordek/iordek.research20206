@@ -613,6 +613,12 @@
         const testRefSel = card.querySelector('.attempt-test-ref');
         testRefSel.addEventListener('change', () => updateMatchBadge(card));
 
+        // Auto-fill linked test if tests are already selected
+        if (selectedTests.length >= 1) {
+            testRefSel.value = selectedTests[0];
+            updateMatchBadge(card);
+        }
+
         // VAS after slider
         const vasSlider = card.querySelector('.attempt-vas-after');
         vasSlider.addEventListener('input', () => {
