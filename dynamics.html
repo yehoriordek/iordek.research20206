@@ -512,6 +512,8 @@
             admDate: 'fldcVXEZMGcDFoJqg',
             ampType: 'fldaMPgLb0JK5j6OL',
             rpni: 'fldRPNI',
+            tmr: 'fldHWDm5KbKTpnYtZ',
+            reampDate: 'fldSoolT974Qc41Nc',
             ampRight: 'fldaIwEVHJOBc2XFB',
             ampLeft: 'fldZFfCzqJ72VJbKL',
             ampBilateral: 'fldBilateral',
@@ -824,6 +826,8 @@
             const milUnit = pf(f, 'milUnit');
             const ampType = pf(f, 'ampType');
             const rpni = pf(f, 'rpni');
+            const tmr = pf(f, 'tmr');
+            const reampDate = pf(f, 'reampDate');
 
             const ampRight = pfArr(f, 'ampRight');
             const ampLeft = pfArr(f, 'ampLeft');
@@ -1026,10 +1030,17 @@
 
             if (msComplaints) lines.push(`\nСкарги: ${msComplaints}`);
 
-            let anamBlock = 'Зі слів пацієнта: ';
-            if (injDate) anamBlock += `ампутація внаслідок бойового поранення (${formatDate(injDate)}). `;
+            let anamBlock = 'Анамнез: ';
+            if (injDate) anamBlock += `Поранення отримано ${formatDate(injDate)}. `;
+            if (ampDate) anamBlock += `Ампутація проведена ${formatDate(ampDate)}. `;
+            if (reampDate) anamBlock += `Реампутація — ${formatDate(reampDate)}. `;
             if (ampLines.length) anamBlock += `Рівень ампутації: ${ampLines.join('; ')}. `;
-            anamBlock += `RPNI ${rpni === 'Так' ? 'виконано' : 'не проводилось'}. `;
+            const rpniDone = rpni === 'true' || rpni === 'Так';
+            const tmrDone = tmr === 'true' || tmr === 'Так';
+            if (rpniDone && tmrDone) anamBlock += 'RPNI та TMR проводились. ';
+            else if (rpniDone) anamBlock += 'RPNI проводилось. ';
+            else if (tmrDone) anamBlock += 'TMR проводилось. ';
+            else anamBlock += 'Факт проведення RPNI/TMR потребує уточнення. ';
             anamBlock += 'До поранення психічних скарг не відзначав/ла. ';
             if (hasFv || hasFb) anamBlock += "Фантомні явища з'явились у перші дні після ампутації. ";
             anamBlock += 'Мотивація до реабілітації збережена.';
@@ -1203,10 +1214,15 @@
             if (msFace) contactContent += `Вираз обличчя ${msFace.toLowerCase()}. `;
             if (msCritique) contactContent += msCritique === 'Відповідна' ? 'Критика до стану збережена.' : `Критика до стану: ${msCritique.toLowerCase()}.`;
 
-            let anamContent = 'Зі слів пацієнта: ';
-            if (injDate) anamContent += `ампутація внаслідок бойового поранення (${formatDate(injDate)}). `;
+            let anamContent = 'Анамнез: ';
+            if (injDate) anamContent += `Поранення отримано ${formatDate(injDate)}. `;
+            if (ampDate) anamContent += `Ампутація проведена ${formatDate(ampDate)}. `;
+            if (reampDate) anamContent += `Реампутація — ${formatDate(reampDate)}. `;
             if (ampLines.length) anamContent += `Рівень ампутації: ${ampLines.join('; ')}. `;
-            anamContent += `RPNI ${rpni === 'Так' ? 'виконано' : 'не проводилось'}. `;
+            if (rpniDone && tmrDone) anamContent += 'RPNI та TMR проводились. ';
+            else if (rpniDone) anamContent += 'RPNI проводилось. ';
+            else if (tmrDone) anamContent += 'TMR проводилось. ';
+            else anamContent += 'Факт проведення RPNI/TMR потребує уточнення. ';
             anamContent += 'До поранення психічних скарг не відзначав/ла. ';
             if (hasFv || hasFb) anamContent += "Фантомні явища з'явились у перші дні після ампутації. ";
             anamContent += 'Мотивація до реабілітації збережена.';
