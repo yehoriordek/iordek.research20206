@@ -107,6 +107,8 @@
         .test-pair .test-sel { flex: 1.4; }
         .test-pair .reaction-sel { flex: 1; }
 
+        .attempt-test-reaction-display { font-size: 12px; color: #555; margin-top: 5px; padding: 3px 8px; background: #eef2f7; border-radius: 3px; display: none; }
+
         .vas-print-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
         .vas-print-box { width: 26px; height: 26px; border: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
 
@@ -463,7 +465,7 @@
             updateAttemptTestRefs();
             updateTestPairsUI();
         });
-        selReaction.addEventListener('change', updateTestPairsPrintArea);
+        selReaction.addEventListener('change', () => { updateTestPairsPrintArea(); syncAllAttemptTestReactions(); });
         btnRemove.addEventListener('click', () => { row.remove(); updateAttemptTestRefs(); updateTestPairsUI(); });
         row.appendChild(selTest);
         row.appendChild(selReaction);
@@ -499,6 +501,26 @@
         testPairsPrintArea.innerHTML = pairs.length ?
             pairs.map(p => `<div class="print-checkbox-option" style="margin-bottom:6px"><span class="print-checkbox-box"></span><span>${p.test || '—'}: ${p.reaction || '—'}</span></div>`).join('') :
             '<div style="border-bottom:1px solid #000;min-height:26px;margin-bottom:8px;"></div>'.repeat(3);
+        syncAllAttemptTestReactions();
+    }
+
+    function getTestReaction(testName) {
+        if (!testName) return '';
+        const pair = getTestPairs().find(p => p.test === testName);
+        return pair ? pair.reaction : '';
+    }
+
+    function syncAttemptTestReaction(card) {
+        const testRef  = card.querySelector('.attempt-test-ref').value;
+        const reaction = getTestReaction(testRef);
+        const display  = card.querySelector('.attempt-test-reaction-display');
+        if (!display) return;
+        if (reaction) { display.textContent = `Реакція на тест: ${reaction}`; display.style.display = ''; }
+        else { display.style.display = 'none'; }
+    }
+
+    function syncAllAttemptTestReactions() {
+        document.querySelectorAll('.attempt-card').forEach(syncAttemptTestReaction);
     }
 
     function addTestPair() {
@@ -550,6 +572,7 @@
                 <div class="form-group" style="flex:1;min-width:180px;">
                     <label>Пов'язаний тест</label>
                     <select class="attempt-test-ref">${buildTestRefSelect(selectedTests)}</select>
+                    <div class="attempt-test-reaction-display screen-only"></div>
                 </div>
                 <div class="form-group" style="flex:2;min-width:200px;">
                     <label>Метод</label>
@@ -609,14 +632,15 @@
         const methodSel = card.querySelector('.attempt-method');
         methodSel.addEventListener('change', () => onAttemptMethodChange(card));
 
-        // Test ref select → update match badge
+        // Test ref select → update match badge + show test reaction
         const testRefSel = card.querySelector('.attempt-test-ref');
-        testRefSel.addEventListener('change', () => updateMatchBadge(card));
+        testRefSel.addEventListener('change', () => { updateMatchBadge(card); syncAttemptTestReaction(card); });
 
         // Auto-fill linked test if tests are already selected
         if (selectedTests.length >= 1) {
             testRefSel.value = selectedTests[0];
             updateMatchBadge(card);
+            syncAttemptTestReaction(card);
         }
 
         // VAS after slider
