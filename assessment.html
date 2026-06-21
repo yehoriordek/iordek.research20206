@@ -1713,7 +1713,7 @@ function loadFromLocalStorage() {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return;
     const d = JSON.parse(raw);
-    if (d.assessmentNickname) document.getElementById('assessmentNickname').value = d.assessmentNickname;
+    // assessmentNickname навмисно не відновлюється — щоб пошук завжди запускався при введенні
     if (d.assessmentDate) document.getElementById('assessmentDate').value = d.assessmentDate;
     if (d.assessmentStage) document.getElementById('assessmentStage').value = d.assessmentStage;
     // restore DOG block values
