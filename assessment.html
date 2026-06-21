@@ -1556,7 +1556,7 @@ document.getElementById('manualHasAmputation').addEventListener('change', functi
     else if (this.value === 'no') updateSectionsForAmputation(false);
 });
 
-document.getElementById('assessmentNickname').addEventListener('blur', async () => {
+async function lookupParticipant() {
   const nick = document.getElementById('assessmentNickname').value.trim();
   updateStageOptions(nick);
   const dobEl = document.getElementById('participantDobInfo');
@@ -1581,7 +1581,14 @@ document.getElementById('assessmentNickname').addEventListener('blur', async () 
       dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Не знайдено';
     }
   } catch(e) { dobEl.style.color='#e74c3c'; dobEl.style.background='#fdf2f2'; dobEl.style.borderColor='#e74c3c'; dobEl.textContent='Не знайдено'; }
+}
+
+let _dobDebounce;
+document.getElementById('assessmentNickname').addEventListener('input', () => {
+  clearTimeout(_dobDebounce);
+  _dobDebounce = setTimeout(lookupParticipant, 600);
 });
+document.getElementById('assessmentNickname').addEventListener('blur', lookupParticipant);
 
 
 // ── Form submit ───────────────────────────────────────────────────────────────
