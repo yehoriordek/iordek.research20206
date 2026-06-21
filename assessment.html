@@ -1588,14 +1588,36 @@ async function lookupParticipant() {
 }
 
 let _dobDebounce;
+let _lastNickForLookup = null;
+
 function _scheduleLookup() {
   clearTimeout(_dobDebounce);
+  // Immediate visual feedback on typing
+  const dobEl = document.getElementById('participantDobInfo');
+  const el = document.getElementById('assessmentNickname');
+  if (dobEl && el && el.value.trim()) {
+    dobEl.style.color='#888'; dobEl.style.background='#f8f8f8'; dobEl.style.borderColor='#ccc'; dobEl.textContent='Пошук…';
+  }
   _dobDebounce = setTimeout(lookupParticipant, 300);
 }
+
 document.getElementById('assessmentNickname').addEventListener('input', _scheduleLookup);
 document.getElementById('assessmentNickname').addEventListener('keyup', _scheduleLookup);
 document.getElementById('assessmentNickname').addEventListener('change', lookupParticipant);
 document.getElementById('assessmentNickname').addEventListener('blur', lookupParticipant);
+
+// Fallback polling — runs every 700ms and triggers lookup if field value changed.
+// Ensures the indicator always updates regardless of which events the browser fires.
+setInterval(function() {
+  const el = document.getElementById('assessmentNickname');
+  if (!el) return;
+  const nick = el.value.trim();
+  if (nick !== _lastNickForLookup) {
+    _lastNickForLookup = nick;
+    clearTimeout(_dobDebounce);
+    lookupParticipant();
+  }
+}, 700);
 
 
 // ── Form submit ───────────────────────────────────────────────────────────────
