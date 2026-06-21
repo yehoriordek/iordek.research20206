@@ -1943,6 +1943,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // load saved data
   loadFromLocalStorage();
+  // trigger indicator lookup if nickname was restored from localStorage
+  if (document.getElementById('assessmentNickname').value.trim()) lookupParticipant();
 });
 
 
