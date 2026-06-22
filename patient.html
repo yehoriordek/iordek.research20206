@@ -2377,6 +2377,15 @@ Email: yehor.iordek@gmail.com
             localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
         });
 
+        // Очистити форму — скинути localStorage та перестворити динамічні елементи
+        form.addEventListener('reset', function() {
+            localStorage.removeItem('patientFormData');
+            setTimeout(() => {
+                initGenesisTestPairsUI();
+                document.getElementById('patientNickname').value = generateStudyId();
+            }, 0);
+        });
+
         // Новий пацієнт — очистити форму та почати нову анкету
         document.getElementById('newPatientBtn').addEventListener('click', function() {
             if (confirm('Усі незбережені дані поточної анкети буде видалено. Створити нову анкету для нового пацієнта?')) {
