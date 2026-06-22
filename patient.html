@@ -601,6 +601,18 @@
             border: 1px solid #f5c6cb;
             border-radius: 4px;
         }
+        .genesis-test-pair { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .genesis-test-pair select { padding: 7px 10px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 14px; font-family: inherit; background: white; }
+        .genesis-test-pair select:focus { outline: none; border-color: #3498db; }
+        .genesis-test-pair .test-sel { flex: 1.4; }
+        .genesis-test-pair .reaction-sel { flex: 1; }
+        .genesis-test-counter { font-size: 13px; color: #7f8c8d; margin-top: 8px; }
+        .genesis-test-counter.warn { color: #e74c3c; font-weight: 600; }
+        .genesis-btn-add-pair { margin-top: 4px; padding: 7px 16px; background: #ecf0f1; border: 1px dashed #95a5a6; border-radius: 4px; font-size: 13px; color: #555; cursor: pointer; width: 100%; }
+        .genesis-btn-add-pair:hover { background: #d5dce4; }
+        .genesis-btn-add-pair:disabled { opacity: .4; cursor: not-allowed; }
+        .genesis-btn-remove-pair { background: none; border: none; font-size: 18px; color: #95a5a6; cursor: pointer; padding: 0 4px; line-height: 1; flex: none; }
+        .genesis-btn-remove-pair:hover { color: #e74c3c; }
     </style>
 </head>
 <body>
@@ -1108,7 +1120,14 @@ Email: yehor.iordek@gmail.com
 
             <div id="genesisTestsSection" class="sub-step" data-substep="tests">
                 <h2 class="section-title">Тести генезу</h2>
-                <div id="genesisTestsContainer"></div>
+                <div class="form-group">
+                    <div class="screen-only">
+                        <div id="genesisTestPairsContainer"></div>
+                        <button type="button" id="btnAddGenesisTestPair" class="genesis-btn-add-pair">+ Додати</button>
+                        <div class="genesis-test-counter" id="genesisTestCounter">Обрано: 0 / 5</div>
+                    </div>
+                    <div class="print-only" id="genesisTestPrintArea"></div>
+                </div>
             </div>
 
 
@@ -1426,41 +1445,101 @@ Email: yehor.iordek@gmail.com
             `;
         }
 
-        // Будує блок "позитивні тести + реакції" для однієї категорії тестів генезу
-        function renderGenesisTest(t) {
-            const testsChips = t.tests.map(opt =>
-                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
-            ).join('');
-            const testsPrint = t.tests.map(opt =>
-                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
-            ).join('');
-            const reactionChips = GENESIS_REACTIONS.map(opt =>
-                `<label class="chip"><input type="checkbox" value="${opt}"><span>${opt}</span></label>`
-            ).join('');
-            const reactionPrint = GENESIS_REACTIONS.map(opt =>
-                `<div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>${opt}</span></div>`
-            ).join('');
-            return `
-                <h3 class="section-title">${t.label}</h3>
-                <div class="form-group">
-                    <label>Позитивні тести</label>
-                    <div class="chips-group screen-only" id="${t.key}Chips">${testsChips}</div>
-                    <div class="print-checkbox-group print-only" aria-label="${t.label} — позитивні для друку">${testsPrint}</div>
-                </div>
-                <div class="form-group">
-                    <label>Реакції</label>
-                    <div class="chips-group screen-only" id="${t.key}ReactionsChips">${reactionChips}</div>
-                    <div class="print-checkbox-group print-only" aria-label="${t.label} — реакції для друку">${reactionPrint}</div>
-                </div>
-            `;
+        const MAX_GENESIS_TEST_PAIRS = 5;
+
+        function buildGenesisTestSelectHtml() {
+            let html = '<option value="">— оберіть тест —</option>';
+            GENESIS_TESTS.forEach(cat => {
+                html += `<optgroup label="${cat.label}">`;
+                cat.tests.forEach(t => { html += `<option value="${t}">${t}</option>`; });
+                html += '</optgroup>';
+            });
+            return html;
+        }
+
+        function buildGenesisTestPairRow(initTest, initReaction) {
+            const row = document.createElement('div');
+            row.className = 'genesis-test-pair';
+            const selTest = document.createElement('select');
+            selTest.dataset.role = 'test';
+            selTest.className = 'test-sel';
+            selTest.innerHTML = buildGenesisTestSelectHtml();
+            const selReaction = document.createElement('select');
+            selReaction.dataset.role = 'reaction';
+            selReaction.className = 'reaction-sel';
+            selReaction.innerHTML = '<option value="">— реакція —</option>' +
+                GENESIS_REACTIONS.map(r => `<option value="${r}">${r}</option>`).join('');
+            const btnRemove = document.createElement('button');
+            btnRemove.type = 'button';
+            btnRemove.className = 'genesis-btn-remove-pair';
+            btnRemove.textContent = '×';
+            btnRemove.title = 'Видалити';
+            btnRemove.addEventListener('click', () => { row.remove(); updateGenesisTestPairsUI(); });
+            if (initTest) selTest.value = initTest;
+            if (initReaction) selReaction.value = initReaction;
+            selTest.addEventListener('change', updateGenesisTestPairsUI);
+            selReaction.addEventListener('change', updateGenesisTestPrintArea);
+            row.appendChild(selTest);
+            row.appendChild(selReaction);
+            row.appendChild(btnRemove);
+            return row;
+        }
+
+        function getGenesisTestPairs() {
+            const container = document.getElementById('genesisTestPairsContainer');
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.genesis-test-pair')).map(row => ({
+                test:     row.querySelector('[data-role="test"]').value,
+                reaction: row.querySelector('[data-role="reaction"]').value
+            }));
+        }
+
+        function updateGenesisTestPrintArea() {
+            const printArea = document.getElementById('genesisTestPrintArea');
+            if (!printArea) return;
+            const pairs = getGenesisTestPairs().filter(p => p.test);
+            printArea.innerHTML = pairs.length ?
+                pairs.map(p => `<div class="print-checkbox-option" style="margin-bottom:6px"><span class="print-checkbox-box"></span><span>${p.test}: ${p.reaction || '—'}</span></div>`).join('') :
+                '<div style="border-bottom:1px solid #000;min-height:26px;margin-bottom:8px;"></div>'.repeat(3);
+        }
+
+        function updateGenesisTestPairsUI() {
+            const container = document.getElementById('genesisTestPairsContainer');
+            if (!container) return;
+            const count = container.querySelectorAll('.genesis-test-pair').length;
+            const counter = document.getElementById('genesisTestCounter');
+            const btn = document.getElementById('btnAddGenesisTestPair');
+            if (counter) {
+                counter.textContent = `Обрано: ${count} / ${MAX_GENESIS_TEST_PAIRS}`;
+                counter.classList.toggle('warn', count >= MAX_GENESIS_TEST_PAIRS);
+            }
+            if (btn) {
+                btn.disabled = count >= MAX_GENESIS_TEST_PAIRS;
+                btn.textContent = count >= MAX_GENESIS_TEST_PAIRS ? `Максимум ${MAX_GENESIS_TEST_PAIRS} тестів` : '+ Додати';
+            }
+            updateGenesisTestPrintArea();
+        }
+
+        function initGenesisTestPairsUI() {
+            const container = document.getElementById('genesisTestPairsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            container.appendChild(buildGenesisTestPairRow());
+            updateGenesisTestPairsUI();
+
+            const btn = document.getElementById('btnAddGenesisTestPair');
+            if (btn) btn.addEventListener('click', () => {
+                container.appendChild(buildGenesisTestPairRow());
+                updateGenesisTestPairsUI();
+            });
         }
 
         function renderGenesisSection() {
             document.getElementById('genesisDescriptorsContainer').innerHTML = GENESIS_DESCRIPTORS.map(renderGenesisDescriptor).join('');
-            document.getElementById('genesisTestsContainer').innerHTML = GENESIS_TESTS.map(renderGenesisTest).join('');
             document.querySelectorAll('#genPeriphDescClinChips input[type="checkbox"]').forEach(el => {
                 el.addEventListener('change', () => { if (typeof updateDogTotals === 'function') updateDogTotals(); });
             });
+            initGenesisTestPairsUI();
         }
 
         // Інформована згода — зчитує всі відповіді блоку
@@ -1714,9 +1793,11 @@ Email: yehor.iordek@gmail.com
                 data[g.otherKey] = document.getElementById(g.otherKey).value;
                 if (g.descKey) data[g.descKey] = getCheckedValues(`${g.descKey}Chips`);
             });
+            const pairs = getGenesisTestPairs().filter(p => p.test);
             GENESIS_TESTS.forEach(t => {
-                data[t.key] = getCheckedValues(`${t.key}Chips`);
-                data[`${t.key}Reactions`] = getCheckedValues(`${t.key}ReactionsChips`);
+                const catPairs = pairs.filter(p => t.tests.includes(p.test));
+                data[t.key] = catPairs.map(p => p.test);
+                data[`${t.key}Reactions`] = [...new Set(catPairs.map(p => p.reaction).filter(Boolean))];
             });
             return data;
         }
@@ -2219,10 +2300,19 @@ Email: yehor.iordek@gmail.com
                 document.getElementById(g.otherKey).value = data[g.otherKey] || '';
                 if (g.descKey) setCheckedValues(`${g.descKey}Chips`, data[g.descKey]);
             });
-            GENESIS_TESTS.forEach(t => {
-                setCheckedValues(`${t.key}Chips`, data[t.key]);
-                setCheckedValues(`${t.key}ReactionsChips`, data[`${t.key}Reactions`]);
-            });
+            const container = document.getElementById('genesisTestPairsContainer');
+            if (container) {
+                container.innerHTML = '';
+                const allPairs = [];
+                GENESIS_TESTS.forEach(t => {
+                    const tests = data[t.key] || [];
+                    const reactions = data[`${t.key}Reactions`] || [];
+                    tests.forEach((test, i) => allPairs.push({ test, reaction: reactions[i] || '' }));
+                });
+                if (allPairs.length === 0) allPairs.push({ test: '', reaction: '' });
+                allPairs.forEach(p => container.appendChild(buildGenesisTestPairRow(p.test, p.reaction)));
+                updateGenesisTestPairsUI();
+            }
             if (data.consent) {
                 const consent = data.consent;
                 document.getElementById('consent_given').value = consent.given || '';
@@ -2285,6 +2375,15 @@ Email: yehor.iordek@gmail.com
         // Зберегти дані в localStorage при змінах
         form.addEventListener('change', function() {
             localStorage.setItem('patientFormData', JSON.stringify(getFormData()));
+        });
+
+        // Очистити форму — скинути localStorage та перестворити динамічні елементи
+        form.addEventListener('reset', function() {
+            setTimeout(() => {
+                localStorage.removeItem('patientFormData');
+                initGenesisTestPairsUI();
+                document.getElementById('patientNickname').value = generateStudyId();
+            }, 0);
         });
 
         // Новий пацієнт — очистити форму та почати нову анкету
