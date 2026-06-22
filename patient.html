@@ -2379,8 +2379,8 @@ Email: yehor.iordek@gmail.com
 
         // Очистити форму — скинути localStorage та перестворити динамічні елементи
         form.addEventListener('reset', function() {
-            localStorage.removeItem('patientFormData');
             setTimeout(() => {
+                localStorage.removeItem('patientFormData');
                 initGenesisTestPairsUI();
                 document.getElementById('patientNickname').value = generateStudyId();
             }, 0);
