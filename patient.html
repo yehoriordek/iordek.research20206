@@ -667,6 +667,7 @@
             <div class="form-group">
                 <label for="patientBirthdate">
                     Дата народження пацієнта
+                    <span class="required">*</span>
                 </label>
                 <input
                     type="date"
@@ -2124,6 +2125,22 @@ Email: yehor.iordek@gmail.com
                     showError(`Будь ласка, перегляньте підвкладку "${tabLabels[unvisited[0]]}" у розділі Біль/Генез.`);
                     return;
                 }
+            }
+
+            // Перевірка дати народження
+            const birthdateVal = document.getElementById('patientBirthdate').value;
+            if (!birthdateVal) {
+                showStep(1);
+                showError('Будь ласка, вкажіть дату народження пацієнта.');
+                document.getElementById('patientBirthdate').focus();
+                return;
+            }
+            const age = calcAge(birthdateVal);
+            if (age !== null && age < 18) {
+                showStep(1);
+                showError('Неможливо зберегти анкету: пацієнту має бути не менше 18 років.');
+                document.getElementById('patientBirthdate').focus();
+                return;
             }
 
             pendingAction = 'save';
