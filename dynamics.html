@@ -962,7 +962,7 @@
             const hasMentalStatus = msOrientation || msAppearance || msFace || msBehavior || msContact || msEmotion || msMemory || msThinking || msSpeech || msPsychomotor;
             if (hasMentalStatus) {
                 lines.push('');
-                lines.push('6. ПСИХІЧНИЙ СТАН');
+                lines.push('1. ПСИХІЧНИЙ СТАН');
                 if (msOrientation) lines.push(`Орієнтація: ${msOrientation}`);
                 if (msAppearance) lines.push(`Зовнішній вигляд: ${msAppearance}`);
                 if (msFace) lines.push(`Вираз обличчя: ${msFace}`);
@@ -984,7 +984,7 @@
 
             if (sortedAss.length) {
                 lines.push('');
-                lines.push('7. ІСТОРІЯ ОПИТУВАНЬ');
+                lines.push('2. РЕЗУЛЬТАТИ ОПИТУВАНЬ');
                 sortedAss.forEach((rec, i) => {
                     const rf = rec.fields;
                     const d = formatDate(rf[Fids.date]);
@@ -1009,7 +1009,7 @@
             }
 
             lines.push('');
-            lines.push('8. ПСИХОЛОГІЧНЕ ЗАКЛЮЧЕННЯ');
+            lines.push('3. ЗАКЛЮЧЕННЯ');
             lines.push(`Психологічний висновок від ${todayStr}`);
             lines.push(`Пацієнт: ${fullName}${birthdateDisplay ? ', ' + birthdateDisplay + ' р.' : ''}${genderShort ? ', ' + genderShort : ''}`);
             lines.push('─'.repeat(40));
@@ -1307,12 +1307,12 @@
 
     ${hasGenesis ? `<div class="pc-section"><div class="pc-section-title">4. Генез больового синдрому</div><div class="pc-grid">${[dogDominant ? pcField('Домінуючий генез', dogDominant) : '', (genPeripheral.length || genPeriphOther) ? pcField('Периферичний', [...genPeripheral, genPeriphOther].filter(Boolean).join(', ')) : '', (genCerebral.length || genCerebralOther) ? pcField('Церебральний', [...genCerebral, genCerebralOther].filter(Boolean).join(', ')) : '', genSpinal.length ? pcField('Спінальний', genSpinal.join(', ')) : '', genPsychogenic.length ? pcField('Психогенний', genPsychogenic.join(', ')) : ''].filter(Boolean).join('')}</div></div>` : ''}
 
-    ${hasMentalStatus ? `<div class="pc-section"><div class="pc-section-title">6. Психічний стан</div><div class="pc-grid">${[msOrientation ? pcField('Орієнтація', msOrientation) : '', msAppearance ? pcField('Зовнішній вигляд', msAppearance) : '', msFace ? pcField('Вираз обличчя', msFace) : '', msBehavior ? pcField('Поведінка', msBehavior) : '', msCritique ? pcField('Критика до стану', msCritique) : '', msContact ? pcField('Контакт', msContact) : '', msEmotion ? pcField('Емоційний фон', msEmotion) : '', msMemory ? pcField("Пам'ять", msMemory) : '', msAttention ? pcField('Увага', msAttention + (msAttentionFocus.length ? ' / ' + msAttentionFocus.join(', ') : '')) : '', msThinking ? pcField('Мислення', msThinking + (msThinkingPace ? ', темп — ' + msThinkingPace : '')) : '', msSpeech ? pcField('Мова', msSpeech) : '', msPsychomotor ? pcField('Психомоторика', msPsychomotor) : '', msInsightPsychol ? pcField('Інсайт (психол.)', msInsightPsychol) : '', msInsightPsychiatr ? pcField('Інсайт (психіатр.)', msInsightPsychiatr) : '', msInsightRehab ? pcField('Інсайт (реабіл.)', msInsightRehab) : '', msComplaints ? pcField('Скарги', msComplaints) : '', sleepHours ? pcField('Сон (год.)', sleepHours) : ''].filter(Boolean).join('')}</div></div>` : ''}
+    ${hasMentalStatus ? `<div class="pc-section"><div class="pc-section-title">1. Психічний стан</div><div class="pc-grid">${[msOrientation ? pcField('Орієнтація', msOrientation) : '', msAppearance ? pcField('Зовнішній вигляд', msAppearance) : '', msFace ? pcField('Вираз обличчя', msFace) : '', msBehavior ? pcField('Поведінка', msBehavior) : '', msCritique ? pcField('Критика до стану', msCritique) : '', msContact ? pcField('Контакт', msContact) : '', msEmotion ? pcField('Емоційний фон', msEmotion) : '', msMemory ? pcField("Пам'ять", msMemory) : '', msAttention ? pcField('Увага', msAttention + (msAttentionFocus.length ? ' / ' + msAttentionFocus.join(', ') : '')) : '', msThinking ? pcField('Мислення', msThinking + (msThinkingPace ? ', темп — ' + msThinkingPace : '')) : '', msSpeech ? pcField('Мова', msSpeech) : '', msPsychomotor ? pcField('Психомоторика', msPsychomotor) : '', msInsightPsychol ? pcField('Інсайт (психол.)', msInsightPsychol) : '', msInsightPsychiatr ? pcField('Інсайт (психіатр.)', msInsightPsychiatr) : '', msInsightRehab ? pcField('Інсайт (реабіл.)', msInsightRehab) : '', msComplaints ? pcField('Скарги', msComplaints) : '', sleepHours ? pcField('Сон (год.)', sleepHours) : ''].filter(Boolean).join('')}</div></div>` : ''}
 
-    ${hasScores ? `<div class="pc-section"><div class="pc-section-title">7. Результати опитувань</div><table class="pc-scores-table"><thead><tr><th>Шкала</th>${thDates}</tr></thead><tbody>${scoresTableBody}${cssrsRow}</tbody></table></div>` : ''}
+    ${hasScores ? `<div class="pc-section"><div class="pc-section-title">2. Результати опитувань</div><table class="pc-scores-table"><thead><tr><th>Шкала</th>${thDates}</tr></thead><tbody>${scoresTableBody}${cssrsRow}</tbody></table></div>` : ''}
 
     <div class="pc-conclusion">
-      <div class="pc-section-title">8. Психологічне заключення</div>
+      <div class="pc-section-title">3. Заключення</div>
       <div class="pc-concl-sub">Психологічний висновок від ${todayStr}</div>
       <div class="pc-concl-patient">${escapeHtml(fullName)}${birthdateDisplay ? ', ' + birthdateDisplay : ''}${genderShort ? ', ' + genderShort : ''}</div>
       <hr class="pc-divider">
