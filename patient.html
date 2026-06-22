@@ -2086,10 +2086,12 @@ Email: yehor.iordek@gmail.com
                     showSuccess(wasUpdated);
                 }
             } catch (err) {
-                console.error('Не вдалося виконати операцію з Airtable:', err);
-                passwordError.textContent = pendingAction === 'load'
-                    ? 'Неправильний пароль або помилка завантаження. Спробуйте ще раз.'
-                    : 'Неправильний пароль або помилка збереження. Спробуйте ще раз.';
+                const detail = err && err.message ? err.message : String(err);
+                const isWrongPassword = detail.toLowerCase().includes('decrypt') || detail.toLowerCase().includes('gcm');
+                const baseMsg = pendingAction === 'load'
+                    ? 'Помилка завантаження'
+                    : (isWrongPassword ? 'Неправильний пароль' : 'Помилка збереження');
+                passwordError.textContent = `${baseMsg}: ${detail}`;
                 passwordError.style.display = 'block';
             } finally {
                 passwordConfirm.disabled = false;
