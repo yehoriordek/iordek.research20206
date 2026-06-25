@@ -521,9 +521,8 @@
             </div>
 
             <div class="form-group">
-                <label for="ptSessionNum">Номер сесії з цим пацієнтом <span class="required">*</span></label>
-                <input type="number" id="ptSessionNum" min="1" required placeholder="1" class="screen-only" style="max-width:120px">
-                <input type="text" class="print-only" placeholder="№" style="max-width:120px" aria-label="Номер сесії">
+                <label>Номер сесії</label>
+                <div id="ptSessionInfo" style="font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #ccc;background:#f8f8f8;display:inline-block;min-width:120px;text-align:center;color:#888">—</div>
             </div>
 
             <!-- 1. Стан між сесіями (прихованe для сесії №1) -->
@@ -916,14 +915,13 @@
 
         document.getElementById('btnAddInterSessionPair').addEventListener('click', addPair);
 
-        // Показ розділу тільки для сесії №2 і вище
-        document.getElementById('ptSessionNum').addEventListener('input', function() {
-            const num = parseInt(this.value, 10);
+        function updateInterSessionVisibility() {
+            const num = _ptComputedSessionNum || 0;
             const group = document.getElementById('interSessionStateGroup');
             group.style.display = (num > 1) ? '' : 'none';
             if (num > 1 && pairsContainer.children.length === 0) addPair();
             if (num <= 1) { pairsContainer.innerHTML = ''; updatePrintArea(); }
-        });
+        }
 
         // SUD слайдери
         document.getElementById('ptSudBefore').addEventListener('input', function() {
@@ -971,7 +969,7 @@
             return {
                 nickname:           document.getElementById('ptNickname').value,
                 date:               document.getElementById('ptDate').value,
-                sessionNum:         document.getElementById('ptSessionNum').value,
+                sessionNum:         _ptComputedSessionNum,
                 interSessionPairs:  getInterSessionPairs(),
                 request:            getRequestValues(),
                 bodyMarkers:        getCheckedValues('bodyMarkersChips'),
@@ -1080,6 +1078,7 @@
         if (sessionStorage.getItem('atKey')) cachedApiKey = sessionStorage.getItem('atKey');
         let _passwordCallback = null;
         let _isSaving = false;
+        let _ptComputedSessionNum = null;
 
         function openPasswordDialog(callback) {
             _passwordCallback = callback || null;
@@ -1151,8 +1150,8 @@
                 showError('Вкажіть дату сесії.');
                 return;
             }
-            if (!document.getElementById('ptSessionNum').value) {
-                showError('Вкажіть номер сесії.');
+            if (!_ptComputedSessionNum) {
+                showError('Введіть Study ID учасника і дочекайтесь підрахунку сесій.');
                 return;
             }
 
@@ -1200,7 +1199,6 @@
                     const data = JSON.parse(saved);
                     document.getElementById('ptNickname').value = data.nickname || '';
                     document.getElementById('ptDate').value = data.date || '';
-                    document.getElementById('ptSessionNum').value = data.sessionNum || '';
                     setRequestValues(data.request);
                     setCheckedValues('bodyMarkersChips', data.bodyMarkers);
                     setCheckedValues('localizationChips', data.localization);
@@ -1225,16 +1223,20 @@
         // Пошук учасника за Study ID (read-only ключ)
         const READ_KEY = atob('cGF0ZkxpT2ZqV29Lb2R4MUguYTk3MTM0ZjI2YTRiYzM3NDVmYjkwNmVkMjRkZTYwODc1MDExYTBkZDFhMjVjNDFkNzg4NTFiMTdkMTc0ZGVhOQ==');
         document.getElementById('ptNickname').addEventListener('blur', async () => {
-            const nick = document.getElementById('ptNickname').value.trim();
-            const dobEl = document.getElementById('ptDobInfo');
-            if (!nick) { dobEl.textContent = '—'; dobEl.style.color = '#888'; dobEl.style.background = '#f8f8f8'; dobEl.style.borderColor = '#ccc'; return; }
+            const nick    = document.getElementById('ptNickname').value.trim();
+            const dobEl   = document.getElementById('ptDobInfo');
+            const sessEl  = document.getElementById('ptSessionInfo');
+            const resetSess = () => { _ptComputedSessionNum = null; sessEl.textContent='—'; sessEl.style.cssText='font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #ccc;background:#f8f8f8;display:inline-block;min-width:120px;text-align:center;color:#888'; updateInterSessionVisibility(); };
+            if (!nick) { dobEl.textContent = '—'; dobEl.style.color = '#888'; dobEl.style.background = '#f8f8f8'; dobEl.style.borderColor = '#ccc'; resetSess(); return; }
             dobEl.style.color = '#888'; dobEl.style.background = '#f8f8f8'; dobEl.style.borderColor = '#ccc'; dobEl.textContent = 'Пошук…';
+            resetSess();
             try {
                 const url = `https://api.airtable.com/v0/appRtxXIvhSWdb6sJ/tblMV2RrZGmcGAdqz?maxRecords=500`;
                 const r = await fetch(url, { headers: { Authorization: `Bearer ${READ_KEY}` } });
                 if (!r.ok) throw new Error(r.status);
                 const data = await r.json();
                 const all = data.records.map(rec => ({
+                    recId: rec.id,
                     name: rec.fields['fldc7W3fLYZxuBnDQ'] || rec.fields['ПІБ'] || '',
                     id:   rec.fields['fldyUD3kFFZNJmbPF'] || rec.fields['Study ID'] || '',
                     dob:  rec.fields['fldhSmAshVfZmuC63'] || rec.fields['Дата народження'] || ''
@@ -1244,6 +1246,19 @@
                 if (matches.length === 1) {
                     const dob = matches[0].dob ? new Date(matches[0].dob).toLocaleDateString('uk-UA', {day:'2-digit', month:'2-digit', year:'numeric'}) : 'н/д';
                     dobEl.style.color = '#27ae60'; dobEl.style.background = '#eafaf1'; dobEl.style.borderColor = '#27ae60'; dobEl.textContent = dob;
+                    sessEl.textContent = 'Лічу…';
+                    try {
+                        const formula = encodeURIComponent(`FIND("${matches[0].recId}",ARRAYJOIN({Учасник}))>0`);
+                        const sr = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PSYCHOTHERAPY_TABLE_ID}?filterByFormula=${formula}&fields[]=${FIELDS.sessionNum}`, { headers: { Authorization: `Bearer ${READ_KEY}` } });
+                        const sd = await sr.json();
+                        _ptComputedSessionNum = (sd.records || []).length + 1;
+                        sessEl.style.cssText = 'font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #27ae60;background:#eafaf1;display:inline-block;min-width:120px;text-align:center;color:#2c3e50;font-weight:600';
+                        sessEl.textContent = `Сесія №${_ptComputedSessionNum}`;
+                        updateInterSessionVisibility();
+                    } catch(e2) {
+                        sessEl.textContent = 'Помилка підрахунку';
+                        sessEl.style.cssText = 'font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #e74c3c;background:#fdf2f2;display:inline-block;min-width:120px;text-align:center;color:#e74c3c';
+                    }
                 } else if (matches.length > 1) {
                     dobEl.style.color = '#e67e22'; dobEl.style.background = '#fef9e7'; dobEl.style.borderColor = '#e67e22'; dobEl.textContent = `${matches.length} збіги — уточніть`;
                 } else {
