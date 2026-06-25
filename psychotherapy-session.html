@@ -1248,7 +1248,7 @@
                     dobEl.style.color = '#27ae60'; dobEl.style.background = '#eafaf1'; dobEl.style.borderColor = '#27ae60'; dobEl.textContent = dob;
                     sessEl.textContent = 'Лічу…';
                     try {
-                        const formula = encodeURIComponent(`FIND("${matches[0].recId}",ARRAYJOIN({Учасник}))>0`);
+                        const formula = encodeURIComponent(`FIND("${matches[0].id}",ARRAYJOIN({Учасник}))>0`);
                         const sr = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${PSYCHOTHERAPY_TABLE_ID}?filterByFormula=${formula}&fields[]=${FIELDS.sessionNum}`, { headers: { Authorization: `Bearer ${READ_KEY}` } });
                         const sd = await sr.json();
                         _ptComputedSessionNum = (sd.records || []).length + 1;
