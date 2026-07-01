@@ -1011,7 +1011,7 @@ Email: yehor.iordek@gmail.com
                 <div id="painPhenomenaContainer"></div>
 
                 <div class="form-group">
-                    <label>Характер протікання болю</label>
+                    <label>Характер протікання відчуттів</label>
                     <div class="chips-group screen-only" id="painFlowChips">
                         <label class="chip"><input type="checkbox" value="Постійний"><span>Постійний</span></label>
                         <label class="chip"><input type="checkbox" value="Епізодичний (приступоподібний)"><span>Епізодичний (приступоподібний)</span></label>
@@ -1019,7 +1019,7 @@ Email: yehor.iordek@gmail.com
                         <label class="chip"><input type="checkbox" value="Прогресуючий (посилюється)"><span>Прогресуючий (посилюється)</span></label>
                         <label class="chip"><input type="checkbox" value="Регресуючий (слабшає)"><span>Регресуючий (слабшає)</span></label>
                     </div>
-                    <div class="print-checkbox-group print-only" aria-label="Характер протікання болю для друку">
+                    <div class="print-checkbox-group print-only" aria-label="Характер протікання відчуттів для друку">
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Постійний</span></div>
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Епізодичний (приступоподібний)</span></div>
                         <div class="print-checkbox-option"><span class="print-checkbox-box" aria-hidden="true"></span><span>Хвилеподібний</span></div>
@@ -1905,7 +1905,7 @@ Email: yehor.iordek@gmail.com
                 data[`pain_${k}_rhythm`] = fields[`${p.airtablePrefix} — добовий ритм`] || [];
             });
 
-            data.pain_flow = fields['Характер протікання болю'] || [];
+            data.pain_flow = fields['Характер протікання відчуттів'] || [];
             data.stump_path = fields['Патологія кукси'] || [];
             data.stump_path_note = fields['Патологія кукси — примітка'] || '';
             data.stump_path_source = fields['Патологія кукси — джерело виявлення'] || [];
@@ -2065,7 +2065,7 @@ Email: yehor.iordek@gmail.com
                 fields[`${p.airtablePrefix} — добовий ритм`] = formData[`pain_${k}_rhythm`];
             });
 
-            fields['Характер протікання болю'] = formData.pain_flow;
+            fields['Характер протікання відчуттів'] = formData.pain_flow;
             fields['Патологія кукси'] = formData.stump_path;
             fields['Патологія кукси — примітка'] = formData.stump_path_note;
             fields['Патологія кукси — джерело виявлення'] = formData.stump_path_source;
